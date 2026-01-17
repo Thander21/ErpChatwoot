@@ -1,14 +1,32 @@
 # ErpChatwoot (Wrapper Deploy)
 
-Este repositório contém a estratégia de deploy "Wrapper" para o Chatwoot customizado (`MenuPdvDmais`). Em vez de manter um fork completo, usamos um `Dockerfile` na raiz que constrói uma imagem combinando o `chatwoot-base` (upstream) e as customizações.
+Este repositório contém a estratégia de deploy "Wrapper" para o Chatwoot customizado (**MenuPdvDmais Enterprise**).
+Ele combina a estabilidade do `chatwoot-base` (upstream) com um conjunto poderoso de extensões proprietárias via Docker.
 
-Prejeto contem menu adicionado via enterprise para adicionar novas telas de financeiro (iframe), kanban personalizavel e gestão de contatos do chatwoot com agrupamento por empresa
+## 🚀 Funcionalidades Adicionais (Menu Enterprise)
+
+O projeto inclui o módulo `MenuPdvDmais`, que expande o Chatwoot com 3 novos menus laterais totalmente integrados e personalizáveis:
+
+1.  **💰 Financeiro (Iframe):**
+    *   Integração visual de telas financeiras externas.
+    *   Permite carregar seus painéis de gestão dentro da interface do Chatwoot.
+
+2.  **📋 Kanban Personalizável:**
+    *   Organize conversas e tarefas em colunas arrastáveis (Drag-and-Drop).
+    *   Fluxos de trabalho visuais para equipes de vendas e suporte.
+
+3.  **🏢 Gestão de Contatos (Agrupamento):**
+    *   Visualização avançada de contatos.
+    *   Agrupamento inteligente por empresa/organização.
+
+> **Nota para Desenvolvedores:** Todos os menus foram projetados para serem **facilmente editáveis**. Você pode renomear, adicionar ícones ou alterar a lógica dos menus diretamente na pasta `MenuPdvDmais/enterprise`, sem precisar fazer fork do core do Chatwoot.
 
 ## Estrutura
 
 -   **`Dockerfile`**: Multistage build que clona dependências, copia o `chatwoot-base` e aplica os arquivos do `MenuPdvDmais` por cima.
 -   **`docker-compose.yaml`**: Orquestração de produção com Postgres (pgvector), Redis e Sidekiq.
--   **`deploy.sh`**: Script utilitário para atualizar o upstream, aplicar mudanças e rebuildar.
+-   **`deploy.sh`**: Script utilitário para commitar e fazer deploy.
+-   **`update_upstream.sh`**: Script para atualizar a base do Chatwoot.
 -   **`.env`**: Configurações sensíveis (NÃO commitar). Use `.env.example` como base.
 
 ## Como Fazer Deploy
@@ -27,30 +45,29 @@ Prejeto contem menu adicionado via enterprise para adicionar novas telas de fina
     docker-compose up -d --build
     ```
 
-3.  **Preparar Banco de Dados:**
-    Necessário apenas na primeira instalação:
+3.  **Banco de Dados:**
+    O banco é inicializado automaticamente no boot do container.
+
+## 🔄 Como Atualizar (Update Stream)
+
+Para manter seu Chatwoot atualizado com a versão mais recente oficial:
+
+1.  **Atualizar Base:**
     ```bash
-    docker-compose run --rm rails bundle exec rails db:chatwoot_prepare
+    ./update_upstream.sh
     ```
+    *Isso baixa a última versão stable do repo oficial e atualiza a pasta `chatwoot-base`.*
 
-## Manutenção
-
--   **Atualizar Chatwoot Base:**
-    O script `deploy.sh` automaticamente faz `git pull` na pasta `chatwoot-base` antes do build.
-
--   **Logs:**
+2.  **Commitar e Deploy:**
     ```bash
-    docker-compose logs -f rails
+    git add chatwoot-base
+    git commit -m "Update chatwoot base"
+    git push
     ```
-
--   **Restart:**
-    ```bash
-    docker-compose restart
-    ```
+    *O Coolify detectará o push e fará o rebuild automaticamente.*
 
 ## Solução de Problemas
 
 Se ocorrer erro de autenticação no banco (`ActiveRecord::DatabaseConnectionError`):
-1.  Verifique se o `.env` tem a senha correta (`PostgresPdvDMais` ou a que você definiu).
-2.  Garanta que não há `.env` conflitante dentro da imagem (o Dockerfile atual já remove o `.env` interno do base).
-3.  Se mudou a senha recentemente, pode ser necessário resetar o volume do banco (cuidado com perda de dados).
+1.  Verifique se o `.env` tem a senha correta (`PostgresPdvDMais`).
+2.  O Dockerfile já remove automaticamente arquivos `.env` conflitantes da imagem base.
