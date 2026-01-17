@@ -65,8 +65,8 @@ COPY chatwoot-base/Gemfile.lock ./Gemfile.lock
 
 
 
-# Patch Gemfile to include dependencies required by MenuPdvD+
-# Patch Gemfile to include dependencies required by MenuPdvD+
+# Patch Gemfile to include dependencies required by MenuPdvDmais
+# Patch Gemfile to include dependencies required by MenuPdvDmais
 RUN sed -i "1i gem 'httparty'\ngem 'multi_xml'" ./Gemfile
 
 
@@ -89,20 +89,20 @@ COPY chatwoot-base /app
 RUN rm -f /app/.env
 
 
-# APPLY PATCHES (MenuPdvD+)
+# APPLY PATCHES (MenuPdvDmais)
 # 1. Enterprise folder
-COPY MenuPdvD+/enterprise /app/enterprise
+COPY MenuPdvDmais/enterprise /app/enterprise
 # 2. Core patches
-COPY MenuPdvD+/core-patches/dashboard.routes.js /app/app/javascript/dashboard/routes/dashboard/
-COPY MenuPdvD+/core-patches/Sidebar.vue /app/app/javascript/dashboard/components-next/sidebar/
-COPY MenuPdvD+/core-patches/settings.json /app/app/javascript/dashboard/i18n/locale/en/
+COPY MenuPdvDmais/core-patches/dashboard.routes.js /app/app/javascript/dashboard/routes/dashboard/
+COPY MenuPdvDmais/core-patches/Sidebar.vue /app/app/javascript/dashboard/components-next/sidebar/
+COPY MenuPdvDmais/core-patches/settings.json /app/app/javascript/dashboard/i18n/locale/en/
 # 3. Migrations
-COPY MenuPdvD+/db/migrate /app/db/migrate
+COPY MenuPdvDmais/db/migrate /app/db/migrate
 # 3.1 API Patches
-COPY MenuPdvD+/enterprise/app/javascript/dashboard/api/kanbanCards.js /app/app/javascript/dashboard/api/
-COPY MenuPdvD+/enterprise/app/helpers/enterprise_helper.rb /app/app/helpers/
+COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/kanbanCards.js /app/app/javascript/dashboard/api/
+COPY MenuPdvDmais/enterprise/app/helpers/enterprise_helper.rb /app/app/helpers/
 # 4. Configs
-# COPY MenuPdvD+/vite.config.ts /app/
+# COPY MenuPdvDmais/vite.config.ts /app/
 RUN sed -i "s|      assets: path.resolve('./app/javascript/dashboard/assets'),|      assets: path.resolve('./app/javascript/dashboard/assets'),\n      enterprise: path.resolve('./enterprise'),|" ./vite.config.ts
 
 # Logging
