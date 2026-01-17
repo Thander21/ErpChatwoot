@@ -1,1 +1,30 @@
+# Config
+.env
+.env.*
+!.env.example
+*.key
 
+# Docker
+docker-compose.override.yml
+storage_data/
+postgres_data_secure_*/
+redis_data/
+
+# Rails/Ruby
+/log/
+/tmp/
+/coverage/
+/public/assets
+/public/packs
+/public/packs-test
+/node_modules
+/yarn-error.log
+/chatwoot-base/
+
+# IDE
+
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
