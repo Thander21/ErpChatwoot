@@ -2,17 +2,17 @@
 # Based on chatwoot-base/docker/Dockerfile
 
 # pre-build stage
-FROM node:23-alpine as node
+FROM node:24-alpine AS node
 FROM ruby:3.4.4-alpine3.21 AS pre-builder
 
-ARG NODE_VERSION="23.7.0"
+ARG NODE_VERSION="24.13.0"
 ARG PNPM_VERSION="10.2.0"
 ENV NODE_VERSION=${NODE_VERSION}
 ENV PNPM_VERSION=${PNPM_VERSION}
 
 ARG BUNDLE_WITHOUT="development:test"
 ENV BUNDLE_WITHOUT ${BUNDLE_WITHOUT}
-ENV BUNDLER_VERSION=2.5.11
+ENV BUNDLER_VERSION=2.5.16
 
 ARG RAILS_SERVE_STATIC_FILES=true
 ENV RAILS_SERVE_STATIC_FILES ${RAILS_SERVE_STATIC_FILES}
@@ -36,7 +36,7 @@ RUN apk update && apk add --no-cache \
     curl \
     xz \
     && mkdir -p /var/app \
-    && gem install bundler
+    && gem install bundler -v "$BUNDLER_VERSION"
 
 COPY --from=node /usr/local/bin/node /usr/local/bin/
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
@@ -60,16 +60,18 @@ WORKDIR /app
 # COPY Gemfiles (Base + Patch)
 COPY chatwoot-base/Gemfile ./Gemfile
 # Overwrite with patched lockfile if available, otherwise use base
-COPY chatwoot-base/Gemfile.lock ./Gemfile.lock.base
-COPY MenuPdvD+/Gemfile.lock ./Gemfile.lock
+COPY chatwoot-base/Gemfile.lock ./Gemfile.lock
+
+
+
 
 # Patch Gemfile to include dependencies required by MenuPdvD+
-RUN echo "gem 'httparty', '~> 0.21.0'" >> ./Gemfile \
-    && echo "gem 'multi_xml', '~> 0.6.0'" >> ./Gemfile
+# Patch Gemfile to include dependencies required by MenuPdvD+
+RUN sed -i "1i gem 'httparty'\ngem 'multi_xml'" ./Gemfile
 
 
 # Native compile deps
-RUN apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips
+RUN apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips rust cargo clang clang-libclang yaml-dev
 RUN bundle config set --local force_ruby_platform true
 
 # Install Gems
@@ -84,6 +86,8 @@ RUN pnpm i
 
 # COPY Source Code (Base)
 COPY chatwoot-base /app
+RUN rm -f /app/.env
+
 
 # APPLY PATCHES (MenuPdvD+)
 # 1. Enterprise folder
@@ -94,8 +98,12 @@ COPY MenuPdvD+/core-patches/Sidebar.vue /app/app/javascript/dashboard/components
 COPY MenuPdvD+/core-patches/settings.json /app/app/javascript/dashboard/i18n/locale/en/
 # 3. Migrations
 COPY MenuPdvD+/db/migrate /app/db/migrate
+# 3.1 API Patches
+COPY MenuPdvD+/enterprise/app/javascript/dashboard/api/kanbanCards.js /app/app/javascript/dashboard/api/
+COPY MenuPdvD+/enterprise/app/helpers/enterprise_helper.rb /app/app/helpers/
 # 4. Configs
-COPY MenuPdvD+/vite.config.ts /app/
+# COPY MenuPdvD+/vite.config.ts /app/
+RUN sed -i "s|      assets: path.resolve('./app/javascript/dashboard/assets'),|      assets: path.resolve('./app/javascript/dashboard/assets'),\n      enterprise: path.resolve('./enterprise'),|" ./vite.config.ts
 
 # Logging
 RUN mkdir -p /app/log
@@ -118,14 +126,14 @@ RUN rm -rf /gems/ruby/3.4.0/cache/*.gem \
 # final build stage
 FROM ruby:3.4.4-alpine3.21
 
-ARG NODE_VERSION="23.7.0"
+ARG NODE_VERSION="24.13.0"
 ARG PNPM_VERSION="10.2.0"
 ENV NODE_VERSION=${NODE_VERSION}
 ENV PNPM_VERSION=${PNPM_VERSION}
 
 ARG BUNDLE_WITHOUT="development:test"
 ENV BUNDLE_WITHOUT ${BUNDLE_WITHOUT}
-ENV BUNDLER_VERSION=2.5.11
+ENV BUNDLER_VERSION=2.5.16
 
 ARG EXECJS_RUNTIME="Disabled"
 ENV EXECJS_RUNTIME ${EXECJS_RUNTIME}
@@ -148,7 +156,7 @@ RUN apk update && apk add --no-cache \
     imagemagick \
     git \
     vips \
-    && gem install bundler
+    && gem install bundler -v "$BUNDLER_VERSION"
 
 COPY --from=node /usr/local/bin/node /usr/local/bin/
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules

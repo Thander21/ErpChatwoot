@@ -13,8 +13,10 @@ services:
   rails:
     <<: *base
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - '3000:3000'
     environment:
@@ -28,8 +30,10 @@ services:
   sidekiq:
     <<: *base
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       - NODE_ENV=production
       - RAILS_ENV=production
@@ -43,11 +47,16 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_secure_v4:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=chatwoot
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:alpine
@@ -58,8 +67,13 @@ services:
       - redis_data:/data
     ports:
       - '6379:6379'
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   storage_data:
-  postgres_data:
+  postgres_data_secure_v4:
   redis_data:
