@@ -1,12 +1,12 @@
 # ErpChatwoot (Wrapper Deploy)
 
-Este repositório contém a estratégia de deploy "Wrapper" para o Chatwoot customizado (`MenuPdvD+`). Em vez de manter um fork completo, usamos um `Dockerfile` na raiz que constrói uma imagem combinando o `chatwoot-base` (upstream) e as customizações.
+Este repositório contém a estratégia de deploy "Wrapper" para o Chatwoot customizado (`MenuPdvDmais`). Em vez de manter um fork completo, usamos um `Dockerfile` na raiz que constrói uma imagem combinando o `chatwoot-base` (upstream) e as customizações.
 
 Prejeto contem menu adicionado via enterprise para adicionar novas telas de financeiro (iframe), kanban personalizavel e gestão de contatos do chatwoot com agrupamento por empresa
 
 ## Estrutura
 
--   **`Dockerfile`**: Multistage build que clona dependências, copia o `chatwoot-base` e aplica os arquivos do `MenuPdvD+` por cima.
+-   **`Dockerfile`**: Multistage build que clona dependências, copia o `chatwoot-base` e aplica os arquivos do `MenuPdvDmais` por cima.
 -   **`docker-compose.yaml`**: Orquestração de produção com Postgres (pgvector), Redis e Sidekiq.
 -   **`deploy.sh`**: Script utilitário para atualizar o upstream, aplicar mudanças e rebuildar.
 -   **`.env`**: Configurações sensíveis (NÃO commitar). Use `.env.example` como base.
