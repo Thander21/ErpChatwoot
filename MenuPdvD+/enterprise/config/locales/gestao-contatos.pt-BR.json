@@ -1,0 +1,12 @@
+module.exports = {
+  GESTAO_CONTATOS: {
+    TITLE: 'Gestão de Contatos',
+    DESCRIPTION: 'Gerenciamento centralizado de contatos com recursos avançados de segmentação e análise.',
+    TOTAL_CONTACTS: 'Total de Contatos',
+    ACTIVE_CONTACTS: 'Contatos Ativos',
+    FEATURES: 'Funcionalidades',
+    FEATURE_1: 'Importação e exportação em massa de contatos',
+    FEATURE_2: 'Segmentação avançada com filtros customizados',
+    FEATURE_3: 'Análise de engajamento e histórico de interações',
+  },
+};

@@ -1,0 +1,13 @@
+en:
+  sidebar:
+    gestao_contatos: "Contact Management"
+    custom_features: "Custom Features"
+  gestao_contatos:
+    title: "Contact Management"
+    description: "Centralized contact management with advanced segmentation and analysis features."
+    total_contacts: "Total Contacts"
+    active_contacts: "Active Contacts"
+    features: "Features"
+    feature_1: "Mass import and export of contacts"
+    feature_2: "Advanced segmentation with custom filters"
+    feature_3: "Engagement analysis and interaction history"

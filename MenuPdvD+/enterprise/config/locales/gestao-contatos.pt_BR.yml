@@ -1,0 +1,13 @@
+pt_BR:
+  sidebar:
+    gestao_contatos: "Gestão de Contatos"
+    custom_features: "Recursos Personalizados"
+  gestao_contatos:
+    title: "Gestão de Contatos"
+    description: "Gerenciamento centralizado de contatos com recursos avançados de segmentação e análise."
+    total_contacts: "Total de Contatos"
+    active_contacts: "Contatos Ativos"
+    features: "Funcionalidades"
+    feature_1: "Importação e exportação em massa de contatos"
+    feature_2: "Segmentação avançada com filtros customizados"
+    feature_3: "Análise de engajamento e histórico de interações"
