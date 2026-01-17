@@ -17,9 +17,7 @@ redis_data/
 /public/assets
 /public/packs
 /public/packs-test
-/node_modules
 /yarn-error.log
-/chatwoot-base/
 
 # IDE
 
