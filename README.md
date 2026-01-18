@@ -35,8 +35,12 @@ O projeto inclui o módulo `MenuPdvDmais`, que expande o Chatwoot com 3 novos me
     Copie o exemplo e ajuste as senhas:
     ```bash
     cp .env.example .env
+    ```bash
+    cp .env.example .env
     # Edite POSTGRES_PASSWORD, REDIS_PASSWORD, etc.
+    # IMPORTANTE: Defina SECRET_KEY_BASE (gere com `openssl rand -hex 64`)
     ```
+    > **No Coolify:** Vá em "Environment Variables" e adicione `SECRET_KEY_BASE` com um valor longo e aleatório.
 
 2.  **Iniciar (Primeira Vez):**
     ```bash
