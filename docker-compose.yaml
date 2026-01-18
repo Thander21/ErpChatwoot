@@ -1,13 +1,11 @@
 version: '3'
 
 x-base: &base
-  build:
-    context: .
-    dockerfile: Dockerfile
-  image: chatwoot-enterprise:latest
+  image: ghcr.io/thander21/erpchatwoot:latest
   env_file: .env
   volumes:
     - storage_data:/app/storage
+
 
 services:
   rails:
