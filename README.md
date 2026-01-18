@@ -41,6 +41,8 @@ O projeto inclui o módulo `MenuPdvDmais`, que expande o Chatwoot com 3 novos me
     # IMPORTANTE: Defina SECRET_KEY_BASE (gere com `openssl rand -hex 64`)
     ```
     > **No Coolify:** Vá em "Environment Variables" e adicione `SECRET_KEY_BASE` com um valor longo e aleatório.
+    > **Importante:** Se usar Redis com senha, defina `REDIS_URL` como `redis://default:SUA_SENHA_REDIS@redis:6379` (ou o docker-compose cuidará disso se usar as variáveis padrão).
+
 
 2.  **Iniciar (Primeira Vez):**
     ```bash
