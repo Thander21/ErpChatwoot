@@ -68,6 +68,12 @@ Para manter seu Chatwoot atualizado com a versão mais recente oficial:
 
 ## Solução de Problemas
 
-Se ocorrer erro de autenticação no banco (`ActiveRecord::DatabaseConnectionError`):
-1.  Verifique se o `.env` tem a senha correta (`PostgresPdvDMais`).
-2.  O Dockerfile já remove automaticamente arquivos `.env` conflitantes da imagem base.
+71: Se ocorrer erro de autenticação no banco (`ActiveRecord::DatabaseConnectionError`):
+72: 1.  Verifique se o `.env` tem a senha correta (`PostgresPdvDMais`).
+73: 2.  O Dockerfile já remove automaticamente arquivos `.env` conflitantes da imagem base.
+74: 
+75: ## 📦 Repositório Completo (Full Source)
+76: 
+77: Este repositório foi configurado para conter **100% dos arquivos necessários**, incluindo a base do Chatwoot (`chatwoot-base`).
+78: -   Não há dependência de submódulos git externos que possam falhar no build.
+79: -   Recursos como `package.json`, `Gemfile.lock` e arquivos de banco estão versionados diretamente aqui para garantir estabilidade no Coolify.
