@@ -1,4 +1,4 @@
-class KanbanCardsController < ApplicationController
+class Api::V1::KanbanCardsController < ApplicationController
   include EnterpriseHelper
 
   before_action :set_account

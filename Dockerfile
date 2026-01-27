@@ -96,10 +96,12 @@ COPY MenuPdvDmais/enterprise /app/enterprise
 COPY MenuPdvDmais/core-patches/dashboard.routes.js /app/app/javascript/dashboard/routes/dashboard/
 COPY MenuPdvDmais/core-patches/Sidebar.vue /app/app/javascript/dashboard/components-next/sidebar/
 COPY MenuPdvDmais/core-patches/settings.json /app/app/javascript/dashboard/i18n/locale/en/
+COPY MenuPdvDmais/core-patches/config/routes.rb /app/config/routes.rb
 # 3. Migrations
 COPY MenuPdvDmais/db/migrate /app/db/migrate
 # 3.1 API Patches
 COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/kanbanCards.js /app/app/javascript/dashboard/api/
+COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/kanbanColumns.js /app/app/javascript/dashboard/api/
 COPY MenuPdvDmais/enterprise/app/helpers/enterprise_helper.rb /app/app/helpers/
 # 4. Configs
 # COPY MenuPdvDmais/vite.config.ts /app/
@@ -110,8 +112,8 @@ RUN mkdir -p /app/log
 
 # Assets Precompile
 RUN if [ "$RAILS_ENV" = "production" ]; then \
-    SECRET_KEY_BASE=precompile_placeholder RAILS_LOG_TO_STDOUT=enabled bundle exec rake assets:precompile \
-    && rm -rf spec node_modules tmp/cache; \
+    echo "Skipping assets precompile due to Ruby 3.4.4 compatibility issues" \
+    && rm -rf spec node_modules tmp/cache || true; \
     fi
 
 # Git SHA (Generic)
@@ -161,13 +163,11 @@ RUN apk update && apk add --no-cache \
 COPY --from=node /usr/local/bin/node /usr/local/bin/
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 
-RUN if [ "$RAILS_ENV" != "production" ]; then \
-    apk add --no-cache curl \
+RUN apk add --no-cache curl \
     && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
     && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
     && npm install -g pnpm@${PNPM_VERSION} \
-    && pnpm --version; \
-    fi
+    && pnpm --version
 
 COPY --from=pre-builder /gems/ /gems/
 COPY --from=pre-builder /app /app

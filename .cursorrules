@@ -1,0 +1,19 @@
+# Cursor Rules for ErpChatwoot
+
+You are working on a modified Chatwoot project with a specific overlay architecture.
+
+**CRITICAL RULE: DO NOT MODIFY `chatwoot-base` DIRECTLY.**
+
+## Project Structure
+- `chatwoot-base/`: Original source code (ReadOnly).
+- `MenuPdvDmais/`: Custom modules and patches.
+- `Dockerfile`: Composes the final app by copying Base + MenuPdvDmais.
+
+## Development Workflow
+1. If you need to fix a bug or add a feature, check if the file exists in `MenuPdvDmais`.
+2. If yes, edit it there.
+3. If no (it's in `chatwoot-base`), DO NOT EDIT IT THERE. Instead:
+   - Create a copy/patch in `MenuPdvDmais`.
+   - Update `Dockerfile` to apply this patch/copy.
+
+Refer to `.ia/rules.md` for detailed instructions.

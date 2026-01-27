@@ -3,6 +3,11 @@
 Para evitar que o Coolify demore compilando o projeto do zero, configuramos um fluxo de **Pre-Build**.
 O GitHub vai construir a imagem Docker e o Coolify apenas fará o download dela.
 
+- __Email:__ `admin@pdvdmais.com.br`
+
+- __Senha:__ `Admin123!`
+
+
 ## 1. O que já foi feito
 
 Criamos um arquivo `.github/workflows/docker-publish.yml`.

@@ -23,25 +23,27 @@ Versão: 1.0.0
         </div>
       </div>
 
-      <div class="flex gap-2">
+      <div class="flex flex-col sm:flex-row gap-2">
         <button
           @click="showNewCardModal = true"
-          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center gap-2"
+          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center justify-center gap-2"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          Novo Card
+          <span class="hidden sm:inline">Novo Card</span>
+          <span class="sm:hidden">Card</span>
         </button>
 
         <button
           @click="showNewColumnModal = true"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center gap-2"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center justify-center gap-2"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          Nova Coluna
+          <span class="hidden sm:inline">Nova Coluna</span>
+          <span class="sm:hidden">Coluna</span>
         </button>
       </div>
     </div>
@@ -52,12 +54,12 @@ Versão: 1.0.0
       <p class="text-slate-600 dark:text-slate-400">Carregando kanban comercial...</p>
     </div>
 
-    <!-- Kanban Board -->
-    <div v-else class="flex gap-4 overflow-x-auto pb-4 min-h-[600px]">
+    <!-- Kanban Board Responsivo -->
+    <div v-else class="flex gap-2 sm:gap-4 overflow-x-auto pb-4 min-h-[600px] px-2 sm:px-0">
       <div
         v-for="column in sortedColumns"
         :key="column.id"
-        class="flex-shrink-0 w-80"
+        class="flex-shrink-0 w-72 sm:w-80"
       >
         <div class="bg-gray-100 dark:bg-slate-800 rounded-lg p-4 h-full">
           <!-- Column Header -->
@@ -364,6 +366,7 @@ Versão: 1.0.0
 import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import KanbanCardsAPI from 'dashboard/api/kanbanCards';
+import KanbanColumnsAPI from 'dashboard/api/kanbanColumns';
 
 // Estado reativo
 const columns = ref([]);
@@ -460,16 +463,66 @@ const loadCardsFromCache = () => {
 };
 
 // Inicializar dados padrão se não existirem
-const initializeDefaultData = () => {
+const initializeDefaultData = async () => {
   if (columns.value.length === 0) {
-    columns.value = [
-      { id: 'lead', name: 'Lead', color: '#fbbf24', position: 0 },
-      { id: 'contato', name: 'Contato', color: '#3b82f6', position: 1 },
-      { id: 'proposta', name: 'Proposta', color: '#8b5cf6', position: 2 },
-      { id: 'negociacao', name: 'Negociação', color: '#f59e0b', position: 3 },
-      { id: 'fechamento', name: 'Fechamento', color: '#10b981', position: 4 }
+    // Tentar criar colunas padrão via API
+    const defaultColumns = [
+      { name: 'Lead', color: '#fbbf24', position: 0 },
+      { name: 'Contato', color: '#3b82f6', position: 1 },
+      { name: 'Proposta', color: '#8b5cf6', position: 2 },
+      { name: 'Negociação', color: '#f59e0b', position: 3 },
+      { name: 'Fechamento', color: '#10b981', position: 4 }
     ];
+
+    try {
+      for (const colData of defaultColumns) {
+        await KanbanColumnsAPI.create({ kanban_column: colData });
+      }
+      // Recarregar colunas após criar
+      await loadColumns();
+    } catch (error) {
+      console.warn('Erro ao criar colunas padrão:', error);
+      // Fallback para dados locais se API falhar
+      columns.value = defaultColumns.map((col, index) => ({
+        id: `default_${index}`,
+        ...col
+      }));
+      saveColumnsToCache(columns.value);
+    }
+  }
+};
+
+// Carregar colunas da API
+const loadColumns = async () => {
+  try {
+    const response = await KanbanColumnsAPI.get();
+    columns.value = response.data || [];
     saveColumnsToCache(columns.value);
+  } catch (error) {
+    console.error('Erro ao carregar colunas:', error);
+    // Fallback para cache
+    const cachedColumns = loadColumnsFromCache();
+    if (cachedColumns) {
+      columns.value = cachedColumns;
+    } else {
+      await initializeDefaultData();
+    }
+  }
+};
+
+// Carregar cards da API
+const loadCards = async () => {
+  try {
+    const response = await KanbanCardsAPI.get();
+    kanbanCards.value = response.data || [];
+    saveCardsToCache(kanbanCards.value);
+  } catch (error) {
+    console.error('Erro ao carregar cards:', error);
+    // Fallback para cache
+    const cachedCards = loadCardsFromCache();
+    if (cachedCards) {
+      kanbanCards.value = cachedCards;
+    }
   }
 };
 
@@ -477,26 +530,10 @@ const initializeDefaultData = () => {
 const loadData = async () => {
   loading.value = true;
   try {
-    // Carregar colunas do cache primeiro
-    const cachedColumns = loadColumnsFromCache();
-    if (cachedColumns) {
-      columns.value = cachedColumns;
-    } else {
-      initializeDefaultData();
-    }
-
-    // Carregar cards da API
-    const response = await KanbanCardsAPI.get();
-    kanbanCards.value = response.data || [];
-    saveCardsToCache(kanbanCards.value);
-
+    await loadColumns();
+    await loadCards();
   } catch (error) {
     console.error('Erro ao carregar dados:', error);
-    // Fallback para cache se API falhar
-    const cachedCards = loadCardsFromCache();
-    if (cachedCards) {
-      kanbanCards.value = cachedCards;
-    }
   } finally {
     loading.value = false;
   }
@@ -514,18 +551,34 @@ const createCard = async () => {
 
   creatingCard.value = true;
   try {
+    // Preparar dados do card conforme esperado pela API
     const cardData = {
-      ...newCardForm.value,
-      position: getCardsByColumn(newCardForm.value.kanban_column_id).length
+      kanban_card: {
+        title: newCardForm.value.title,
+        description: newCardForm.value.description || '',
+        kanban_column_id: newCardForm.value.kanban_column_id,
+        priority: parseInt(newCardForm.value.priority) || 0,
+        position: getCardsByColumn(newCardForm.value.kanban_column_id).length,
+        due_date: newCardForm.value.due_date || null,
+        custom_attributes: {}
+      }
     };
 
-    const response = await KanbanCardsAPI.create(cardData);
-    kanbanCards.value.push(response.data);
-    saveCardsToCache(kanbanCards.value);
+    console.log('Enviando dados do card:', cardData);
 
-    closeNewCardModal();
+    const response = await KanbanCardsAPI.create(cardData);
+    console.log('Resposta da API:', response);
+
+    if (response.data) {
+      kanbanCards.value.push(response.data);
+      saveCardsToCache(kanbanCards.value);
+      closeNewCardModal();
+    } else {
+      throw new Error('Resposta da API inválida');
+    }
   } catch (error) {
     console.error('Erro ao criar card:', error);
+    alert('Erro ao criar card. Verifique o console para mais detalhes.');
   } finally {
     creatingCard.value = false;
   }
@@ -562,19 +615,26 @@ const createColumn = async () => {
 
   creatingColumn.value = true;
   try {
-    const newColumn = {
-      id: Date.now().toString(),
-      ...newColumnForm.value,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+    const columnData = {
+      kanban_column: {
+        name: newColumnForm.value.name,
+        color: newColumnForm.value.color,
+        position: newColumnForm.value.position || 0
+      }
     };
 
-    columns.value.push(newColumn);
-    saveColumnsToCache(columns.value);
+    const response = await KanbanColumnsAPI.create(columnData);
 
-    closeNewColumnModal();
+    if (response.data) {
+      columns.value.push(response.data);
+      saveColumnsToCache(columns.value);
+      closeNewColumnModal();
+    } else {
+      throw new Error('Resposta da API inválida');
+    }
   } catch (error) {
     console.error('Erro ao criar coluna:', error);
+    alert('Erro ao criar coluna. Verifique o console para mais detalhes.');
   } finally {
     creatingColumn.value = false;
   }
@@ -595,47 +655,53 @@ const updateColumn = async () => {
 
   creatingColumn.value = true;
   try {
-    const index = columns.value.findIndex(c => c.id === editingColumn.value.id);
-    if (index !== -1) {
-      columns.value[index] = {
-        ...columns.value[index],
-        ...newColumnForm.value,
-        updated_at: new Date().toISOString()
-      };
-      saveColumnsToCache(columns.value);
-    }
+    const columnData = {
+      kanban_column: {
+        name: newColumnForm.value.name,
+        color: newColumnForm.value.color,
+        position: newColumnForm.value.position
+      }
+    };
 
-    cancelEditColumn();
+    const response = await KanbanColumnsAPI.update(editingColumn.value.id, columnData);
+
+    if (response.data) {
+      const index = columns.value.findIndex(c => c.id === editingColumn.value.id);
+      if (index !== -1) {
+        columns.value[index] = response.data;
+        saveColumnsToCache(columns.value);
+      }
+      cancelEditColumn();
+    } else {
+      throw new Error('Resposta da API inválida');
+    }
   } catch (error) {
     console.error('Erro ao atualizar coluna:', error);
+    alert('Erro ao atualizar coluna. Verifique o console para mais detalhes.');
   } finally {
     creatingColumn.value = false;
   }
 };
 
-const deleteColumn = (column) => {
+const deleteColumn = async (column) => {
   if (columns.value.length <= 1) {
     alert('Não é possível excluir a última coluna.');
     return;
   }
 
   if (confirm(`Tem certeza que deseja excluir a coluna "${column.name}"? Todos os cards serão movidos para a primeira coluna.`)) {
-    // Mover cards para primeira coluna
-    const firstColumn = columns.value.find(c => c.id !== column.id);
-    if (firstColumn) {
-      kanbanCards.value.forEach(card => {
-        if (card.kanban_column_id === column.id) {
-          card.kanban_column_id = firstColumn.id;
-        }
-      });
-    }
+    try {
+      await KanbanColumnsAPI.delete(column.id);
 
-    // Remover coluna
-    const index = columns.value.findIndex(c => c.id === column.id);
-    if (index !== -1) {
-      columns.value.splice(index, 1);
-      saveColumnsToCache(columns.value);
-      saveCardsToCache(kanbanCards.value);
+      // Remover coluna da lista
+      const index = columns.value.findIndex(c => c.id === column.id);
+      if (index !== -1) {
+        columns.value.splice(index, 1);
+        saveColumnsToCache(columns.value);
+      }
+    } catch (error) {
+      console.error('Erro ao excluir coluna:', error);
+      alert('Erro ao excluir coluna. Verifique o console para mais detalhes.');
     }
   }
 };
