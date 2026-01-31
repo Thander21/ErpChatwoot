@@ -1,13 +1,13 @@
 version: '3'
 
 x-base: &base
-  build:
-    context: .
-    dockerfile: Dockerfile
+  # Em PRODUÇÃO (Coolify), usamos apenas a imagem pronta do GitHub Actions.
+  # Não usamos 'build: .' para economizar CPU/RAM do servidor.
   image: ghcr.io/thander21/erpchatwoot:latest
   env_file: .env
   volumes:
     - storage_data:/app/storage
+
 services:
   rails:
     <<: *base
@@ -31,6 +31,7 @@ services:
       interval: 5s
       timeout: 20s
       retries: 10
+
   sidekiq:
     <<: *base
     depends_on:
@@ -50,6 +51,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
   postgres:
     image: pgvector/pgvector:pg16
     restart: always
@@ -81,6 +83,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
 volumes:
   storage_data:
   postgres_data_secure_v4:
