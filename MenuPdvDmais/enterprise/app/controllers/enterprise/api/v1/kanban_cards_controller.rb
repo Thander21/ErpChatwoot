@@ -1,4 +1,4 @@
-class Api::V1::KanbanCardsController < ApplicationController
+class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
   include EnterpriseHelper
 
   before_action :set_account
@@ -71,7 +71,7 @@ class Api::V1::KanbanCardsController < ApplicationController
   private
 
   def set_account
-    @account = current_account
+    @account = Account.find(params[:account_id])
   end
 
   def set_kanban_card

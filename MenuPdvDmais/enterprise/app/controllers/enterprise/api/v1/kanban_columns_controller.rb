@@ -1,4 +1,4 @@
-class Api::V1::KanbanColumnsController < ApplicationController
+class Enterprise::Api::V1::KanbanColumnsController < Api::BaseController
   include EnterpriseHelper
 
   before_action :set_account
@@ -39,7 +39,7 @@ class Api::V1::KanbanColumnsController < ApplicationController
   private
 
   def set_account
-    @account = current_account
+    @account = Account.find(params[:account_id])
   end
 
   def set_kanban_column

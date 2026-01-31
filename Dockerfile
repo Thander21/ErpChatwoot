@@ -107,12 +107,16 @@ COPY MenuPdvDmais/enterprise/app/helpers/enterprise_helper.rb /app/app/helpers/
 # COPY MenuPdvDmais/vite.config.ts /app/
 RUN sed -i "s|      assets: path.resolve('./app/javascript/dashboard/assets'),|      assets: path.resolve('./app/javascript/dashboard/assets'),\n      enterprise: path.resolve('./enterprise'),|" ./vite.config.ts
 
+# 5. Generic App/Config Overlays (Models, Initializers)
+COPY MenuPdvDmais/app /app/app
+COPY MenuPdvDmais/config /app/config
+
 # Logging
 RUN mkdir -p /app/log
 
 # Assets Precompile
 RUN if [ "$RAILS_ENV" = "production" ]; then \
-    echo "Skipping assets precompile due to Ruby 3.4.4 compatibility issues" \
+    SECRET_KEY_BASE=precompile_placeholder bundle exec vite build \
     && rm -rf spec node_modules tmp/cache || true; \
     fi
 
