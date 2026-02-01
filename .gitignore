@@ -27,3 +27,4 @@ redis_data/
 *.swp
 *.swo
 .DS_Store
+docker-compose.prod.yaml

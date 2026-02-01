@@ -118,6 +118,7 @@ RUN mkdir -p /app/log
 # Assets Precompile
 RUN if [ "$RAILS_ENV" = "production" ]; then \
     NODE_OPTIONS="--max-old-space-size=4096" SECRET_KEY_BASE=precompile_placeholder bundle exec vite build && \
+    SECRET_KEY_BASE=precompile_placeholder bundle exec rails assets:precompile && \
     ln -sf /app/public/vite/.vite/manifest.json /app/public/vite/manifest.json && \
     rm -rf spec node_modules tmp/cache; \
     fi
