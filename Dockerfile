@@ -115,9 +115,11 @@ COPY MenuPdvDmais/config /app/config
 RUN mkdir -p /app/log
 
 # Assets Precompile
+# Assets Precompile
 RUN if [ "$RAILS_ENV" = "production" ]; then \
-    SECRET_KEY_BASE=precompile_placeholder bundle exec vite build \
-    && rm -rf spec node_modules tmp/cache || true; \
+    NODE_OPTIONS="--max-old-space-size=4096" SECRET_KEY_BASE=precompile_placeholder bundle exec vite build && \
+    ln -sf /app/public/vite/.vite/manifest.json /app/public/vite/manifest.json && \
+    rm -rf spec node_modules tmp/cache; \
     fi
 
 # Git SHA (Generic)

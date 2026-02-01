@@ -6,27 +6,20 @@
         <h2 class="text-2xl font-bold text-slate-900 dark:text-white">
           {{ title }}
         </h2>
-        <span
-          class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium"
-        >
-          {{ contactsCount }} contato{{ contactsCount !== 1 ? 's' : '' }}
-        </span>
+
       </div>
 
       <div class="flex gap-2">
         <!-- Group Actions (Expand/Collapse) -->
         <template v-if="isGrouped">
           <button
-            @click="$emit('expandAll')"
-            class="px-3 py-1.5 text-sm bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+            @click="areAllExpanded ? $emit('collapseAll') : $emit('expandAll')"
+            class="px-3 py-1.5 text-sm rounded transition-colors"
+            :class="areAllExpanded 
+              ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800'"
           >
-            Expandir Todas
-          </button>
-          <button
-            @click="$emit('collapseAll')"
-            class="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-          >
-            Recolher Todas
+            {{ areAllExpanded ? 'Recolher Todas' : 'Expandir Todas' }}
           </button>
         </template>
 
@@ -179,7 +172,9 @@ import ContactItem from './ContactItem.vue';
 const props = defineProps({
   contacts: Array, // Can be flat array or array of groups
   isGrouped: Boolean,
+  isGrouped: Boolean,
   title: String,
+  areAllExpanded: Boolean,
   contactsCount: Number,
   selectedIds: Array,
   showAutoFill: Boolean,

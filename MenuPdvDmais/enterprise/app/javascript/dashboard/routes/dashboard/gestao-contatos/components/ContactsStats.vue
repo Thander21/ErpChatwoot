@@ -3,7 +3,7 @@
     <!-- Total de Contatos -->
     <div
       @click="$emit('setFilter', 'all')"
-      class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+      class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
       :class="{ 'ring-2 ring-blue-500': activeFilter === 'all' }"
     >
       <div class="flex items-center justify-between">
@@ -11,7 +11,7 @@
           <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
             Total de Contatos
           </p>
-          <p class="text-3xl font-bold text-gray-900 dark:text-white">
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">
             {{ totalContacts }}
           </p>
         </div>
@@ -39,7 +39,7 @@
     <!-- Contatos sem Empresa -->
     <div
       @click="$emit('setFilter', 'no_company')"
-      class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+      class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
       :class="{ 'ring-2 ring-orange-500': activeFilter === 'no_company' }"
     >
       <div class="flex items-center justify-between">
@@ -47,7 +47,7 @@
           <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
             Sem Empresa
           </p>
-          <p class="text-3xl font-bold text-orange-600 dark:text-orange-400">
+          <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">
             {{ contactsWithoutCompany }}
           </p>
           <p
@@ -80,7 +80,7 @@
     <!-- Contatos sem Número -->
     <div
       @click="$emit('setFilter', 'no_phone')"
-      class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+      class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
       :class="{ 'ring-2 ring-red-500': activeFilter === 'no_phone' }"
     >
       <div class="flex items-center justify-between">
@@ -88,7 +88,7 @@
           <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
             Sem Número
           </p>
-          <p class="text-3xl font-bold text-red-600 dark:text-red-400">
+          <p class="text-2xl font-bold text-red-600 dark:text-red-400">
             {{ contactsWithoutPhone }}
           </p>
         </div>
@@ -115,7 +115,7 @@
     <!-- Contatos com Número Inválido -->
     <div
       @click="$emit('setFilter', 'invalid_phone')"
-      class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
+      class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
       :class="{ 'ring-2 ring-yellow-500': activeFilter === 'invalid_phone' }"
     >
       <div class="flex items-center justify-between">
@@ -123,7 +123,7 @@
           <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
             Número Inválido
           </p>
-          <p class="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+          <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
             {{ contactsWithInvalidPhone }}
           </p>
         </div>

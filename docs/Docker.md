@@ -13,8 +13,8 @@ docker-compose -f docker-compose-dev.yaml up -d
 
 echo "🧹 Limpando cache Docker..."
 docker image prune -f
-docker volume prune -f
 docker container prune -f
+docker volume prune -f
 docker builder prune -f
 
 docker system prune -a --volumes
