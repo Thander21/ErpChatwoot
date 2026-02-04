@@ -21,9 +21,14 @@ docker system prune -a --volumes
 
 ## licença interprice Comando via Rails runner (recomendado):
 
+# rodar no dev
+
 docker-compose exec rails bundle exec rails runner "
 InstallationConfig.find_or_create_by(name: 'INSTALLATION_PRICING_PLAN').update(value: 'enterprise')
 InstallationConfig.find_or_create_by(name: 'INSTALLATION_PRICING_PLAN_QUANTITY').update(value: 999999)
 puts 'Licença enterprise configurada!'
 "
+
+# rodar em prod
+
 bundle exec rails runner "InstallationConfig.find_or_create_by(name:'INSTALLATION_PRICING_PLAN').update(value: 'enterprise'); InstallationConfig.find_or_create_by(name: 'INSTALLATION_PRICING_PLAN_QUANTITY').update(value: 999999); puts 'Licença enterprise configurada!'"

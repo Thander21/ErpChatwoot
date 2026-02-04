@@ -5,23 +5,23 @@ class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
   before_action :set_kanban_card, only: [:show, :update, :destroy]
 
   def index
-    @kanban_cards = @account.kanban_cards.includes(:conversation, :contact).ordered
+    @kanban_cards = @account.kanban_cards.includes(:conversation, :contact, :company, :assignee).ordered
 
     # Filtrar por coluna se especificado
     @kanban_cards = @kanban_cards.by_column(params[:column_id]) if params[:column_id].present?
 
-    render json: @kanban_cards, include: [:conversation, :contact]
+    render json: @kanban_cards, include: [:conversation, :contact, :company, :assignee]
   end
 
   def show
-    render json: @kanban_card, include: [:conversation, :contact]
+    render json: @kanban_card, include: [:conversation, :contact, :company, :assignee]
   end
 
   def create
     @kanban_card = @account.kanban_cards.build(kanban_card_params)
 
     if @kanban_card.save
-      render json: @kanban_card, include: [:conversation, :contact], status: :created
+      render json: @kanban_card, include: [:conversation, :contact, :company, :assignee], status: :created
     else
       render json: @kanban_card.errors, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
 
   def update
     if @kanban_card.update(kanban_card_params)
-      render json: @kanban_card, include: [:conversation, :contact]
+      render json: @kanban_card, include: [:conversation, :contact, :company, :assignee]
     else
       render json: @kanban_card.errors, status: :unprocessable_entity
     end
@@ -65,7 +65,7 @@ class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
       )
     end
 
-    render json: @kanban_card, include: [:conversation, :contact]
+    render json: @kanban_card, include: [:conversation, :contact, :company, :assignee]
   end
 
   private
@@ -85,6 +85,8 @@ class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
       :kanban_column_id,
       :conversation_id,
       :contact_id,
+      :company_id,
+      :assignee_id,
       :position,
       :due_date,
       :priority,

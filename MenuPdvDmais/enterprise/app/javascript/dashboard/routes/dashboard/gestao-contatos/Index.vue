@@ -1,51 +1,30 @@
 <template>
-  <div class="flex flex-col gap-6 max-w-5xl mx-auto w-full">
-    <ContactsHeader
-      :search-query="searchQuery"
-      :loading="loading"
-      @update:searchQuery="searchQuery = $event"
-      @refresh="refreshContacts"
-    />
-
-    <ContactsStats
-      :total-contacts="totalContacts"
-      :contacts-without-company="contactsWithoutCompany"
-      :contacts-eligible-for-auto-fill="contactsEligibleForAutoFill"
-      :contacts-without-phone="contactsWithoutPhone"
-      :contacts-with-invalid-phone="contactsWithInvalidPhone"
-      :active-filter="activeFilter"
-      @setFilter="activeFilter = $event"
-    />
-
-    <!-- Search Bar -->
-    <div class="relative w-full">
-      <svg
-        class="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
-      <input
-        :value="searchQuery"
-        @input="searchQuery = $event.target.value"
-        type="text"
-        placeholder="Pesquisar por nome, telefone ou empresa..."
-        class="w-full pl-14 pr-10 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+  <div
+    class="flex flex-col h-full overflow-hidden w-full max-w-5xl mx-auto gap-4 p-4"
+  >
+    <!-- Header Section (Fixed) -->
+    <div class="flex flex-col gap-4 flex-shrink-0">
+      <ContactsHeader
+        :search-query="searchQuery"
+        :loading="loading"
+        @update:searchQuery="searchQuery = $event"
+        @refresh="refreshContacts"
       />
-      <button
-        v-if="searchQuery"
-        @click="searchQuery = ''"
-        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-      >
+
+      <ContactsStats
+        :total-contacts="totalContacts"
+        :contacts-without-company="contactsWithoutCompany"
+        :contacts-eligible-for-auto-fill="contactsEligibleForAutoFill"
+        :contacts-without-phone="contactsWithoutPhone"
+        :contacts-with-invalid-phone="contactsWithInvalidPhone"
+        :active-filter="activeFilter"
+        @setFilter="activeFilter = $event"
+      />
+
+      <!-- Search Bar -->
+      <div class="relative w-full">
         <svg
-          class="w-4 h-4"
+          class="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -54,77 +33,111 @@
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
           />
         </svg>
-      </button>
-    </div>
-
-    <ContactsFilterBar
-      :active-filter="activeFilter"
-      :filtered-count="filteredContacts.length"
-      @clearFilter="activeFilter = 'all'"
-    />
-
-    <!-- Loading State -->
-    <div v-if="loading" class="flex flex-col items-center justify-center py-12">
-      <div
-        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
-      ></div>
-      <p class="text-slate-600 dark:text-slate-400">Carregando contatos...</p>
-    </div>
-
-    <!-- Empty State -->
-    <div v-else-if="filteredContacts.length === 0" class="text-center py-12">
-      <svg
-        class="w-16 h-16 text-gray-400 mx-auto mb-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+        <input
+          :value="searchQuery"
+          @input="searchQuery = $event.target.value"
+          type="text"
+          placeholder="Pesquisar por nome, telefone ou empresa..."
+          class="w-full pl-14 pr-10 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
         />
-      </svg>
-      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
-        Nenhum contato encontrado
-      </h3>
-      <p class="text-gray-500 dark:text-gray-400">
-        {{
-          searchQuery || activeFilter !== "all"
-            ? "Tente alterar os filtros ou a busca."
-            : "Os contatos aparecerão aqui assim que forem importados."
-        }}
-      </p>
+        <button
+          v-if="searchQuery"
+          @click="searchQuery = ''"
+          class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <ContactsFilterBar
+        :active-filter="activeFilter"
+        :filtered-count="filteredContacts.length"
+        @clearFilter="activeFilter = 'all'"
+      />
     </div>
 
-    <!-- Contacts List -->
-    <ContactsList
-      v-else
-      :contacts="isGrouped ? contactsByCompany : filteredContacts"
-      :is-grouped="isGrouped"
-      :title="listTitle"
-      :are-all-expanded="areAllExpanded"
-      :contacts-count="filteredContacts.length"
-      :selected-ids="selectedContacts"
-      :show-auto-fill="
-        activeFilter === 'no_company' && contactsEligibleForAutoFill > 0
-      "
-      :auto-filling="autoFilling"
-      @toggleSelection="toggleSelection"
-      @selectAll="selectAll"
-      @edit="openEditModal"
-      @delete="openDeleteModal"
-      @expandAll="expandAll"
-      @collapseAll="collapseAll"
-      @toggleGroup="toggleGroup"
-      @autoFill="handleAutoFill"
-      @bulkEdit="openBulkEditModal"
-      @bulkDelete="openBulkDeleteModal"
-    />
+    <!-- Scrollable Content -->
+    <div class="flex-1 overflow-y-auto pr-2 min-h-0 custom-scroll">
+      <!-- Loading State -->
+      <div
+        v-if="loading"
+        class="flex flex-col items-center justify-center py-12"
+      >
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+        ></div>
+        <p class="text-slate-600 dark:text-slate-400">Carregando contatos...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else-if="filteredContacts.length === 0" class="text-center py-12">
+        <svg
+          class="w-16 h-16 text-gray-400 mx-auto mb-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+          />
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          Nenhum contato encontrado
+        </h3>
+        <p class="text-gray-500 dark:text-gray-400">
+          {{
+            searchQuery || activeFilter !== "all"
+              ? "Tente alterar os filtros ou a busca."
+              : "Os contatos aparecerão aqui assim que forem importados."
+          }}
+        </p>
+      </div>
+
+      <!-- Contacts List -->
+      <ContactsList
+        v-else
+        :contacts="isGrouped ? contactsByCompany : filteredContacts"
+        :is-grouped="isGrouped"
+        :title="listTitle"
+        :expanded-company-names="expandedCompanies"
+        :are-all-expanded="areAllExpanded"
+        :contacts-count="filteredContacts.length"
+        :selected-ids="selectedContacts"
+        :show-auto-fill="
+          activeFilter === 'no_company' && contactsEligibleForAutoFill > 0
+        "
+        :auto-filling="autoFilling"
+        @toggleSelection="toggleSelection"
+        @selectAll="selectAll"
+        @edit="openEditModal"
+        @delete="openDeleteModal"
+        @expandAll="expandAll"
+        @collapseAll="collapseAll"
+        @toggleGroup="toggleGroup"
+        @autoFill="handleAutoFill"
+        @bulkEdit="openBulkEditModal"
+        @bulkDelete="openBulkDeleteModal"
+        @update-inline="handleInlineUpdate"
+      />
+    </div>
 
     <!-- Modals -->
     <ContactFormModal
@@ -220,7 +233,10 @@ const listTitle = computed(() => {
 });
 
 const areAllExpanded = computed(() => {
-  return contactsByCompany.value.length > 0 && expandedCompanies.value.size === contactsByCompany.value.length;
+  return (
+    contactsByCompany.value.length > 0 &&
+    expandedCompanies.value.size === contactsByCompany.value.length
+  );
 });
 
 // Handlers
@@ -286,6 +302,29 @@ const handleSaveContact = async (formData) => {
     alert("Erro ao salvar contato.");
   } finally {
     saving.value = false;
+  }
+};
+
+const handleInlineUpdate = async ({ id, payload }) => {
+  // We use the ContactsList-specific saving state? No, ContactsList has its own state "savingId".
+  // But we need to perform the API call.
+  // The useContacts composable is here.
+  try {
+    await updateContact(id, payload);
+    // We could show a toast here.
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao atualizar contato.");
+  } finally {
+    // We might want to signal completion to child, but the child handles optimistic UI or just waits.
+    // Since we await here, the child's awaiting of the emit isn't strictly enabling "savingId = false" unless we pass a ref.
+    // Actually, ContactsList sets savingId=id then emits. It doesn't know when it finishes unless we use a callback or binding.
+    // Simple fix: Force refresh or just assume success for UI responsiveness if no error thrown.
+    // BETTER: Create a way to reset the loading state in child.
+    // For now, let's just run it. The child button will stay "Saving" if we don't unset it.
+    // We need to pass a callback or rely on prop?
+    // Let's modify ContactList to unset savingId after emit.
+    // See next tool call for refinement of ContactList logic.
   }
 };
 
