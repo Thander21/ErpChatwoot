@@ -4,6 +4,12 @@ namespace :enterprise, defaults: { format: 'json' } do
       resources :accounts do
         resources :kanban_columns, only: [:index, :show, :create, :update, :destroy]
         resources :kanban_cards, only: [:index, :show, :create, :update, :destroy] do
+          collection do
+            post :sync_companies
+            post :cleanup_companies
+            get :companies
+            get :contacts_by_company
+          end
           member do
             post :move
           end

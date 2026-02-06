@@ -64,6 +64,27 @@
         </button>
       </div>
 
+      <div class="flex gap-2 w-full">
+        <button
+          @click="syncCompanies"
+          :disabled="isSyncing"
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300 rounded-lg transition-colors text-sm font-medium"
+        >
+          <span v-if="isSyncing" class="animate-spin">Wait</span>
+          <span v-else>🔄</span>
+          Atualizar Empresas
+        </button>
+        <button
+          @click="cleanupCompanies"
+          :disabled="isCleaning"
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-300 rounded-lg transition-colors text-sm font-medium"
+        >
+          <span v-if="isCleaning" class="animate-spin">Wait</span>
+          <span v-else>🗑️</span>
+          Limpar Vazias
+        </button>
+      </div>
+
       <ContactsFilterBar
         :active-filter="activeFilter"
         :filtered-count="filteredContacts.length"
@@ -168,6 +189,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import { useStore } from "vuex"; // Import Vuex store
 import { useContacts } from "./composables/useContacts";
 import ContactsHeader from "./components/ContactsHeader.vue";
 import ContactsStats from "./components/ContactsStats.vue";
@@ -176,6 +198,9 @@ import ContactsList from "./components/ContactsList.vue";
 import ContactFormModal from "./components/modais/ContactFormModal.vue";
 import BulkEditModal from "./components/modais/BulkEditModal.vue";
 import BulkDeleteModal from "./components/modais/BulkDeleteModal.vue";
+import CustomContactsAPI from "dashboard/api/customContacts";
+import { emitter } from 'shared/helpers/mitt';
+import { BUS_EVENTS } from 'shared/constants/busEvents';
 
 const {
   contacts,
@@ -197,6 +222,8 @@ const {
   getCompanyName,
 } = useContacts();
 
+const store = useStore(); // Initialize store
+
 // UI State
 const selectedContacts = ref([]);
 const editingContact = ref(null);
@@ -206,13 +233,60 @@ const showBulkDelete = ref(false);
 const saving = ref(false);
 const bulkSaving = ref(false);
 const autoFilling = ref(false);
+const isSyncing = ref(false);
+const isCleaning = ref(false);
+
+const accountId = computed(() => store.getters["getCurrentAccountId"]);
+
+const syncCompanies = async () => {
+  if (confirm(
+    "Isso irá criar empresas baseadas nos nomes preenchidos nos contatos. Deseja continuar?"
+  )) {
+    isSyncing.value = true;
+    try {
+      const response = await CustomContactsAPI.syncCompanies();
+      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: response.data.message,
+        type: 'success',
+      });
+      fetchContacts(); // Atualiza lista para refletir mudanças se necessário
+    } catch (error) {
+      console.error(error);
+      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Erro ao sincronizar empresas.',
+        type: 'error',
+      });
+    } finally {
+      isSyncing.value = false;
+    }
+  }
+};
+
+const cleanupCompanies = async () => {
+  if (confirm(
+      "Isso apagará todas as empresas que não possuem contatos vinculados. Deseja continuar?"
+  )) {
+    isCleaning.value = true;
+    try {
+      const response = await CustomContactsAPI.cleanupCompanies();
+      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: response.data.message,
+        type: 'success',
+      });
+    } catch (error) {
+      console.error(error);
+      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Erro ao limpar empresas.',
+        type: 'error',
+      });
+    } finally {
+      isCleaning.value = false;
+    }
+  }
+};
 
 // Computed
 const isGrouped = computed(() => {
-  // Only group if no specific filter is active and no search query
-  // Wait, original logic grouped by default unless filtered?
-  // Original: v-if="contactsByCompany.length > 0" for grouped list
-  // It seems it prefers grouped view if possible.
   return activeFilter.value === "all" && !searchQuery.value;
 });
 
@@ -296,35 +370,32 @@ const handleSaveContact = async (formData) => {
         },
       });
       closeEditModal();
+      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Contato atualizado com sucesso!',
+        type: 'success',
+      });
     }
     // Create logic would go here
   } catch (error) {
-    alert("Erro ao salvar contato.");
+    emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Erro ao salvar contato.',
+        type: 'error',
+    });
   } finally {
     saving.value = false;
   }
 };
 
 const handleInlineUpdate = async ({ id, payload }) => {
-  // We use the ContactsList-specific saving state? No, ContactsList has its own state "savingId".
-  // But we need to perform the API call.
-  // The useContacts composable is here.
   try {
     await updateContact(id, payload);
-    // We could show a toast here.
+    // Silent success for inline updates
   } catch (error) {
     console.error(error);
-    alert("Erro ao atualizar contato.");
-  } finally {
-    // We might want to signal completion to child, but the child handles optimistic UI or just waits.
-    // Since we await here, the child's awaiting of the emit isn't strictly enabling "savingId = false" unless we pass a ref.
-    // Actually, ContactsList sets savingId=id then emits. It doesn't know when it finishes unless we use a callback or binding.
-    // Simple fix: Force refresh or just assume success for UI responsiveness if no error thrown.
-    // BETTER: Create a way to reset the loading state in child.
-    // For now, let's just run it. The child button will stay "Saving" if we don't unset it.
-    // We need to pass a callback or rely on prop?
-    // Let's modify ContactList to unset savingId after emit.
-    // See next tool call for refinement of ContactList logic.
+    emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Erro ao atualizar contato.',
+        type: 'error',
+    });
   }
 };
 
@@ -333,8 +404,15 @@ const openDeleteModal = async (contact) => {
   if (confirm(`Tem certeza que deseja deletar ${contact.name}?`)) {
     try {
       await deleteContact(contact.id);
+      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Contato deletado com sucesso!',
+        type: 'success',
+      });
     } catch (error) {
-      alert("Erro ao deletar contato.");
+      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Erro ao deletar contato.',
+        type: 'error',
+      });
     }
   }
 };
@@ -356,7 +434,10 @@ const handleBulkEdit = async (formData) => {
     }
 
     if (Object.keys(updateData).length === 0) {
-      alert("Preencha algum campo.");
+      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Preencha algum campo.',
+        type: 'warning',
+      });
       return;
     }
 
@@ -378,10 +459,16 @@ const handleBulkEdit = async (formData) => {
 
     showBulkEdit.value = false;
     selectedContacts.value = [];
-    alert("Edição em lote concluída!");
+    emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Edição em lote concluída!',
+        type: 'success',
+    });
   } catch (error) {
     console.error(error);
-    alert("Erro parcial ou total na edição em lote.");
+    emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Erro parcial ou total na edição em lote.',
+        type: 'error',
+    });
   } finally {
     bulkSaving.value = false;
   }
@@ -397,10 +484,16 @@ const handleBulkDelete = async () => {
     }
     showBulkDelete.value = false;
     selectedContacts.value = [];
-    alert("Contatos deletados com sucesso!");
+    emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Contatos deletados com sucesso!',
+        type: 'success',
+    });
   } catch (error) {
     console.error(error);
-    alert("Erro ao deletar alguns contatos.");
+    emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Erro ao deletar alguns contatos.',
+        type: 'error',
+    });
   } finally {
     bulkSaving.value = false;
   }
@@ -428,10 +521,16 @@ const handleAutoFill = async () => {
       });
       count++;
     }
-    alert(`${count} contatos atualizados!`);
+    emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: `${count} contatos atualizados!`,
+        type: 'success',
+    });
   } catch (error) {
     console.error(error);
-    alert("Erro ao preencher automaticamente.");
+    emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: 'Erro ao preencher automaticamente.',
+        type: 'error',
+    });
   } finally {
     autoFilling.value = false;
   }

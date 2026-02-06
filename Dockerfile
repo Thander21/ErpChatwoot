@@ -102,6 +102,7 @@ COPY MenuPdvDmais/db/migrate /app/db/migrate
 # 3.1 API Patches
 COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/kanbanCards.js /app/app/javascript/dashboard/api/
 COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/kanbanColumns.js /app/app/javascript/dashboard/api/
+COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/customContacts.js /app/app/javascript/dashboard/api/
 COPY MenuPdvDmais/enterprise/app/helpers/enterprise_helper.rb /app/app/helpers/
 # 4. Configs
 # COPY MenuPdvDmais/vite.config.ts /app/

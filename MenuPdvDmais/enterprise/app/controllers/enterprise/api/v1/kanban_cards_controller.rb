@@ -68,6 +68,57 @@ class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
     render json: @kanban_card, include: [:conversation, :contact, :company, :assignee]
   end
 
+  # SYNC BRUTAL DE EMPRESAS
+  # Varre contatos com company_name e garante que exista a Company e o vínculo
+  def sync_companies
+    count = 0
+    # Itera sobre contatos que tem nome de empresa no jsonb
+    @account.contacts.where("additional_attributes->>'company_name' IS NOT NULL AND additional_attributes->>'company_name' <> ''").find_each do |contact|
+      company_name = contact.additional_attributes['company_name'].strip
+      next if company_name.blank?
+
+      # Busca ou Cria a Empresa
+      company = @account.companies.find_or_create_by(name: company_name)
+      
+      # Atualiza o contato se não estiver vinculado
+      if contact.company_id != company.id
+         contact.update(company_id: company.id)
+         count += 1
+      end
+    end
+    
+    render json: { message: "#{count} contatos sincronizados com empresas." }
+  end
+
+  # LIMPEZA DE EMPRESAS VAZIAS
+  # Remove empresas que não têm contatos vinculados
+  def cleanup_companies
+    deleted = 0
+    # Left join para achar companies sem contacts
+    # Nota: Precisamos garantir que não delete empresas que tenham outros dados importantes. 
+    # Assumindo que empresa sem contato é "lixo" de digitação.
+    @account.companies.left_joins(:contacts).where(contacts: { id: nil }).find_each do |company|
+       company.destroy
+       deleted += 1
+    end
+    
+    render json: { message: "#{deleted} empresas vazias removidas." }
+  end
+
+  # Mantendo contacts_by_company pois é util para o modal filtrar
+  # LISTAGEM DE CONTATOS POR EMPRESA
+  def contacts_by_company
+    if params[:company_id].present?
+      contacts = @account.contacts
+                         .where(company_id: params[:company_id])
+                         .order(:name)
+      
+      render json: contacts.select(:id, :name, :email, :phone_number)
+    else
+      render json: []
+    end
+  end
+
   private
 
   def set_account

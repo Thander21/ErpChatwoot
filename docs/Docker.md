@@ -1,3 +1,14 @@
+# Comandos para Atualização (Ambiente DEV)
+
+# 1. Parar os containers
+
+docker-compose -f docker-compose-dev.yaml build --no-cache
+docker-compose -f docker-compose-dev.yaml up -d
+
+# 4. Rodar a migração
+
+docker compose -f docker-compose-dev.yaml run --rm rails bundle exec rails db:migrate
+
 # 2. Start the services (if not already running)
 
 docker-compose up -d --build

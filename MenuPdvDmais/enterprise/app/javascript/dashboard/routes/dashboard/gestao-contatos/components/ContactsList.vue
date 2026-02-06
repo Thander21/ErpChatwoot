@@ -238,21 +238,15 @@
 
                       <!-- Actions -->
                       <div>
-                        <button
+                        <woot-button
                           @click="saveContact(contact.id)"
-                          :disabled="savingId === contact.id"
-                          class="inline-flex items-center min-w-0 gap-2 transition-all duration-100 ease-out border-0 rounded-lg outline-1 outline disabled:opacity-50 bg-n-brand text-white hover:enabled:brightness-110 focus-visible:brightness-110 outline-transparent h-8 px-3 text-sm active:enabled:scale-[0.97] justify-center"
+                          :is-loading="savingId === contact.id"
+                          variant="solid"
+                          color="blue"
+                          size="sm"
                         >
-                          <span
-                            v-if="savingId === contact.id"
-                            class="i-lucide-loader-2 animate-spin"
-                          ></span>
-                          {{
-                            savingId === contact.id
-                              ? "Salvando..."
-                              : "Atualizar contato"
-                          }}
-                        </button>
+                          Atualizar contato
+                        </woot-button>
                       </div>
                     </div>
 
@@ -287,14 +281,14 @@
                               class="inline-flex text-n-slate-11 text-sm items-center gap-1"
                             >
                               Essa ação é permanente.
-                              <button
-                                @click="$emit('delete', contact)"
-                                class="inline-flex items-center min-w-0 gap-2 transition-all duration-100 ease-out border-0 rounded-lg outline-1 outline disabled:opacity-50 text-n-ruby-9 dark:text-n-ruby-11 hover:enabled:underline focus-visible:underline outline-transparent p-0 font-medium underline-offset-2 text-sm active:enabled:scale-[0.97] justify-center"
-                              >
-                                <span class="min-w-0 truncate"
-                                  >Deletar agora</span
+                                <woot-button
+                                  @click="$emit('delete', contact)"
+                                  variant="link"
+                                  color="ruby"
+                                  size="sm"
                                 >
-                              </button>
+                                  Deletar agora
+                                </woot-button>
                             </span>
                           </div>
                         </div>
@@ -479,21 +473,15 @@
 
                   <!-- Actions -->
                   <div>
-                    <button
+                    <woot-button
                       @click="saveContact(contact.id)"
-                      :disabled="savingId === contact.id"
-                      class="inline-flex items-center min-w-0 gap-2 transition-all duration-100 ease-out border-0 rounded-lg outline-1 outline disabled:opacity-50 bg-n-brand text-white hover:enabled:brightness-110 focus-visible:brightness-110 outline-transparent h-8 px-3 text-sm active:enabled:scale-[0.97] justify-center"
+                      :is-loading="savingId === contact.id"
+                      variant="solid"
+                      color="blue"
+                      size="sm"
                     >
-                      <span
-                        v-if="savingId === contact.id"
-                        class="i-lucide-loader-2 animate-spin"
-                      ></span>
-                      {{
-                        savingId === contact.id
-                          ? "Salvando..."
-                          : "Atualizar contato"
-                      }}
-                    </button>
+                      Atualizar contato
+                    </woot-button>
                   </div>
                 </div>
 
@@ -528,12 +516,14 @@
                           class="inline-flex text-n-slate-11 text-sm items-center gap-1"
                         >
                           Essa ação é permanente.
-                          <button
+                          <woot-button
                             @click="$emit('delete', contact)"
-                            class="inline-flex items-center min-w-0 gap-2 transition-all duration-100 ease-out border-0 rounded-lg outline-1 outline disabled:opacity-50 text-n-ruby-9 dark:text-n-ruby-11 hover:enabled:underline focus-visible:underline outline-transparent p-0 font-medium underline-offset-2 text-sm active:enabled:scale-[0.97] justify-center"
+                            variant="link"
+                            color="ruby"
+                            size="sm"
                           >
-                            <span class="min-w-0 truncate">Deletar agora</span>
-                          </button>
+                            Deletar agora
+                          </woot-button>
                         </span>
                       </div>
                     </div>
@@ -551,6 +541,7 @@
 <script setup>
 import { defineProps, defineEmits, computed, ref } from "vue";
 import { useRoute } from "vue-router";
+import WootButton from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   contacts: {

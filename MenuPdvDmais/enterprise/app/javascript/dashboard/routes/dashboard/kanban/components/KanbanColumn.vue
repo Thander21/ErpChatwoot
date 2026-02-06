@@ -64,7 +64,7 @@
 
       <!-- Cards Container (Scrollable) -->
       <div
-        class="space-y-3 flex-1 overflow-y-auto min-h-[100px] kanban-column pr-1"
+        class="space-y-3 flex-1 overflow-y-auto min-h-[100px] h-full kanban-column pr-1"
         :data-column-id="column.id"
         @drop="$emit('drop', $event, column.id)"
         @dragover.prevent

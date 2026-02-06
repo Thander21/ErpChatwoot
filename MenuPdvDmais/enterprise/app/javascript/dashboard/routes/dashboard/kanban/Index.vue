@@ -11,7 +11,7 @@ ERP Chatwoot - Kanban Index Component
         class="pb-2 px-4 text-sm font-medium border-b-2 transition-colors duration-200 flex items-center gap-2"
         :class="[
           activeTab === 'tarefa'
-            ? 'border-woot-500 text-woot-500 dark:text-woot-400'
+            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
             : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300',
         ]"
       >
@@ -23,7 +23,7 @@ ERP Chatwoot - Kanban Index Component
         class="pb-2 px-4 text-sm font-medium border-b-2 transition-colors duration-200 flex items-center gap-2"
         :class="[
           activeTab === 'comercial'
-            ? 'border-woot-500 text-woot-500 dark:text-woot-400'
+            ? 'border-blue-600 text-blue-600 dark:text-blue-400'
             : 'border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300',
         ]"
       >

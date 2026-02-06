@@ -4,20 +4,22 @@
     <div class="flex items-center justify-between mb-4 flex-shrink-0">
       <div class="flex items-center gap-4">
         <h2 class="text-xl font-semibold text-slate-900 dark:text-white">
-          Kanban Comercial
+          {{ title }}
         </h2>
         <div
           class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400"
         >
-          <span>{{ kanbanCards.length }} cards</span>
-          <span>•</span>
-          <span>{{ columns.length }} colunas</span>
+          <span>{{ totalCards }} cards</span>
+          <span v-if="columns.length > 0">•</span>
+          <span v-if="columns.length > 0">{{ columns.length }} colunas</span>
+          <slot name="extra-info"></slot>
         </div>
       </div>
 
       <div class="flex flex-col sm:flex-row gap-2">
         <button
-          @click="openNewCardModal"
+          v-if="canCreateCard"
+          @click="$emit('create-card')"
           class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center justify-center gap-2"
         >
           <svg
@@ -38,7 +40,8 @@
         </button>
 
         <button
-          @click="openNewColumnModal"
+          v-if="canCreateColumn"
+          @click="$emit('create-column')"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center justify-center gap-2"
         >
           <svg
@@ -57,6 +60,9 @@
           <span class="hidden sm:inline">Nova Coluna</span>
           <span class="sm:hidden">Coluna</span>
         </button>
+
+        <!-- Slot para botões extras (ex: Refresh na aba Tarefas) -->
+        <slot name="actions"></slot>
       </div>
     </div>
 
@@ -66,7 +72,7 @@
         class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
       ></div>
       <p class="text-slate-600 dark:text-slate-400">
-        Carregando kanban comercial...
+        {{ loadingText }}
       </p>
     </div>
 
@@ -101,17 +107,18 @@
             :class="{
               'block w-full': isMobile,
               'hidden': isMobile && index !== activeColumnIndex,
-              'block': !isMobile
+              'block': !isMobile,
+              'w-80': !isMobile // Fixed width for desktop columns
             }"
           >
             <KanbanColumn
               :column="column"
-              :cards="getCardsByColumn(column.id)"
-              @edit="openEditColumnModal"
-              @delete="handleDeleteColumn"
-              @add-card="openNewCardModalForColumn"
-              @edit-card="openEditCardModal"
-              @delete-card="handleDeleteCard"
+              :cards="getCardsForColumn(column)"
+              @edit="$emit('edit-column', column)"
+              @delete="$emit('delete-column', column)"
+              @add-card="$emit('add-card-to-column', column.id)"
+              @edit-card="(card) => $emit('edit-card', card)"
+              @delete-card="(card) => $emit('delete-card', card)"
               @dragstart="onDragStart"
               @drop="onDrop"
             />
@@ -119,60 +126,87 @@
         </template>
         
         <div v-if="sortedColumns.length === 0" class="w-full flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg">
-           <p class="text-slate-500">Nenhuma coluna configurada.</p>
+           <p class="text-slate-500">Nenhuma coluna disponível.</p>
         </div>
       </div>
     </div>
-
-    <!-- Modals -->
-    <KanbanCardModal
-      :show="showCardModal"
-      :columns="sortedColumns"
-      :initial-data="editingCard"
-      :loading="actionLoading"
-      @close="closeCardModal"
-      @submit="handleCardSubmit"
-    />
-
-    <KanbanColumnModal
-      :show="showColumnModal"
-      :initial-data="editingColumn"
-      :loading="actionLoading"
-      @close="closeColumnModal"
-      @submit="handleColumnSubmit"
-    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { useKanban } from '../composables/useKanban';
 import KanbanColumn from './KanbanColumn.vue';
-import KanbanCardModal from './modais/KanbanCardModal.vue';
-import KanbanColumnModal from './modais/KanbanColumnModal.vue';
 
-const {
-  columns,
-  kanbanCards,
-  loading,
-  sortedColumns,
-  getCardsByColumn,
-  loadData,
-  createCard,
-  updateCardPosition,
-  deleteCard,
-  createColumn,
-  updateColumn,
-  deleteColumn,
-} = useKanban();
+const props = defineProps({
+  title: {
+    type: String,
+    default: 'Kanban Board'
+  },
+  loading: {
+    type: Boolean,
+    default: false
+  },
+  loadingText: {
+    type: String,
+    default: 'Carregando...'
+  },
+  columns: {
+    type: Array, // Expected: { id, name, color, position? }
+    required: true,
+    default: () => []
+  },
+  cards: {
+    type: Array, // Expected: { id, kanban_column_id, ... }
+    required: true,
+    default: () => []
+  },
+  canCreateColumn: {
+    type: Boolean,
+    default: false
+  },
+  canCreateCard: {
+    type: Boolean,
+    default: false
+  },
+  // Function to filter cards per column if checking kanban_column_id is not enough
+  // or if structure is different
+  cardsFilter: {
+      type: Function,
+      default: null 
+  }
+});
 
-// UI State
-const showCardModal = ref(false);
-const showColumnModal = ref(false);
-const editingCard = ref(null);
-const editingColumn = ref(null);
-const actionLoading = ref(false);
-const draggedCard = ref(null);
+const emit = defineEmits([
+  'create-card',
+  'create-column',
+  'edit-column',
+  'delete-column',
+  'add-card-to-column',
+  'edit-card',
+  'delete-card',
+  'card-moved'
+]);
+
+// Computed
+const sortedColumns = computed(() => {
+  // Sort by position if available, otherwise existing order
+  return [...props.columns].sort(
+    (a, b) => (a.position || 0) - (b.position || 0)
+  );
+});
+
+const totalCards = computed(() => props.cards.length);
+
+const getCardsForColumn = (column) => {
+  if (props.cardsFilter) {
+      return props.cardsFilter(props.cards, column);
+  }
+  // Default behavior: filter by kanban_column_id matching column.id
+  // Note: Ensure types match (string vs int)
+  return props.cards
+    .filter((card) => card.kanban_column_id == column.id)
+    .sort((a, b) => (a.position || 0) - (b.position || 0));
+};
 
 // Mobile State
 const activeColumnIndex = ref(0);
@@ -182,128 +216,19 @@ const handleResize = () => {
   isMobile.value = window.innerWidth < 640;
 };
 
-// Actions
-const openNewCardModal = () => {
-  editingCard.value = null;
-  showCardModal.value = true;
-};
-
-const openNewCardModalForColumn = (columnId) => {
-  editingCard.value = { kanban_column_id: columnId };
-  showCardModal.value = true;
-};
-
-const openEditCardModal = (card) => {
-  editingCard.value = { ...card };
-  showCardModal.value = true;
-};
-
-const closeCardModal = () => {
-  showCardModal.value = false;
-  editingCard.value = null;
-};
-
-const handleCardSubmit = async (cardData) => {
-  actionLoading.value = true;
-  try {
-    // Se tem id, é edição (não implementado na api do useKanban ainda de forma direta para cards, mas vamos assumir create por enquanto ou implementar updateCard)
-    // Wait, useKanban missed updateCard! I only added createCard.
-    // I need to fix useKanban or handle it here via API directly if I must.
-    // For now assuming create only or I'll implement updateCard logic in useKanban quickly or inline.
-    
-    // Quick fix: if id exists, it's NOT supported by current useKanban. 
-    // I should have checked useKanban updateCard. 
-    // I will modify useKanban in the next step to add updateCard if I missed it.
-    
-    if (editingCard.value && editingCard.value.id) {
-       // TODO: Implement Update Card in useKanban
-       console.log('Update not fully implemented in useKanban yet');
-    } else {
-       await createCard(cardData);
-    }
-    closeCardModal();
-  } catch (error) {
-    alert('Erro ao salvar card');
-  } finally {
-    actionLoading.value = false;
-  }
-};
-
-const handleDeleteCard = async (card) => {
-  if (confirm('Tem certeza que deseja excluir este card?')) {
-    try {
-      await deleteCard(card.id);
-    } catch (error) {
-      alert('Erro ao excluir card');
-    }
-  }
-};
-
-// Column Actions
-const openNewColumnModal = () => {
-  editingColumn.value = null;
-  showColumnModal.value = true;
-};
-
-const openEditColumnModal = (column) => {
-  editingColumn.value = { ...column };
-  showColumnModal.value = true;
-};
-
-const closeColumnModal = () => {
-  showColumnModal.value = false;
-  editingColumn.value = null;
-};
-
-const handleColumnSubmit = async (columnData) => {
-  actionLoading.value = true;
-  try {
-    if (editingColumn.value && editingColumn.value.id) {
-      await updateColumn(editingColumn.value.id, columnData);
-    } else {
-      await createColumn(columnData);
-    }
-    closeColumnModal();
-  } catch (error) {
-    alert('Erro ao salvar coluna');
-  } finally {
-    actionLoading.value = false;
-  }
-};
-
-const handleDeleteColumn = async (column) => {
-  if (confirm(`Tem certeza que deseja excluir a coluna "${column.name}"?`)) {
-    try {
-      await deleteColumn(column.id);
-    } catch (error) {
-      alert('Erro ao excluir coluna');
-    }
-  }
-};
-
 // Drag & Drop
 const onDragStart = (event, card) => {
-  draggedCard.value = card;
   event.dataTransfer.effectAllowed = 'move';
   event.dataTransfer.setData('text/plain', card.id);
 };
 
-const onDrop = async (event, columnId) => {
+const onDrop = (event, columnId) => {
   const cardId = event.dataTransfer.getData('text/plain');
-  const card = kanbanCards.value.find((c) => c.id == cardId);
+  const card = props.cards.find((c) => c.id == cardId);
   
   if (card && card.kanban_column_id !== columnId) {
-    // Calculate new position (append to end for simplicity)
-    const cardsInTarget = getCardsByColumn(columnId);
-    const newPosition = cardsInTarget.length;
-    
-    try {
-      await updateCardPosition(card.id, columnId, newPosition);
-    } catch (error) {
-        alert('Erro ao mover card');
-    }
+    emit('card-moved', { card, targetColumnId: columnId });
   }
-  draggedCard.value = null;
 };
 
 // Mobile Nav
@@ -320,7 +245,6 @@ const prevColumn = () => {
 };
 
 onMounted(() => {
-  loadData();
   window.addEventListener('resize', handleResize);
 });
 

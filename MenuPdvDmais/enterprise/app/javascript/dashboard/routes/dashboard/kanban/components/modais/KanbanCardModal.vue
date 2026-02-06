@@ -43,19 +43,19 @@
 
         <!-- Seção de Relacionamentos -->
         <div class="space-y-3">
-          <!-- TODO: Implementar busca remota ou usar componente de select mais avançado se possível -->
           <div>
             <label
               class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
-              Empresa
+              Empresa *
             </label>
             <select
               v-model="form.company_id"
+              required
               class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
               @change="fetchContacts(form.company_id)"
             >
-              <option value="">Selecione uma empresa</option>
+              <option value="" disabled selected>Selecione uma empresa</option>
               <option
                 v-for="company in companies"
                 :key="company.id"
@@ -70,20 +70,21 @@
             <label
               class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
-              Contato
+              Contato *
             </label>
             <select
               v-model="form.contact_id"
+              required
               class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-              :disabled="!contacts.length && !form.company_id"
+              :disabled="!form.company_id"
             >
-              <option value="">
+              <option value="" disabled selected>
                 {{
-                  contacts.length
-                    ? "Selecione o contato"
-                    : form.company_id
-                      ? "Nenhum contato encontrado"
-                      : "Selecione a empresa primeiro"
+                  form.company_id
+                    ? contacts.length
+                      ? "Selecione o contato"
+                      : "Nenhum contato encontrado"
+                    : "Selecione a empresa primeiro"
                 }}
               </option>
               <option
@@ -100,13 +101,14 @@
             <label
               class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
-              Vendedor
+              Vendedor *
             </label>
             <select
               v-model="form.assignee_id"
+              required
               class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             >
-              <option value="">Selecione um vendedor</option>
+              <option value="" disabled selected>Selecione um vendedor</option>
               <option v-for="agent in agents" :key="agent.id" :value="agent.id">
                 {{ agent.name }}
               </option>
@@ -119,14 +121,14 @@
             <label
               class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
-              Coluna
+              Coluna *
             </label>
             <select
               v-model="form.kanban_column_id"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             >
-              <option value="">Selecione uma coluna</option>
+              <option value="" disabled selected>Selecione uma coluna</option>
               <option
                 v-for="column in columns"
                 :key="column.id"
@@ -144,13 +146,13 @@
               Prioridade
             </label>
             <select
-              v-model="form.priority"
+        v-model="form.priority"
               class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             >
-              <option :value="0">Baixa</option>
-              <option :value="1">Normal</option>
-              <option :value="2">Alta</option>
-              <option :value="3">Urgente</option>
+              <option value="low">Baixa</option>
+              <option value="normal">Normal</option>
+              <option value="high">Alta</option>
+              <option value="urgent">Urgente</option>
             </select>
           </div>
         </div>
@@ -196,7 +198,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, computed } from "vue";
 import { useStore } from "vuex";
 
 const props = defineProps({
@@ -209,11 +211,14 @@ const props = defineProps({
 const emit = defineEmits(["close", "submit"]);
 const store = useStore();
 
+// Getter para o ID da conta atual for API paths
+const accountId = computed(() => store.getters["getCurrentAccountId"]);
+
 const form = ref({
   title: "",
   description: "",
   kanban_column_id: "",
-  priority: 0,
+  priority: "low",
   due_date: "",
   company_id: "",
   contact_id: "",
@@ -227,26 +232,40 @@ const agents = ref([]);
 const isEditing = ref(false);
 
 const fetchCompanies = async () => {
-  // Assuming simple search or list for now. Needs refinement based on API.
-  // Using existing contacts endpoint searching for company type if possible or just all contacts?
-  // Since we don't have a dedicated endpoint confirmed, using contacts search.
   try {
-    const response = await axios.get("/api/v1/contacts/search", {
-      params: { q: "" },
-    });
-    // Filtering manually if needed or assuming query returns relevant.
-    // Ideally we should have a reliable way to get companies.
-    companies.value = response.data.payload
-      .filter((c) => c.company_name)
-      .map((c) => ({ id: c.id, name: c.company_name || c.name }));
+    // Busca a lista de empresas oficial
+    // Limitando a 100 para exemplo, ideal seria um select remoto com busca
+    const response = await axios.get(
+      `/api/v1/accounts/${accountId.value}/companies`,
+      {
+        params: {
+          sort: "name",
+          per_page: 100,
+        },
+      },
+    );
+    // O endpoint de companies retorna payload com a lista
+    companies.value = response.data.payload.map((c) => ({
+      id: c.id,
+      name: c.name,
+    }));
   } catch (error) {
     console.error("Error fetching companies", error);
   }
 };
 
-const fetchAgents = () => {
-  // Use Vuex store for agents
-  agents.value = store.getters["agents/getAgents"];
+const fetchAgents = async () => {
+  try {
+    // Garante que o store de agentes esteja carregado
+    if (store.getters["agents/getAgents"].length === 0) {
+      await store.dispatch("agents/get");
+    }
+    agents.value = store.getters["agents/getAgents"];
+  } catch (e) {
+    console.error("Error fetching agents", e);
+    // Ultimate fallback
+    agents.value = store.getters["agents/getAgents"];
+  }
 };
 
 const fetchContacts = async (companyId) => {
@@ -254,16 +273,17 @@ const fetchContacts = async (companyId) => {
     contacts.value = [];
     return;
   }
-  // Fetch contacts for this company. Assuming filtering by company name?
-  // Or if company_id is a Contact ID, we might need to find contacts LINKED to that contact?
-  // User request: "Contato selecionar o contato da empresa selecionada"
+
   try {
-    const response = await axios.get("/api/v1/contacts/search", {
-      params: { sort: "name" },
-    });
-    // Mocking filter logic as I can't confirm backend filter for company_id on contacts
-    // Assuming simplistic fetch for now.
-    contacts.value = response.data.payload;
+    // Precisamos buscar contatos vinculados a esta empresa
+    // Usamos a action customizada que deixamos no controller para facilitar a query por ID
+    const response = await axios.get(
+      `/enterprise/api/v1/accounts/${accountId.value}/kanban_cards/contacts_by_company`,
+      {
+        params: { company_id: companyId },
+      },
+    );
+    contacts.value = response.data;
   } catch (e) {
     console.error(e);
   }
@@ -273,18 +293,28 @@ watch(
   () => props.initialData,
   async (newData) => {
     if (newData) {
-      form.value = { ...newData };
+      // Garantir que form.priority receba o valor correto mesmo se vier null (embora db force default)
+      const safeDate = newData.due_date ? new Date(newData.due_date).toISOString().split('T')[0] : "";
+      
+      form.value = { 
+        ...newData,
+        priority: newData.priority || "low",
+        due_date: safeDate
+      };
       isEditing.value = true;
       if (form.value.company_id) {
         await fetchContacts(form.value.company_id);
       }
     } else {
+      // Data de hoje formato YYYY-MM-DD
+      const today = new Date().toISOString().split('T')[0];
+      
       form.value = {
         title: "",
         description: "",
         kanban_column_id: "",
-        priority: 0,
-        due_date: "",
+        priority: "low",
+        due_date: today, // Preenche com hoje
         company_id: "",
         contact_id: "",
         assignee_id: "",
@@ -302,6 +332,8 @@ onMounted(() => {
 });
 
 const handleSubmit = () => {
+  // Valida campos obrigatórios manualmente se necessário, mas HTML5 'required' deve cuidar disso
+  // Nota: browser validation handles 'required' only if triggered by submit button inside form.
   emit("submit", { ...form.value });
 };
 </script>

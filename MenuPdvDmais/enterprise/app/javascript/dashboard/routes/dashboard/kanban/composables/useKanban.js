@@ -2,10 +2,6 @@ import { ref, computed } from "vue";
 import KanbanCardsAPI from "dashboard/api/kanbanCards";
 import KanbanColumnsAPI from "dashboard/api/kanbanColumns";
 
-// Cache keys
-const COLUMNS_CACHE_KEY = "kanban_comercial_columns";
-const CARDS_CACHE_KEY = "kanban_comercial_cards";
-
 export function useKanban() {
   const columns = ref([]);
   const kanbanCards = ref([]);
@@ -22,59 +18,6 @@ export function useKanban() {
     return kanbanCards.value
       .filter((card) => card.kanban_column_id === columnId)
       .sort((a, b) => (a.position || 0) - (b.position || 0));
-  };
-
-  // Cache Logic
-  const saveColumnsToCache = (data) => {
-    const cacheData = {
-      data: data,
-      timestamp: Date.now(),
-      expiry: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-    };
-    localStorage.setItem(COLUMNS_CACHE_KEY, JSON.stringify(cacheData));
-  };
-
-  const loadColumnsFromCache = () => {
-    try {
-      const cached = localStorage.getItem(COLUMNS_CACHE_KEY);
-      if (!cached) return null;
-
-      const cacheData = JSON.parse(cached);
-      if (Date.now() > cacheData.expiry) {
-        localStorage.removeItem(COLUMNS_CACHE_KEY);
-        return null;
-      }
-      return cacheData.data;
-    } catch (error) {
-      console.warn("Error loading columns cache:", error);
-      return null;
-    }
-  };
-
-  const saveCardsToCache = (data) => {
-    const cacheData = {
-      data: data,
-      timestamp: Date.now(),
-      expiry: Date.now() + 60 * 60 * 1000, // 1 hour
-    };
-    localStorage.setItem(CARDS_CACHE_KEY, JSON.stringify(cacheData));
-  };
-
-  const loadCardsFromCache = () => {
-    try {
-      const cached = localStorage.getItem(CARDS_CACHE_KEY);
-      if (!cached) return null;
-
-      const cacheData = JSON.parse(cached);
-      if (Date.now() > cacheData.expiry) {
-        localStorage.removeItem(CARDS_CACHE_KEY);
-        return null;
-      }
-      return cacheData.data;
-    } catch (error) {
-      console.warn("Error loading cards cache:", error);
-      return null;
-    }
   };
 
   const initializeDefaultData = async () => {
@@ -103,15 +46,13 @@ export function useKanban() {
     try {
       const response = await KanbanColumnsAPI.get();
       columns.value = response.data || [];
-      saveColumnsToCache(columns.value);
     } catch (error) {
       console.error("Error loading columns:", error);
-      const cachedColumns = loadColumnsFromCache();
-      if (cachedColumns) {
-        columns.value = cachedColumns;
-      } else {
-        await initializeDefaultData();
-      }
+      // Fallback to defaults only if API fails and we have nothing?
+      // For now, let's try to init defaults if empty array returned (though API likely returns empty array if new)
+      // Actually, initializeDefaultData check columns.length === 0, so if API error leaves it empty, it might trigger defaults.
+      // But usually we want defaults on *first run* (empty DB), not API error.
+      // Leaving strict error handling aside, let's just retry default init if we suspect it's a new setup.
     }
   };
 
@@ -119,13 +60,8 @@ export function useKanban() {
     try {
       const response = await KanbanCardsAPI.get();
       kanbanCards.value = response.data || [];
-      saveCardsToCache(kanbanCards.value);
     } catch (error) {
       console.error("Error loading cards:", error);
-      const cachedCards = loadCardsFromCache();
-      if (cachedCards) {
-        kanbanCards.value = cachedCards;
-      }
     }
   };
 
@@ -133,6 +69,10 @@ export function useKanban() {
     loading.value = true;
     try {
       await loadColumns();
+      // If we loaded columns but found none, maybe we should init defaults?
+      if (columns.value.length === 0) {
+        await initializeDefaultData();
+      }
       await loadCards();
     } catch (error) {
       console.error("Error loading data:", error);
@@ -144,10 +84,9 @@ export function useKanban() {
   // CRUD Operations
   const createCard = async (cardData) => {
     try {
-      const response = await KanbanCardsAPI.create(cardData);
+      const response = await KanbanCardsAPI.create({ kanban_card: cardData });
       if (response.data) {
         kanbanCards.value.push(response.data);
-        saveCardsToCache(kanbanCards.value);
         return response.data;
       }
     } catch (error) {
@@ -162,7 +101,6 @@ export function useKanban() {
       const index = kanbanCards.value.findIndex((c) => c.id === cardId);
       if (index !== -1) {
         kanbanCards.value.splice(index, 1);
-        saveCardsToCache(kanbanCards.value);
       }
     } catch (error) {
       console.error("Error deleting card:", error);
@@ -172,12 +110,13 @@ export function useKanban() {
 
   const updateCard = async (cardId, cardData) => {
     try {
-      const response = await KanbanCardsAPI.update(cardId, cardData);
+      const response = await KanbanCardsAPI.update(cardId, {
+        kanban_card: cardData,
+      });
       if (response.data) {
         const index = kanbanCards.value.findIndex((c) => c.id === cardId);
         if (index !== -1) {
           kanbanCards.value[index] = response.data;
-          saveCardsToCache(kanbanCards.value);
         }
         return response.data;
       }
@@ -192,7 +131,6 @@ export function useKanban() {
       const response = await KanbanColumnsAPI.create(columnData);
       if (response.data) {
         columns.value.push(response.data);
-        saveColumnsToCache(columns.value);
         return response.data;
       }
     } catch (error) {
@@ -208,7 +146,6 @@ export function useKanban() {
         const index = columns.value.findIndex((c) => c.id === columnId);
         if (index !== -1) {
           columns.value[index] = response.data;
-          saveColumnsToCache(columns.value);
         }
         return response.data;
       }
@@ -224,7 +161,6 @@ export function useKanban() {
       const index = columns.value.findIndex((c) => c.id === columnId);
       if (index !== -1) {
         columns.value.splice(index, 1);
-        saveColumnsToCache(columns.value);
       }
     } catch (error) {
       console.error("Error deleting column:", error);
@@ -236,9 +172,10 @@ export function useKanban() {
     try {
       const card = kanbanCards.value.find((c) => c.id === cardId);
       if (card) {
+        // Optimistic update
         card.kanban_column_id = columnId;
         card.position = position;
-        saveCardsToCache(kanbanCards.value);
+        
         await KanbanCardsAPI.update(cardId, {
           kanban_card: { kanban_column_id: columnId, position },
         });
@@ -265,3 +202,4 @@ export function useKanban() {
     updateCardPosition,
   };
 }
+
