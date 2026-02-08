@@ -1,16 +1,14 @@
 <template>
   <div
-    class="kanban-card-container bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm hover:shadow-md transition-all active:cursor-grabbing flex flex-col gap-2 cursor-grab relative overflow-hidden pl-4"
+    class="kanban-card-container bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm hover:shadow-md transition-all active:cursor-grabbing flex flex-col gap-2 cursor-grab relative overflow-hidden border border-slate-200 dark:border-slate-700"
+    :style="{
+      borderLeftWidth: showPriorityColor ? '4px' : '1px',
+      borderLeftColor: showPriorityColor ? getPriorityColor(card.priority) : '',
+    }"
     draggable="true"
     @dragstart="$emit('dragstart', $event)"
     @click="$emit('edit')"
   >
-    <!-- Priority Bar (Manual Border) -->
-    <div 
-      class="absolute left-0 top-0 bottom-0 w-1.5 z-10 rounded-l-lg"
-      :style="{ backgroundColor: getPriorityColor(card.priority) }"
-    ></div>
-
     <!-- Header: Empresa/Contato -->
     <div
       v-if="card.company || card.contact"
@@ -19,7 +17,7 @@
       <router-link
         v-if="card.contact"
         :to="contactUrl"
-        class="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide truncate block hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
+        class="text-[11px] font-bold text-slate-600 dark:text-white uppercase tracking-wide truncate block hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
         :title="headerTitle"
         @click.stop
       >
@@ -27,7 +25,7 @@
       </router-link>
       <span
         v-else
-        class="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide truncate block"
+        class="text-[11px] font-bold text-slate-600 dark:text-white uppercase tracking-wide truncate block"
         :title="headerTitle"
       >
         {{ headerText }}
@@ -63,7 +61,9 @@
     </p>
 
     <!-- Linha 3: Vendedor e Data -->
-    <div class="flex items-center justify-between text-xs pt-2 mt-auto border-t border-transparent">
+    <div
+      class="flex items-center justify-between text-xs pt-2 mt-auto border-t border-transparent"
+    >
       <div class="flex items-center gap-1.5 max-w-[60%]">
         <span
           v-if="card.assignee"
@@ -122,6 +122,10 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  showPriorityColor: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 defineEmits(["dragstart", "edit", "delete"]);
@@ -135,9 +139,11 @@ const contactUrl = computed(() => {
 });
 
 const headerText = computed(() => {
-  const companyName = props.card.company ? (props.card.company.company_name || props.card.company.name) : "";
+  const companyName = props.card.company
+    ? props.card.company.company_name || props.card.company.name
+    : "";
   const contactName = props.card.contact ? props.card.contact.name : "";
-  
+
   if (companyName && contactName) {
     return `${companyName} - ${contactName}`;
   }
@@ -151,21 +157,21 @@ const getPriorityColor = (priority) => {
 
   // Retorna diretamente o HEX da cor para garantir que funcione
   switch (priority) {
-    case 'low': 
+    case "low":
     case 0:
-    case '0':
+    case "0":
       return "#60a5fa"; // blue-400
-    case 'normal': 
+    case "normal":
     case 1:
-    case '1':
+    case "1":
       return "#22c55e"; // green-500
-    case 'high': 
+    case "high":
     case 2:
-    case '2':
+    case "2":
       return "#eab308"; // yellow-500
-    case 'urgent': 
+    case "urgent":
     case 3:
-    case '3':
+    case "3":
       return "#dc2626"; // red-600
     default:
       return "#d1d5db"; // gray-300
@@ -177,13 +183,13 @@ const processedDueDate = computed(() => {
   const date = new Date(props.card.due_date);
   // Reset time for comparison
   const dateMidnight = new Date(date);
-  dateMidnight.setHours(0,0,0,0);
+  dateMidnight.setHours(0, 0, 0, 0);
   return { date, dateMidnight };
 });
 
 const dueDateClass = computed(() => {
   if (!processedDueDate.value) return "";
-  
+
   const today = new Date();
   const todayMidnight = new Date(today.setHours(0, 0, 0, 0));
   const { dateMidnight } = processedDueDate.value;
@@ -191,7 +197,7 @@ const dueDateClass = computed(() => {
   if (dateMidnight < todayMidnight) {
     return "text-red-600 dark:text-red-400";
   } else if (dateMidnight.getTime() === todayMidnight.getTime()) {
-     return "text-orange-600 dark:text-orange-400";
+    return "text-orange-600 dark:text-orange-400";
   }
   return "text-slate-600 dark:text-slate-400";
 });

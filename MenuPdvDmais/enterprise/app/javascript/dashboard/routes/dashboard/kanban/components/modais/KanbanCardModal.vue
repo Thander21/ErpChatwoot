@@ -2,46 +2,15 @@
   <div
     v-if="show"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    @click="$emit('close')"
   >
     <div
-      class="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-md mx-4"
-      @click.stop
+      class="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-md mx-4 shadow-xl"
     >
       <h2 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">
         {{ isEditing ? "Editar Card" : "Novo Card" }}
       </h2>
       <form @submit.prevent="handleSubmit" class="space-y-4">
-        <div>
-          <label
-            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-          >
-            Título *
-          </label>
-          <input
-            v-model="form.title"
-            type="text"
-            required
-            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-            placeholder="Digite o título do card"
-          />
-        </div>
-
-        <div>
-          <label
-            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-          >
-            Descrição
-          </label>
-          <textarea
-            v-model="form.description"
-            rows="3"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-            placeholder="Digite a descrição (opcional)"
-          ></textarea>
-        </div>
-
-        <!-- Seção de Relacionamentos -->
+        <!-- Seção de Relacionamentos movida para o topo -->
         <div class="space-y-3">
           <div>
             <label
@@ -49,52 +18,33 @@
             >
               Empresa *
             </label>
-            <select
+            <ComboBox
               v-model="form.company_id"
-              required
-              class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-              @change="fetchContacts(form.company_id)"
-            >
-              <option value="" disabled selected>Selecione uma empresa</option>
-              <option
-                v-for="company in companies"
-                :key="company.id"
-                :value="company.id"
-              >
-                {{ company.name }}
-              </option>
-            </select>
+              :options="companies"
+              label="Empresa *"
+              placeholder="Selecione uma empresa"
+              search-placeholder="Buscar empresa..."
+              :has-error="errors.company_id"
+              :message="errors.company_id ? 'Por favor, selecione uma empresa' : ''"
+            />
           </div>
 
           <div>
-            <label
-              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-            >
-              Contato *
-            </label>
-            <select
+            <ComboBox
               v-model="form.contact_id"
-              required
-              class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              :options="contacts"
+              label="Contato *"
+              placeholder="Selecione o contato"
+              search-placeholder="Buscar contato..."
               :disabled="!form.company_id"
-            >
-              <option value="" disabled selected>
-                {{
-                  form.company_id
-                    ? contacts.length
-                      ? "Selecione o contato"
-                      : "Nenhum contato encontrado"
-                    : "Selecione a empresa primeiro"
-                }}
-              </option>
-              <option
-                v-for="contact in contacts"
-                :key="contact.id"
-                :value="contact.id"
-              >
-                {{ contact.name }}
-              </option>
-            </select>
+              :no-data-text="
+                form.company_id
+                  ? 'Nenhum contato encontrado'
+                  : 'Selecione a empresa primeiro'
+              "
+              :has-error="errors.contact_id"
+              :message="errors.contact_id ? 'Por favor, selecione um contato' : ''"
+            />
           </div>
 
           <div>
@@ -114,6 +64,30 @@
               </option>
             </select>
           </div>
+        </div>
+
+        <div>
+          <woot-input
+            v-model="form.title"
+            type="text"
+            label="Título *"
+            placeholder="Digite o título do card"
+            required
+          />
+        </div>
+
+        <div>
+          <label
+            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+          >
+            Descrição
+          </label>
+          <textarea
+            v-model="form.description"
+            rows="3"
+            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            placeholder="Digite a descrição (opcional)"
+          ></textarea>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -146,7 +120,7 @@
               Prioridade
             </label>
             <select
-        v-model="form.priority"
+              v-model="form.priority"
               class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
             >
               <option value="low">Baixa</option>
@@ -158,39 +132,28 @@
         </div>
 
         <div>
-          <label
-            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-          >
-            Data de vencimento
-          </label>
-          <input
+          <woot-input
             v-model="form.due_date"
             type="date"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            label="Data de vencimento"
           />
         </div>
 
-        <div class="flex gap-2 pt-4">
-          <button
-            type="submit"
-            :disabled="loading"
-            class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-          >
-            {{
-              loading
-                ? "Salvando..."
-                : isEditing
-                  ? "Salvar Alterações"
-                  : "Criar Card"
-            }}
-          </button>
-          <button
-            type="button"
-            @click="$emit('close')"
-            class="px-4 py-2 bg-gray-300 dark:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-gray-400 dark:hover:bg-slate-500"
-          >
+        <div class="flex gap-2 pt-4 justify-end">
+          <woot-button variant="ghost" color="slate" @click="$emit('close')">
             Cancelar
-          </button>
+          </woot-button>
+
+          <woot-button
+            type="submit"
+            :is-loading="loading"
+            variant="solid"
+            color="teal"
+            :class="{ 'opacity-50 cursor-not-allowed': loading }"
+            :disabled="loading"
+          >
+            {{ isEditing ? "Salvar Alterações" : "Criar Card" }}
+          </woot-button>
         </div>
       </form>
     </div>
@@ -200,6 +163,9 @@
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";
 import { useStore } from "vuex";
+import WootButton from "dashboard/components-next/button/Button.vue";
+import WootInput from "dashboard/components-next/input/Input.vue";
+import ComboBox from "dashboard/components-next/combobox/ComboBox.vue";
 
 const props = defineProps({
   show: Boolean,
@@ -229,6 +195,12 @@ const companies = ref([]);
 const contacts = ref([]);
 const agents = ref([]);
 
+const errors = ref({
+  company_id: false,
+  contact_id: false,
+  assignee_id: false,
+});
+
 const isEditing = ref(false);
 
 const fetchCompanies = async () => {
@@ -246,8 +218,8 @@ const fetchCompanies = async () => {
     );
     // O endpoint de companies retorna payload com a lista
     companies.value = response.data.payload.map((c) => ({
-      id: c.id,
-      name: c.name,
+      value: c.id,
+      label: c.name,
     }));
   } catch (error) {
     console.error("Error fetching companies", error);
@@ -283,32 +255,58 @@ const fetchContacts = async (companyId) => {
         params: { company_id: companyId },
       },
     );
-    contacts.value = response.data;
+    contacts.value = response.data.map((c) => ({
+      value: c.id,
+      label: c.name,
+    }));
   } catch (e) {
     console.error(e);
   }
 };
 
 watch(
+  () => form.value.company_id,
+  (newId) => {
+    if (newId) errors.value.company_id = false;
+    fetchContacts(newId);
+  },
+);
+
+watch(
+  () => form.value.contact_id,
+  (newId) => {
+    if (newId) errors.value.contact_id = false;
+  },
+);
+
+watch(
   () => props.initialData,
   async (newData) => {
-    if (newData) {
+    // Check if newData exists and has an ID (indicating an edit)
+    // Sometimes initialData might be an empty object {}, so we check keys or specific property
+    if (newData && newData.id) {
       // Garantir que form.priority receba o valor correto mesmo se vier null (embora db force default)
-      const safeDate = newData.due_date ? new Date(newData.due_date).toISOString().split('T')[0] : "";
-      
-      form.value = { 
+      const safeDate = newData.due_date
+        ? new Date(newData.due_date).toISOString().split("T")[0]
+        : "";
+
+      form.value = {
         ...newData,
         priority: newData.priority || "low",
-        due_date: safeDate
+        due_date: safeDate,
       };
       isEditing.value = true;
       if (form.value.company_id) {
         await fetchContacts(form.value.company_id);
       }
     } else {
-      // Data de hoje formato YYYY-MM-DD
-      const today = new Date().toISOString().split('T')[0];
-      
+      // Data de hoje formato YYYY-MM-DD (Local Time)
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const today = `${year}-${month}-${day}`;
+
       form.value = {
         title: "",
         description: "",
@@ -332,6 +330,32 @@ onMounted(() => {
 });
 
 const handleSubmit = () => {
+  // Reset errors
+  errors.value = {
+    company_id: false,
+    contact_id: false,
+  };
+
+  let hasError = false;
+
+  // Manual validation for mandatory fields
+  if (!form.value.company_id) {
+    errors.value.company_id = true;
+    hasError = true;
+  }
+  if (!form.value.contact_id) {
+    errors.value.contact_id = true;
+    hasError = true;
+  }
+  // Assignee is handled by 'required' attribute on select, but we can double check
+  if (!form.value.assignee_id) {
+     // Native validation usually catches this, but just in case
+  }
+
+  if (hasError) {
+    return;
+  }
+
   // Valida campos obrigatórios manualmente se necessário, mas HTML5 'required' deve cuidar disso
   // Nota: browser validation handles 'required' only if triggered by submit button inside form.
   emit("submit", { ...form.value });
