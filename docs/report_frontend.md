@@ -24,6 +24,7 @@ Não recrie componentes. Use a biblioteca `components-next`:
 
 ## 3. Backlog Técnico (Frontend)
 
-- [ ] **Refatoração Geral**: Varrer outros módulos (além de Kanban/Contatos) para substituir botões HTML manuais por `<woot-button>`.
-- [ ] **Formulários**: Padronizar inputs usando o componente oficial.
+- [x] **Refatoração Geral**: Botões manuais substituídos por `<woot-button>` no módulo Kanban e Modais.
+- [x] **Formulários**: Inputs e Botões padronizados usando `WootInput` e `WootButton` nos modais do Kanban (`KanbanCardModal`, `KanbanColumnModal`).
+- [x] **UI/UX**: Implementadas abas padrão do Chatwoot e corrigido layout de altura total no Kanban Comercial.
 - [ ] **Testes**: Adicionar testes unitários (Vitest) para composables complexos como `useContacts`.

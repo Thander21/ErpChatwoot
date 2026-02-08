@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col gap-4 h-full">
     <!-- Header com controles -->
-    <div class="flex items-center justify-between mb-4 flex-shrink-0">
-      <div class="flex items-center gap-4">
+    <div class="flex items-center justify-between mb-2 flex-shrink-0">
+      <div class="flex items-center">
         <h2 class="text-xl font-semibold text-slate-900 dark:text-white">
           {{ title }}
         </h2>
@@ -17,49 +17,25 @@
       </div>
 
       <div class="flex flex-col sm:flex-row gap-2">
-        <button
+        <woot-button
           v-if="canCreateCard"
           @click="$emit('create-card')"
-          class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center justify-center gap-2"
+          color="green"
+          icon="plus"
         >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
           <span class="hidden sm:inline">Novo Card</span>
           <span class="sm:hidden">Card</span>
-        </button>
+        </woot-button>
 
-        <button
+        <woot-button
           v-if="canCreateColumn"
           @click="$emit('create-column')"
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center justify-center gap-2"
+          color="blue"
+          icon="plus"
         >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
           <span class="hidden sm:inline">Nova Coluna</span>
           <span class="sm:hidden">Coluna</span>
-        </button>
+        </woot-button>
 
         <!-- Slot para botões extras (ex: Refresh na aba Tarefas) -->
         <slot name="actions"></slot>
@@ -100,7 +76,7 @@
       </div>
 
       <!-- Scrollable Container (Desktop) / Slider (Mobile) -->
-      <div class="h-full flex gap-4 overflow-x-auto pb-4 snap-x">
+      <div class="h-full flex gap-4 overflow-x-auto pb-4 snap-x flex-nowrap">
         <template v-for="(column, index) in sortedColumns" :key="column.id">
           <div 
             class="h-full snap-center shrink-0 transition-opacity duration-300"
@@ -114,6 +90,8 @@
             <KanbanColumn
               :column="column"
               :cards="getCardsForColumn(column)"
+              :can-create-card="canCreateCard"
+              :show-priority-color="showPriorityColor"
               @edit="$emit('edit-column', column)"
               @delete="$emit('delete-column', column)"
               @add-card="$emit('add-card-to-column', column.id)"
@@ -136,6 +114,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import KanbanColumn from './KanbanColumn.vue';
+import WootButton from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   title: {
@@ -173,6 +152,10 @@ const props = defineProps({
   cardsFilter: {
       type: Function,
       default: null 
+  },
+  showPriorityColor: {
+    type: Boolean,
+    default: true
   }
 });
 

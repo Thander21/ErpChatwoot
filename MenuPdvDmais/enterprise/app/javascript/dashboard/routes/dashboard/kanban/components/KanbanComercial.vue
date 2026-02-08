@@ -3,7 +3,7 @@
   Controls business logic for Commercial Kanban and passes data to generic KanbanBoard.
 -->
 <template>
-  <div>
+  <div class="h-full">
     <KanbanBoard
       title="Kanban Comercial"
       :columns="columns"
@@ -11,6 +11,7 @@
       :loading="loading"
       :can-create-column="true"
       :can-create-card="true"
+      :show-priority-color="true"
       @create-card="openNewCardModal"
       @create-column="openNewColumnModal"
       @edit-column="openEditColumnModal"

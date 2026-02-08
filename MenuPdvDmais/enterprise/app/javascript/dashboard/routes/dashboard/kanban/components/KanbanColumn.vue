@@ -72,6 +72,7 @@
       >
         <!-- Add Card Button -->
         <button
+          v-if="canCreateCard"
           @click="$emit('add-card', column.id)"
           class="w-full p-3 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg text-gray-500 dark:text-slate-400 hover:border-gray-400 dark:hover:border-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors text-sm"
         >
@@ -83,6 +84,7 @@
           v-for="card in cards"
           :key="card.id"
           :card="card"
+          :show-priority-color="showPriorityColor"
           @dragstart="$emit('dragstart', $event, card)"
           @edit="$emit('edit-card', card)"
           @delete="$emit('delete-card', card)"
@@ -104,6 +106,14 @@ const props = defineProps({
     type: Array,
     required: true,
     default: () => [],
+  },
+  canCreateCard: {
+    type: Boolean,
+    default: false,
+  },
+  showPriorityColor: {
+    type: Boolean,
+    default: true,
   },
 });
 

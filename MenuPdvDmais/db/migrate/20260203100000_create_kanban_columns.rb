@@ -8,6 +8,6 @@ class CreateKanbanColumns < ActiveRecord::Migration[7.1]
       t.timestamps
     end
 
-    add_index :kanban_columns, [:account_id, :position]
+    add_index :kanban_columns, [:account_id, :position], if_not_exists: true
   end
 end

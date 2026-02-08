@@ -15,9 +15,9 @@ class CreateKanbanCards < ActiveRecord::Migration[7.1]
       t.timestamps
     end
 
-    add_index :kanban_cards, [:account_id, :kanban_column_id]
-    add_index :kanban_cards, [:account_id, :conversation_id]
-    add_index :kanban_cards, [:account_id, :contact_id]
-    add_index :kanban_cards, [:account_id, :position]
+    add_index :kanban_cards, [:account_id, :kanban_column_id], if_not_exists: true
+    add_index :kanban_cards, [:account_id, :conversation_id], if_not_exists: true
+    add_index :kanban_cards, [:account_id, :contact_id], if_not_exists: true
+    add_index :kanban_cards, [:account_id, :position], if_not_exists: true
   end
 end

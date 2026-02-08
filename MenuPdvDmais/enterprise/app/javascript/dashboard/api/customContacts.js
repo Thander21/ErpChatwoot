@@ -7,13 +7,13 @@ class CustomContactsAPI extends ApiClient {
   }
 
   // Custom endpoints from Index.vue
-  async syncCompanies() {
-    const url = `/enterprise/api/v1/accounts/${this.accountId}/kanban_cards`;
+  async syncCompanies(accountId) {
+    const url = `/enterprise/api/v1/accounts/${accountId}/kanban_cards`;
     return axios.post(`${url}/sync_companies`);
   }
 
-  async cleanupCompanies() {
-    const url = `/enterprise/api/v1/accounts/${this.accountId}/kanban_cards`;
+  async cleanupCompanies(accountId) {
+    const url = `/enterprise/api/v1/accounts/${accountId}/kanban_cards`;
     return axios.post(`${url}/cleanup_companies`);
   }
 }

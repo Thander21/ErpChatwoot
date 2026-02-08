@@ -12,6 +12,7 @@
     loading-text="Carregando conversas..."
     :can-create-column="false"
     :can-create-card="false"
+    :show-priority-color="false"
     @edit-card="openConversation"
   >
     <template #extra-info>

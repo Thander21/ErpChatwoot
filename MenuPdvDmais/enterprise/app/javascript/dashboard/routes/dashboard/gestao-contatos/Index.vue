@@ -244,7 +244,7 @@ const syncCompanies = async () => {
   )) {
     isSyncing.value = true;
     try {
-      const response = await CustomContactsAPI.syncCompanies();
+      const response = await CustomContactsAPI.syncCompanies(accountId.value);
       emitter.emit(BUS_EVENTS.SHOW_ALERT, {
         message: response.data.message,
         type: 'success',
@@ -268,7 +268,7 @@ const cleanupCompanies = async () => {
   )) {
     isCleaning.value = true;
     try {
-      const response = await CustomContactsAPI.cleanupCompanies();
+      const response = await CustomContactsAPI.cleanupCompanies(accountId.value);
       emitter.emit(BUS_EVENTS.SHOW_ALERT, {
         message: response.data.message,
         type: 'success',
