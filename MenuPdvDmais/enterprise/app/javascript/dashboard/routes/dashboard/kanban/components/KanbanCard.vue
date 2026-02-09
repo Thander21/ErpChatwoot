@@ -65,15 +65,21 @@
       class="flex items-center justify-between text-xs pt-2 mt-auto border-t border-transparent"
     >
       <div class="flex items-center gap-1.5 max-w-[60%]">
-        <span
+        <div 
           v-if="card.assignee"
-          class="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 truncate font-medium"
+          class="flex items-center gap-2 text-slate-700 dark:text-slate-300 truncate font-medium"
           :title="`Vendedor: ${card.assignee.name}`"
         >
-          <span class="text-[10px]">👤</span> {{ card.assignee.name }}
-        </span>
+          <Avatar 
+            :name="card.assignee.name || card.assignee.available_name"
+            :src="card.assignee.thumbnail"
+            :size="20"
+            :rounded-full="true"
+          />
+          <span class="text-xs">{{ card.assignee.name }}</span>
+        </div>
         <span v-else class="text-slate-400 italic text-[10px]"
-          >Sem vendedor</span
+          >Não atribuído</span
         >
       </div>
 
@@ -111,7 +117,8 @@
 
 <script setup>
 import { computed } from "vue";
-import { useStore } from "vuex"; // Needed for accountId
+import { useStore } from "vuex"; 
+import Avatar from "dashboard/components-next/avatar/Avatar.vue";
 
 const props = defineProps({
   card: {
@@ -144,10 +151,10 @@ const headerText = computed(() => {
     : "";
   const contactName = props.card.contact ? props.card.contact.name : "";
 
-  if (companyName && contactName) {
-    return `${companyName} - ${contactName}`;
+  if (companyName) {
+    return companyName;
   }
-  return companyName || contactName;
+  return contactName;
 });
 
 const headerTitle = computed(() => headerText.value);
@@ -162,6 +169,7 @@ const getPriorityColor = (priority) => {
     case "0":
       return "#60a5fa"; // blue-400
     case "normal":
+    case "medium":
     case 1:
     case "1":
       return "#22c55e"; // green-500
