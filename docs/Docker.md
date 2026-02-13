@@ -1,36 +1,43 @@
 # Comandos para Atualização (Ambiente DEV)
 
-# 1. Parar os containers
+df -h /
 
+# 1. Parar os containers
+  
 docker-compose -f docker-compose-dev.yaml stop
 docker-compose -f docker-compose-dev.yaml down
-docker-compose -f docker-compose-dev.yaml build --no-cache
-docker-compose -f docker-compose-dev.yaml up -d
+docker image prune -a -f     
+docker volume prune -a -f    
+DOCKER_BUILDKIT=1 docker-compose -f docker-compose-dev.yaml up -d --build
 
-# 4. Rodar a migração
+# 2. Rodar a migração
 
 docker compose -f docker-compose-dev.yaml run --rm rails bundle exec rails db:migrate
 
-# 2. Start the services (if not already running)
+## Limpeza Seletiva (se preferir controle):
 
-docker-compose up -d --build
-
-docker-compose -f docker-compose-dev.yaml stop
-docker-compose -f docker-compose-dev.yaml down
-docker-compose -f docker-compose-dev.yaml up -d --build
-
-docker-compose -f docker-compose-dev.yaml down
-docker-compose -f docker-compose-dev.yaml up -d
-
-# Passo 2: Limpeza completa
-
+````bash
 echo "🧹 Limpando cache Docker..."
-docker image prune -f
-docker container prune -f
-docker volume prune -f
-docker builder prune -f
+docker image prune -a -f      # Remove imagens não usadas
+docker volume prune -a -f         # Remove volumes órfãos
 
-docker system prune -a --volumes
+```
+docker builder prune -a -f        # Remove build cache
+
+## Verificar espaço usado:
+
+```bash
+ncdu /
+sudo du -h --max-depth=1 /
+df -h /
+docker system df -v
+````
+
+## Diferença entre flags:
+
+- `-f` (force) = não pede confirmação
+- `-a` (all) = remove TODAS as imagens não usadas (mais agressivo)
+- `--volumes` = inclui volumes órfãos na limpeza
 
 ## licença interprice Comando via Rails runner (recomendado):
 

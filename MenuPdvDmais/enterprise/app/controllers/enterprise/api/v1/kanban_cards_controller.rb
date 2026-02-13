@@ -5,7 +5,7 @@ class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
   before_action :set_kanban_card, only: [:show, :update, :destroy]
 
   def index
-    @kanban_cards = @account.kanban_cards.includes(:conversation, :contact, :company, :assignee).ordered
+    @kanban_cards = @account.kanban_cards.active.includes(:conversation, :contact, :company, :assignee, :archived_by).ordered
 
     # Filtrar por coluna se especificado
     @kanban_cards = @kanban_cards.by_column(params[:column_id]) if params[:column_id].present?
@@ -38,6 +38,41 @@ class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
   def destroy
     @kanban_card.destroy
     head :no_content
+  end
+
+  def archive
+    @kanban_card = @account.kanban_cards.find(params[:id])
+    if @kanban_card.update(archived_at: Time.current, archived_by: current_user)
+      render json: @kanban_card
+    else
+      render json: @kanban_card.errors, status: :unprocessable_entity
+    end
+  end
+
+  def archived_report
+    # Default to current month/year if not provided
+    date = Date.current
+    if params[:month].present? && params[:year].present?
+      begin
+        date = Date.new(params[:year].to_i, params[:month].to_i, 1)
+      rescue ArgumentError
+        # Fallback to current date on invalid input
+      end
+    end
+
+    start_date = date.beginning_of_month
+    end_date = date.end_of_month
+
+    # Query para buscar arquivados OU deletados no período
+    @archived_cards = @account.kanban_cards.all_with_deleted
+                              .where(
+                                "(archived_at BETWEEN :start AND :end) OR (deleted_at BETWEEN :start AND :end)",
+                                start: start_date, end: end_date
+                              )
+                              .includes(:conversation, :contact, :company, :assignee, :archived_by, :deleted_by)
+                              .order(Arel.sql('COALESCE(deleted_at, archived_at) DESC'))
+
+    render json: @archived_cards, include: [:conversation, :contact, :company, :assignee, :archived_by, :deleted_by]
   end
 
   def move

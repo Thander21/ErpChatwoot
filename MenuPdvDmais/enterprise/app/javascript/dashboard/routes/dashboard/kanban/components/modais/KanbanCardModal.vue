@@ -25,7 +25,9 @@
               placeholder="Selecione uma empresa"
               search-placeholder="Buscar empresa..."
               :has-error="errors.company_id"
-              :message="errors.company_id ? 'Por favor, selecione uma empresa' : ''"
+              :message="
+                errors.company_id ? 'Por favor, selecione uma empresa' : ''
+              "
             />
           </div>
 
@@ -43,7 +45,9 @@
                   : 'Selecione a empresa primeiro'
               "
               :has-error="errors.contact_id"
-              :message="errors.contact_id ? 'Por favor, selecione um contato' : ''"
+              :message="
+                errors.contact_id ? 'Por favor, selecione um contato' : ''
+              "
             />
           </div>
 
@@ -139,21 +143,72 @@
           />
         </div>
 
-        <div class="flex gap-2 pt-4 justify-end">
-          <woot-button variant="ghost" color="slate" @click="$emit('close')">
-            Cancelar
-          </woot-button>
+        <div
+          class="flex gap-2 pt-4"
+          :class="isEditing ? 'justify-between' : 'justify-end'"
+        >
+          <!-- Delete and Archive buttons (only when editing) -->
+          <div v-if="isEditing" class="flex gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              @click="handleDelete"
+              :disabled="loading"
+            >
+              Excluir
+            </button>
 
-          <woot-button
-            type="submit"
-            :is-loading="loading"
-            variant="solid"
-            color="teal"
-            :class="{ 'opacity-50 cursor-not-allowed': loading }"
-            :disabled="loading"
-          >
-            {{ isEditing ? "Salvar Alterações" : "Criar Card" }}
-          </woot-button>
+            <button
+              v-if="isLastColumn"
+              type="button"
+              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              @click="handleArchive"
+              :disabled="loading"
+            >
+              Arquivar
+            </button>
+          </div>
+
+          <!-- Regular action buttons -->
+          <div class="flex gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-slate-800 dark:text-gray-200 dark:border-slate-600 dark:hover:bg-slate-700"
+              @click="$emit('close')"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :class="{ 'opacity-50 cursor-not-allowed': loading }"
+              :disabled="loading"
+            >
+              <svg
+                v-if="loading"
+                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              {{ isEditing ? "Salvar Alterações" : "Criar Card" }}
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -174,11 +229,27 @@ const props = defineProps({
   loading: Boolean,
 });
 
-const emit = defineEmits(["close", "submit"]);
+const emit = defineEmits(["close", "submit", "delete", "archive"]);
 const store = useStore();
 
 // Getter para o ID da conta atual for API paths
 const accountId = computed(() => store.getters["getCurrentAccountId"]);
+
+// Check if card is in last column
+const isLastColumn = computed(() => {
+  if (
+    !props.columns ||
+    props.columns.length === 0 ||
+    !form.value.kanban_column_id
+  ) {
+    return false;
+  }
+  const sortedColumns = [...props.columns].sort(
+    (a, b) => (a.position || 0) - (b.position || 0),
+  );
+  const lastColumn = sortedColumns[sortedColumns.length - 1];
+  return form.value.kanban_column_id === lastColumn.id;
+});
 
 const form = ref({
   title: "",
@@ -202,25 +273,58 @@ const errors = ref({
 });
 
 const isEditing = ref(false);
+const selectedCompany = ref(null);
 
 const fetchCompanies = async () => {
   try {
-    // Busca a lista de empresas oficial
-    // Limitando a 100 para exemplo, ideal seria um select remoto com busca
-    const response = await axios.get(
-      `/api/v1/accounts/${accountId.value}/companies`,
-      {
-        params: {
-          sort: "name",
-          per_page: 100,
+    let allCompanies = [];
+    let currentPage = 1;
+    let hasMore = true;
+
+    // Paginate through all companies to load the complete list
+    while (hasMore) {
+      const response = await axios.get(
+        `/api/v1/accounts/${accountId.value}/companies`,
+        {
+          params: {
+            sort: "name",
+            page: currentPage,
+          },
         },
-      },
-    );
-    // O endpoint de companies retorna payload com a lista
-    companies.value = response.data.payload.map((c) => ({
+      );
+
+      const pageCompanies = response.data.payload || [];
+      allCompanies = allCompanies.concat(pageCompanies);
+
+      // Check if there are more pages (RESULTS_PER_PAGE = 25 in controller)
+      if (pageCompanies.length < 25) {
+        hasMore = false;
+      } else {
+        currentPage++;
+      }
+
+      // Safety limit to prevent infinite loops (adjust if needed)
+      if (currentPage > 100) {
+        console.warn("Reached pagination limit of 100 pages (2500 companies)");
+        hasMore = false;
+      }
+    }
+
+    // Convert to ComboBox format
+    let results = allCompanies.map((c) => ({
       value: c.id,
       label: c.name,
     }));
+
+    // If a company is selected, ensure it's in the list
+    if (form.value.company_id && selectedCompany.value) {
+      const exists = results.find((c) => c.value === form.value.company_id);
+      if (!exists) {
+        results.push(selectedCompany.value);
+      }
+    }
+
+    companies.value = results;
   } catch (error) {
     console.error("Error fetching companies", error);
   }
@@ -267,7 +371,14 @@ const fetchContacts = async (companyId) => {
 watch(
   () => form.value.company_id,
   (newId) => {
-    if (newId) errors.value.company_id = false;
+    if (newId) {
+      errors.value.company_id = false;
+      // Update selected company object for persistence
+      const selected = companies.value.find((c) => c.value === newId);
+      if (selected) {
+        selectedCompany.value = selected;
+      }
+    }
     fetchContacts(newId);
   },
 );
@@ -295,8 +406,21 @@ watch(
         priority: newData.priority || "low",
         due_date: safeDate,
       };
+
+      // Set selected company from initial data if available for select label
+      if (newData.company && newData.company.id && newData.company.name) {
+        selectedCompany.value = {
+          value: newData.company.id,
+          label: newData.company.name,
+        };
+      } else {
+        selectedCompany.value = null;
+      }
+
       isEditing.value = true;
       if (form.value.company_id) {
+        // If we have selectedCompany, ensure it's in the list after fetch
+        // Or fetch first to see if it's there
         await fetchContacts(form.value.company_id);
       }
     } else {
@@ -317,6 +441,8 @@ watch(
         contact_id: "",
         assignee_id: "",
       };
+      // Reset selected company
+      selectedCompany.value = null;
       isEditing.value = false;
       contacts.value = [];
     }
@@ -349,7 +475,7 @@ const handleSubmit = () => {
   }
   // Assignee is handled by 'required' attribute on select, but we can double check
   if (!form.value.assignee_id) {
-     // Native validation usually catches this, but just in case
+    // Native validation usually catches this, but just in case
   }
 
   if (hasError) {
@@ -359,5 +485,17 @@ const handleSubmit = () => {
   // Valida campos obrigatórios manualmente se necessário, mas HTML5 'required' deve cuidar disso
   // Nota: browser validation handles 'required' only if triggered by submit button inside form.
   emit("submit", { ...form.value });
+};
+
+const handleDelete = () => {
+  if (props.initialData && props.initialData.id) {
+    emit("delete", props.initialData);
+  }
+};
+
+const handleArchive = () => {
+  if (props.initialData && props.initialData.id) {
+    emit("archive", props.initialData);
+  }
 };
 </script>

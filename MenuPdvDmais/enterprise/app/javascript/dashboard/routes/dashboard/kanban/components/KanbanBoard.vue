@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-4 h-full">
+  <div class="flex flex-col gap-4 h-full bg-n-surface-1">
     <!-- Header com controles -->
     <div class="flex items-center justify-between mb-2 flex-shrink-0">
       <div class="flex items-center gap-4">
@@ -12,7 +12,30 @@
           <span>{{ totalCards }} cards</span>
           <span v-if="columns.length > 0">•</span>
           <span v-if="columns.length > 0">{{ columns.length }} colunas</span>
+          <span v-if="columns.length > 0">{{ columns.length }} colunas</span>
           <slot name="extra-info"></slot>
+          <span class="text-gray-300 dark:text-gray-600">|</span>
+          <router-link
+            :to="archivedUrl"
+            class="hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect width="20" height="5" x="2" y="3" rx="1" />
+              <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
+              <path d="M10 12h4" />
+            </svg>
+            Arquivados
+          </router-link>
         </div>
       </div>
 
@@ -94,12 +117,15 @@
               :column="column"
               :cards="getCardsForColumn(column)"
               :can-create-card="canCreateCard"
+              :can-delete-column="canDeleteColumn"
               :show-priority-color="showPriorityColor"
               @edit="$emit('edit-column', column)"
               @delete="$emit('delete-column', column)"
               @add-card="$emit('add-card-to-column', column.id)"
               @edit-card="(card) => $emit('edit-card', card)"
               @delete-card="(card) => $emit('delete-card', card)"
+              @archive-card="(card) => $emit('archive-card', card)"
+              :is-last-column="index === sortedColumns.length - 1"
               @dragstart="onDragStart"
               @drop="onDrop"
             />
@@ -140,6 +166,10 @@ const props = defineProps({
     required: true,
     default: () => [],
   },
+  archivedUrl: {
+    type: String,
+    default: "",
+  },
   cards: {
     type: Array, // Expected: { id, kanban_column_id, ... }
     required: true,
@@ -163,6 +193,10 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  canDeleteColumn: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const emit = defineEmits([
@@ -173,6 +207,8 @@ const emit = defineEmits([
   "add-card-to-column",
   "edit-card",
   "delete-card",
+  "delete-card",
+  "archive-card",
   "card-moved",
 ]);
 

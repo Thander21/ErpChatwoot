@@ -627,7 +627,7 @@ const groupedList = computed(() => {
   if (Array.isArray(props.contacts)) {
     const groups = {};
     props.contacts.forEach((contact) => {
-      const company = getCompanyName(contact) || "Sem Empresa";
+      const company = getCompanyName(contact) || "Empresa não informada";
       if (!groups[company]) groups[company] = [];
       groups[company].push(contact);
     });
@@ -635,8 +635,8 @@ const groupedList = computed(() => {
     // Convert map to Array of objects to match the structure we want in template
     return Object.keys(groups)
       .sort((a, b) => {
-        if (a === "Sem Empresa") return -1;
-        if (b === "Sem Empresa") return 1;
+        if (a === "Empresa não informada") return -1;
+        if (b === "Empresa não informada") return 1;
         return a.localeCompare(b);
       })
       .map((name) => ({
@@ -649,8 +649,8 @@ const groupedList = computed(() => {
   if (typeof props.contacts === "object") {
     return Object.keys(props.contacts)
       .sort((a, b) => {
-        if (a === "Sem Empresa") return -1;
-        if (b === "Sem Empresa") return 1;
+        if (a === "Empresa não informada") return -1;
+        if (b === "Empresa não informada") return 1;
         return a.localeCompare(b);
       })
       .map((key) => ({

@@ -13,12 +13,13 @@
       loading-text="Carregando conversas..."
       :can-create-column="false"
       :can-create-card="false"
+      :can-delete-column="false"
       :show-priority-color="true"
       @edit-card="openConversation"
     >
       <template #extra-info>
-         <span>•</span>
-         <button
+        <span>•</span>
+        <button
           @click="refreshConversations"
           :disabled="loading"
           class="px-2 hover:text-blue-600 disabled:opacity-50 text-xs flex items-center gap-1 focus:outline-none"
@@ -57,8 +58,18 @@ const conversations = ref([]);
 // Configuration: Fixed Columns
 const columns = [
   { id: "pending", name: "Pendentes", color: "#f97316", position: 0 },
-  { id: "open_unassigned", name: "Abertas não atribuídas", color: "#dc2626", position: 1 },
-  { id: "open_assigned", name: "Abertas atribuídas", color: "#2563eb", position: 2 },
+  {
+    id: "open_unassigned",
+    name: "Abertas não atribuídas",
+    color: "#dc2626",
+    position: 1,
+  },
+  {
+    id: "open_assigned",
+    name: "Abertas atribuídas",
+    color: "#2563eb",
+    position: 2,
+  },
   { id: "snoozed", name: "Adiadas", color: "#eab308", position: 3 },
   { id: "resolved", name: "Resolvidas (7d)", color: "#16a34a", position: 4 },
 ];
@@ -66,35 +77,44 @@ const columns = [
 // Helper to determine column ID for a conversation
 const determineColumnId = (conversation) => {
   // Check Snoozed first
-  if (conversation.snoozed_until || conversation.status === "snoozed" || conversation.status === 3) return "snoozed";
-  
+  if (
+    conversation.snoozed_until ||
+    conversation.status === "snoozed" ||
+    conversation.status === 3
+  )
+    return "snoozed";
+
   // Status check
   const status = conversation.status;
-  
+
   // Pending
-  if (status === 'pending' || status === 2) return "pending";
+  if (status === "pending" || status === 2) return "pending";
 
   // Open
-  if (status === 'open' || status === 0) {
+  if (status === "open" || status === 0) {
     // Assignee is in meta.assignee
     const assignee = conversation.meta?.assignee;
     return assignee ? "open_assigned" : "open_unassigned";
   }
 
   // Resolved
-  if (status === 'resolved' || status === 1) {
+  if (status === "resolved" || status === 1) {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const resolvedAt = new Date(conversation.updated_at * 1000); // API returns timestamp in seconds?
     // Wait, API returns floating point: json.updated_at conversation.updated_at.to_f
-    // So distinct from Date object constructor? 
+    // So distinct from Date object constructor?
     // new Date(seconds * 1000) for JS.
     // Let's assume input is standard timestamp.
     // If to_f returns seconds since epoch.
-    if (conversation.updated_at && new Date(conversation.updated_at * 1000) < sevenDaysAgo) return null; 
+    if (
+      conversation.updated_at &&
+      new Date(conversation.updated_at * 1000) < sevenDaysAgo
+    )
+      return null;
     return "resolved";
   }
-  
+
   return null;
 };
 
@@ -117,18 +137,18 @@ const transformConversationToCard = (conversation) => {
     company: company,
     assignee: assignee,
     // Use conversation due date if available, or snoozed until
-    due_date: conversation.snoozed_until, 
+    due_date: conversation.snoozed_until,
     // Priority string is passed directly (low, medium, high, urgent). Default to low if null.
     priority: conversation.priority || "low",
     kanban_column_id: columnId,
-    original_conversation: conversation
+    original_conversation: conversation,
   };
 };
 
 const mappedCards = computed(() => {
   return conversations.value
     .map(transformConversationToCard)
-    .filter(card => card !== null);
+    .filter((card) => card !== null);
 });
 
 // Fetch Logic (No Cache)
@@ -143,20 +163,23 @@ const fetchConversations = async () => {
     while (hasMorePages) {
       // Use axios directly to ensure params are passed correctly
       // status: 'all' fetches pending, open, snoozed, and resolved
-      const response = await window.axios.get(`/api/v1/accounts/${accountId}/conversations`, {
-        params: {
-          page: page,
-          status: 'all'
-        }
-      });
-      
+      const response = await window.axios.get(
+        `/api/v1/accounts/${accountId}/conversations`,
+        {
+          params: {
+            page: page,
+            status: "all",
+          },
+        },
+      );
+
       let pageData = response.data.payload || response.data.data?.payload || [];
 
       // Handle potential meta structure
       if (response.data.data && Array.isArray(response.data.data)) {
-         pageData = response.data.data;
+        pageData = response.data.data;
       }
-      
+
       if (!Array.isArray(pageData)) {
         pageData = [];
       }
@@ -167,10 +190,10 @@ const fetchConversations = async () => {
         allConversations.push(...pageData);
         page += 1;
         // Increase safety limit for production, but kept at 50 for now or until count is reached
-        if (page > 50) hasMorePages = false; 
+        if (page > 50) hasMorePages = false;
       }
     }
-    
+
     conversations.value = allConversations;
   } catch (error) {
     console.error("Erro ao buscar conversas:", error);
@@ -187,7 +210,9 @@ const refreshConversations = async () => {
 // Utilities
 const getLastMessage = (conversation) => {
   if (conversation.last_non_activity_message) {
-    return conversation.last_non_activity_message.content || "Mensagem sem conteúdo";
+    return (
+      conversation.last_non_activity_message.content || "Mensagem sem conteúdo"
+    );
   }
   if (!conversation.messages || conversation.messages.length === 0) {
     return "Sem mensagens";

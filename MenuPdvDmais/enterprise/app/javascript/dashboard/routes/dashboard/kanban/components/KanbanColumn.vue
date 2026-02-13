@@ -1,6 +1,6 @@
 <template>
   <div class="flex-shrink-0 w-72 sm:w-80 h-full max-h-full flex flex-col">
-    <div class="bg-gray-100 dark:bg-slate-800 rounded-lg p-4 flex flex-col h-full max-h-full">
+    <div class="bg-n-solid-1 rounded-lg p-4 flex flex-col h-full max-h-full">
       <!-- Column Header -->
       <div class="flex items-center justify-between mb-4 flex-shrink-0">
         <div class="flex items-center gap-2">
@@ -41,9 +41,20 @@
           </button>
 
           <button
+            v-if="canDeleteColumn"
             @click="$emit('delete', column)"
-            class="p-1 hover:bg-red-100 dark:hover:bg-red-900 rounded text-red-600 dark:text-red-400"
-            title="Excluir coluna"
+            :disabled="cards.length > 0"
+            class="p-1 rounded transition-colors"
+            :class="
+              cards.length > 0
+                ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
+                : 'hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400'
+            "
+            :title="
+              cards.length > 0
+                ? 'Remova todos os cards antes de excluir a coluna'
+                : 'Excluir coluna'
+            "
           >
             <svg
               class="w-4 h-4"
@@ -85,9 +96,11 @@
           :key="card.id"
           :card="card"
           :show-priority-color="showPriorityColor"
+          :is-last-column="isLastColumn"
           @dragstart="$emit('dragstart', $event, card)"
           @edit="$emit('edit-card', card)"
           @delete="$emit('delete-card', card)"
+          @archive="$emit('archive-card', card)"
         />
       </div>
     </div>
@@ -95,7 +108,7 @@
 </template>
 
 <script setup>
-import KanbanCard from './KanbanCard.vue';
+import KanbanCard from "./KanbanCard.vue";
 
 const props = defineProps({
   column: {
@@ -115,15 +128,24 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  isLastColumn: {
+    type: Boolean,
+    default: false,
+  },
+  canDeleteColumn: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 defineEmits([
-  'edit',
-  'delete',
-  'drop',
-  'add-card',
-  'dragstart',
-  'edit-card',
-  'delete-card',
+  "edit",
+  "delete",
+  "drop",
+  "add-card",
+  "dragstart",
+  "edit-card",
+  "delete-card",
+  "archive-card",
 ]);
 </script>

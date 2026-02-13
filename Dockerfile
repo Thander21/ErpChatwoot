@@ -11,21 +11,22 @@ ENV NODE_VERSION=${NODE_VERSION}
 ENV PNPM_VERSION=${PNPM_VERSION}
 
 ARG BUNDLE_WITHOUT="development:test"
-ENV BUNDLE_WITHOUT ${BUNDLE_WITHOUT}
+ENV BUNDLE_WITHOUT=${BUNDLE_WITHOUT}
 ENV BUNDLER_VERSION=2.5.16
 
 ARG RAILS_SERVE_STATIC_FILES=true
-ENV RAILS_SERVE_STATIC_FILES ${RAILS_SERVE_STATIC_FILES}
+ENV RAILS_SERVE_STATIC_FILES=${RAILS_SERVE_STATIC_FILES}
 
 ARG RAILS_ENV=production
-ENV RAILS_ENV ${RAILS_ENV}
+ENV RAILS_ENV=${RAILS_ENV}
 
 ARG NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
-ENV NODE_OPTIONS ${NODE_OPTIONS}
+ENV NODE_OPTIONS=${NODE_OPTIONS}
 
 ENV BUNDLE_PATH="/gems"
 
-RUN apk update && apk add --no-cache \
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk update && apk add --no-cache \
     openssl \
     tar \
     build-base \
@@ -71,18 +72,21 @@ RUN sed -i "1i gem 'httparty'\ngem 'multi_xml'" ./Gemfile
 
 
 # Native compile deps
-RUN apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips rust cargo clang clang-libclang yaml-dev
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips rust cargo clang clang-libclang yaml-dev
 RUN bundle config set --local force_ruby_platform true
 
 # Install Gems
-RUN if [ "$RAILS_ENV" = "production" ]; then \
+RUN --mount=type=cache,target=/usr/local/bundle/cache \
+    if [ "$RAILS_ENV" = "production" ]; then \
     bundle config set without 'development test'; bundle install -j 4 -r 3; \
     else bundle install -j 4 -r 3; \
     fi
 
 # COPY Node Deeps
 COPY chatwoot-base/package.json chatwoot-base/pnpm-lock.yaml ./
-RUN pnpm i
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+    pnpm config set store-dir /root/.local/share/pnpm/store && pnpm i
 
 # COPY Source Code (Base)
 COPY chatwoot-base /app
@@ -142,20 +146,20 @@ ENV NODE_VERSION=${NODE_VERSION}
 ENV PNPM_VERSION=${PNPM_VERSION}
 
 ARG BUNDLE_WITHOUT="development:test"
-ENV BUNDLE_WITHOUT ${BUNDLE_WITHOUT}
+ENV BUNDLE_WITHOUT=${BUNDLE_WITHOUT}
 ENV BUNDLER_VERSION=2.5.16
 
 ARG EXECJS_RUNTIME="Disabled"
-ENV EXECJS_RUNTIME ${EXECJS_RUNTIME}
+ENV EXECJS_RUNTIME=${EXECJS_RUNTIME}
 
 ARG RAILS_SERVE_STATIC_FILES=true
-ENV RAILS_SERVE_STATIC_FILES ${RAILS_SERVE_STATIC_FILES}
+ENV RAILS_SERVE_STATIC_FILES=${RAILS_SERVE_STATIC_FILES}
 
 ARG BUNDLE_FORCE_RUBY_PLATFORM=1
-ENV BUNDLE_FORCE_RUBY_PLATFORM ${BUNDLE_FORCE_RUBY_PLATFORM}
+ENV BUNDLE_FORCE_RUBY_PLATFORM=${BUNDLE_FORCE_RUBY_PLATFORM}
 
 ARG RAILS_ENV=production
-ENV RAILS_ENV ${RAILS_ENV}
+ENV RAILS_ENV=${RAILS_ENV}
 ENV BUNDLE_PATH="/gems"
 
 RUN apk update && apk add --no-cache \

@@ -9,9 +9,11 @@ namespace :enterprise, defaults: { format: 'json' } do
             post :cleanup_companies
             get :companies
             get :contacts_by_company
+            get :archived_report
           end
           member do
             post :move
+            post :archive
           end
         end
       end

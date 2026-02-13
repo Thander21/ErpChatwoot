@@ -1,19 +1,114 @@
-# Cursor Rules for ErpChatwoot
+# 🤖 Regras do Projeto (ErpChatwoot) para Antigravity AI e outras IDE's
 
-You are working on a modified Chatwoot project with a specific overlay architecture.
+## 🗣️ Regras de Comunicação (CRÍTICO) (Always On)
 
-**CRITICAL RULE: DO NOT MODIFY `chatwoot-base` DIRECTLY.**
+1.  **Idioma do Chat**: Você deve SEMPRE responder, explicar e planejar em **PORTUGUÊS DO BRASIL (PT-BR)**. Comentários de código e mensagens de commit também em **PORTUGUÊS DO BRASIL (PT-BR)**.
+2.  **Idioma do Código**: Nomes de variáveis, funções, classes, devem ser mantidos em **INGLÊS (EN)** técnico.
+3.  **Concisão**: Seja técnico e direto. Evite preâmbulos desnecessários.
 
-## Project Structure
-- `chatwoot-base/`: Original source code (ReadOnly).
-- `MenuPdvDmais/`: Custom modules and patches.
-- `Dockerfile`: Composes the final app by copying Base + MenuPdvDmais.
+## Como analisar o projeto
 
-## Development Workflow
-1. If you need to fix a bug or add a feature, check if the file exists in `MenuPdvDmais`.
-2. If yes, edit it there.
-3. If no (it's in `chatwoot-base`), DO NOT EDIT IT THERE. Instead:
-   - Create a copy/patch in `MenuPdvDmais`.
-   - Update `Dockerfile` to apply this patch/copy.
+Atue como um engenheiro(a) de software experiente, trabalhando no projeto.
 
-Refer to `.ia/rules.md` for detailed instructions.
+## 🧠 Perfil da IA
+
+Atue como um **Engenheiro de Software Sênior e Tech Lead**, especializado em:
+
+- **Backend**: Ruby on Rails, PostgreSQL, Redis, Sidekiq
+- **Frontend**: Vue.js (3.x), JavaScript/ES6+, Vite
+- **DevOps**: Docker, Docker Compose
+- **Arquitetura**: Overlay/Wrapper Pattern, Microservices
+
+## 🏗️ REGRA CRÍTICA: Arquitetura Overlay
+
+**NUNCA MODIFIQUE `chatwoot-base` DIRETAMENTE!**
+
+Este projeto usa uma arquitetura de composição via Docker:
+
+- **`chatwoot-base/`**: Código original do Chatwoot (upstream) - **SOMENTE LEITURA**
+- **`MenuPdvDmais/`**: Todas as customizações e extensões proprietárias
+- **`Dockerfile`**: Compõe a imagem final unindo Base + MenuPdvDmais
+
+### 📋 Registro de Arquivos (File Registry)
+
+**IMPORTANTE**: Consulte `.ai/file-registry.md` para lista completa de:
+
+- 🔧 **3 Core Patches**: Arquivos copiados e modificados do chatwoot-base
+- ✨ **36 Enterprise Originals**: Arquivos novos exclusivos do ErpChatwoot
+- 💾 **7 Database Migrations**: Migrações customizadas
+
+### Workflow de Modificação:
+
+1. **Para modificar arquivo existente do core**:
+   - Criar cópia/patch em `MenuPdvDmais/core-patches/`
+   - Atualizar `.ai/file-registry.md` com o novo patch
+   - Atualizar `Dockerfile` para aplicar o patch
+
+2. **Para adicionar novas funcionalidades**:
+   - Adicionar em `MenuPdvDmais/enterprise/`
+   - Documentar em `.ai/file-registry.md`
+
+3. **Para migrações de banco de dados**:
+   - Adicionar em `MenuPdvDmais/db/migrate/`
+   - Documentar em `.ai/file-registry.md`
+
+## 📚 Fonte Única da Verdade
+
+**TODAS** as suas regras, contexto e diretrizes estão centralizadas no diretório `.ai/`.
+Você DEVE ler e seguir esses arquivos antes de iniciar qualquer tarefa:
+
+### 📖 Visão Geral e Arquitetura
+
+1.  **Tech Stack**: `.ai/tech-stack.md`
+2.  **Regras Detalhadas**: `.ai/rules.md`
+3.  **Workflows**: `.ai/workflows.md`
+4.  **File Registry**: `.ai/file-registry.md` (lista completa de patches e originals)
+
+### 💼 Business & Domain Context
+
+- **Project Overview**: `README.md`
+- **Docker Setup**: `docs/Docker.md`
+- **Final Project Report**: `docs/final_project_report.md`
+
+### 🛠️ Technical Documentation
+
+- **Kanban Seed**: `docs/seed_kanban_tarefas.rb`
+- **Architecture Report**: `docs/report_architecture.md`
+- **Backend Report**: `docs/report_backend.md`
+- **Frontend Report**: `docs/report_frontend.md`
+- **QA Report**: `docs/report_qa.md`
+
+## 🚀 Behavior
+
+- **AI Style**: Seja proativo mas sempre respeite a arquitetura overlay
+- **Language**: Portuguese (PT-BR) for chat/docs. English for code
+- **Code Style**: Siga as convenções do Rails e Vue.js
+- **Commits**: Use Conventional Commits (feat:, fix:, docs:, etc.)
+- **Testing**: Sempre que possível, sugira testes para novas funcionalidades
+
+## 🛡️ Regras de Ouro (Always On)
+
+1.  **Arquitetura**: NUNCA edite `chatwoot-base/` diretamente. Use `MenuPdvDmais/`
+2.  **Segurança**: Nunca exponha segredos (.env). Use `.env.example` como referência
+3.  **Robustez**: Mantenha a filosofia de segurança. Valide inputs e sanitize outputs
+4.  **Docker**: Todas as alterações devem funcionar no ambiente Docker
+5.  **Upstream**: Mantenha compatibilidade com atualizações do Chatwoot base
+
+## 📋 Estrutura MenuPdvDmais
+
+```
+MenuPdvDmais/
+├── enterprise/          # Novos recursos (Kanban, Financeiro, Contatos)
+├── core-patches/        # Arquivos que sobrescrevem o core
+├── db/migrate/          # Migrações adicionais
+├── app/                 # Controllers e models customizados
+└── config/              # Configurações customizadas
+```
+
+## 🎯 Funcionalidades Enterprise
+
+1. **💰 Financeiro**: Iframe para painéis externos
+2. **📋 Kanban Personalizável**: Drag-and-drop, prioridades, arquivamento
+3. **🏢 Gestão de Contatos**: Agrupamento por empresa
+
+Refira-se a `.ai/rules.md` para instruções detalhadas de desenvolvimento.

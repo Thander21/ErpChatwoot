@@ -24,5 +24,13 @@ export default {
         permissions: [...ROLES],
       },
     },
+    {
+      path: frontendURL('accounts/:accountId/kanban/archived'),
+      name: 'kanban_archived',
+      component: () => import('./components/ArchivedReport.vue'),
+      meta: {
+        permissions: [...ROLES],
+      },
+    },
   ],
 };

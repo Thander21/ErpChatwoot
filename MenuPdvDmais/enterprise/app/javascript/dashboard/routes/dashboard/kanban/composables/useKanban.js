@@ -186,6 +186,29 @@ export function useKanban() {
     }
   };
 
+  const archiveCard = async (cardId) => {
+    try {
+      await KanbanCardsAPI.archive(cardId);
+      const index = kanbanCards.value.findIndex((c) => c.id === cardId);
+      if (index !== -1) {
+        kanbanCards.value.splice(index, 1);
+      }
+    } catch (error) {
+      console.error("Error archiving card:", error);
+      throw error;
+    }
+  };
+
+  const fetchArchivedCards = async (month, year) => {
+    try {
+      const response = await KanbanCardsAPI.getArchivedReport(month, year);
+      return response.data;
+    } catch (error) {
+       console.error("Error fetching archived cards:", error);
+       throw error;
+    }
+  };
+
   return {
     columns,
     kanbanCards,
@@ -196,10 +219,13 @@ export function useKanban() {
     createCard,
     updateCard,
     deleteCard,
+    archiveCard,
+    fetchArchivedCards,
     createColumn,
     updateColumn,
     deleteColumn,
     updateCardPosition,
+    loadColumns,
   };
 }
 

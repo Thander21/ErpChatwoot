@@ -32,6 +32,15 @@ class KanbanCardsAPI extends ApiClient {
       position: position
     });
   }
+  archive(cardId) {
+    return axios.post(`${this.url}/${cardId}/archive`);
+  }
+
+  getArchivedReport(month, year) {
+    return axios.get(`${this.url}/archived_report`, {
+      params: { month, year },
+    });
+  }
 }
 
 export default new KanbanCardsAPI();
