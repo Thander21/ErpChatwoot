@@ -5,29 +5,43 @@
     <!-- Header Section -->
     <div class="flex flex-col gap-4 flex-shrink-0">
       <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-white">
           Relatório de Arquivados e Excluídos
         </h1>
         <router-link
           :to="kanbanUrl"
-          class="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1"
         >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
           Voltar para Kanban
         </router-link>
       </div>
 
       <!-- Filters Bar -->
       <div
-        class="flex flex-wrap items-center gap-2 bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+        class="flex flex-wrap items-center gap-2 bg-n-surface-1 p-3 rounded-lg border border-n-weak dark:border-n-weak shadow-sm"
       >
         <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-slate-700 dark:text-slate-300"
+          <span class="text-sm font-medium text-n-slate-11"
             >Filtros:</span
           >
           <!-- Status Filter -->
           <select
             v-model="selectedStatus"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-slate-700 dark:border-slate-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            class="reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2 px-3"
           >
             <option value="all">Todos os Status</option>
             <option value="archived">Apenas Arquivados</option>
@@ -36,7 +50,7 @@
 
           <select
             v-model="selectedMonth"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-slate-700 dark:border-slate-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            class="reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2 px-3"
           >
             <option
               v-for="(month, index) in months"
@@ -49,7 +63,7 @@
 
           <select
             v-model="selectedYear"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-slate-700 dark:border-slate-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            class="reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2 px-3"
           >
             <option v-for="year in years" :key="year" :value="year">
               {{ year }}
@@ -59,7 +73,7 @@
           <!-- Agent Filter -->
           <select
             v-model="selectedAgent"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 dark:bg-slate-700 dark:border-slate-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            class="reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2 px-8"
           >
             <option value="">Todos os Vendedores</option>
             <option v-for="agent in agents" :key="agent.id" :value="agent.id">
@@ -67,29 +81,31 @@
             </option>
           </select>
 
-          <button
+          <woot-button
             @click="fetchData"
-            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ml-2"
+            icon="filter"
+            color="blue"
+            class="ml-2"
           >
             Filtrar
-          </button>
+          </woot-button>
         </div>
       </div>
     </div>
 
     <!-- Content -->
     <div
-      class="flex-1 overflow-hidden bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 shadow flex flex-col"
+      class="flex-1 overflow-hidden bg-n-surface-1 rounded-lg border border-n-weak dark:border-n-weak shadow flex flex-col"
     >
       <div v-if="loading" class="flex items-center justify-center p-12 flex-1">
         <div
-          class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-woot-500"
         ></div>
       </div>
 
       <div
         v-else-if="finalFilteredCards.length === 0"
-        class="flex flex-col items-center justify-center p-12 text-slate-500 flex-1"
+        class="flex flex-col items-center justify-center p-12 text-n-slate-11 flex-1"
       >
         <p class="text-lg">
           Nenhum card encontrado com os filtros selecionados.
@@ -98,10 +114,10 @@
 
       <div v-else class="overflow-auto flex-1 custom-scroll">
         <table
-          class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
+          class="w-full text-sm text-left text-n-slate-11"
         >
           <thead
-            class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-slate-900 dark:text-white sticky top-0 border-b border-gray-200 dark:border-gray-700"
+            class="text-xs text-n-slate-12 uppercase bg-n-alpha-black2 sticky top-0 border-b border-n-weak"
           >
             <tr>
               <th scope="col" class="py-3 px-6">Status</th>
@@ -116,7 +132,7 @@
             <tr
               v-for="card in finalFilteredCards"
               :key="card.id"
-              class="bg-white border-b dark:bg-slate-900 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-slate-800 cursor-pointer"
+              class="bg-n-surface-1 border-b border-n-weak hover:bg-n-alpha-black2 cursor-pointer"
               @click="openCardModal(card)"
             >
               <td class="py-4 px-6">
@@ -134,16 +150,16 @@
                 </span>
               </td>
               <td
-                class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                class="py-4 px-6 font-medium text-n-slate-12 whitespace-nowrap"
               >
                 {{ card.title }}
               </td>
-              <td class="py-4 px-6 dark:text-white">
+              <td class="py-4 px-6 text-n-slate-12">
                 <div v-if="card.company">{{ card.company.name }}</div>
                 <div v-else-if="card.contact">{{ card.contact.name }}</div>
                 <span v-else>-</span>
               </td>
-              <td class="py-4 px-6 dark:text-white">
+              <td class="py-4 px-6 text-n-slate-12">
                 <div v-if="card.deleted_by" class="flex items-center gap-2">
                   <img
                     v-if="card.deleted_by.thumbnail"
@@ -165,10 +181,10 @@
                 </div>
                 <span v-else>-</span>
               </td>
-              <td class="py-4 px-6 dark:text-white">
+              <td class="py-4 px-6 text-n-slate-12">
                 {{ formatDate(card.deleted_at || card.archived_at) }}
               </td>
-              <td class="py-4 px-6 dark:text-white">
+              <td class="py-4 px-6 text-n-slate-12">
                 <span v-if="card.assignee">{{ card.assignee.name }}</span>
                 <span v-else>-</span>
               </td>
@@ -199,6 +215,7 @@ import { useKanban } from "../composables/useKanban";
 import { useStore } from "vuex";
 import { frontendURL } from "dashboard/helper/URLHelper";
 import KanbanCardModal from "./modais/KanbanCardModal.vue";
+import WootButton from "dashboard/components-next/button/Button.vue";
 
 const store = useStore();
 const { fetchArchivedCards, loadColumns, columns } = useKanban();

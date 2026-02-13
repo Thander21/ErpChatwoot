@@ -53,14 +53,14 @@
 
           <div>
             <label
-              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+              class="block text-sm font-medium text-n-slate-12 mb-1"
             >
               Vendedor *
             </label>
             <select
               v-model="form.assignee_id"
               required
-              class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
             >
               <option value="" disabled selected>Selecione um vendedor</option>
               <option v-for="agent in agents" :key="agent.id" :value="agent.id">
@@ -82,14 +82,14 @@
 
         <div>
           <label
-            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+            class="block text-sm font-medium text-n-slate-12 mb-1"
           >
             Descrição
           </label>
           <textarea
             v-model="form.description"
             rows="3"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+            class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
             placeholder="Digite a descrição (opcional)"
           ></textarea>
         </div>
@@ -97,14 +97,14 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label
-              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+              class="block text-sm font-medium text-n-slate-12 mb-1"
             >
               Coluna *
             </label>
             <select
               v-model="form.kanban_column_id"
               required
-              class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
             >
               <option value="" disabled selected>Selecione uma coluna</option>
               <option
@@ -119,13 +119,13 @@
 
           <div>
             <label
-              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+              class="block text-sm font-medium text-n-slate-12 mb-1"
             >
               Prioridade
             </label>
             <select
               v-model="form.priority"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
             >
               <option value="low">Baixa</option>
               <option value="normal">Normal</option>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="kanban-card-container group bg-white dark:bg-slate-800 rounded-lg p-3 shadow-sm hover:shadow-md transition-all active:cursor-grabbing flex flex-col gap-2 cursor-grab relative overflow-hidden border border-slate-200 dark:border-slate-700"
+    class="kanban-card-container group bg-n-surface-1 rounded-lg p-3 shadow-sm hover:shadow-md transition-all active:cursor-grabbing flex flex-col gap-2 cursor-grab relative overflow-hidden border border-n-weak"
     :style="{
       borderLeftWidth: showPriorityColor ? '4px' : '1px',
       borderLeftColor: showPriorityColor ? getPriorityColor(card.priority) : '',
@@ -12,13 +12,13 @@
     <!-- Header: Empresa/Contato -->
     <div
       v-if="card.company || card.contact"
-      class="border-b border-gray-100 dark:border-slate-700 pb-2 mb-1"
+      class="border-b border-n-weak pb-2 mb-1"
     >
       <router-link
         v-if="card.contact"
         :to="contactUrl"
         target="_blank"
-        class="text-[11px] font-bold text-slate-600 dark:text-white uppercase tracking-wide truncate block hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
+        class="text-[11px] font-bold text-n-slate-11 uppercase tracking-wide truncate block hover:text-n-brand dark:hover:text-n-brand hover:underline"
         :title="headerTitle"
         @click.stop
       >
@@ -26,7 +26,7 @@
       </router-link>
       <span
         v-else
-        class="text-[11px] font-bold text-slate-600 dark:text-white uppercase tracking-wide truncate block"
+        class="text-[11px] font-bold text-n-slate-11 uppercase tracking-wide truncate block"
         :title="headerTitle"
       >
         {{ headerText }}
@@ -36,7 +36,7 @@
     <!-- Linha 1: Título -->
     <div class="flex items-start justify-between gap-2">
       <h4
-        class="font-semibold text-slate-900 dark:text-white text-sm leading-snug line-clamp-2"
+        class="font-semibold text-n-slate-12 text-sm leading-snug line-clamp-2"
         :title="card.title"
       >
         {{ card.title }}
@@ -45,7 +45,7 @@
       <div class="flex items-center gap-1 shrink-0">
         <span
           v-if="card.conversation_id"
-          class="text-[10px] bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded-full"
+          class="text-[10px] bg-n-brand-alpha text-n-brand px-1.5 py-0.5 rounded-full"
           title="Vinculado a conversa"
         >
           💬
@@ -56,7 +56,7 @@
     <!-- Linha 2: Descrição -->
     <p
       v-if="card.description"
-      class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed"
+      class="text-xs text-n-slate-11 line-clamp-2 leading-relaxed"
     >
       {{ card.description }}
     </p>
@@ -68,7 +68,7 @@
       <div class="flex items-center gap-1.5 max-w-[60%]">
         <div
           v-if="card.assignee"
-          class="flex items-center gap-2 text-slate-700 dark:text-slate-300 truncate font-medium"
+          class="flex items-center gap-2 text-n-slate-12 truncate font-medium"
           :title="`Vendedor: ${card.assignee.name}`"
         >
           <Avatar
@@ -79,14 +79,14 @@
           />
           <span class="text-xs">{{ card.assignee.name }}</span>
         </div>
-        <span v-else class="text-slate-400 italic text-[10px]"
+        <span v-else class="text-n-slate-10 italic text-[10px]"
           >Não atribuído</span
         >
       </div>
 
       <div
         v-if="card.due_date"
-        class="flex items-center gap-1 shrink-0 bg-gray-50 dark:bg-slate-700/50 px-2 py-1 rounded text-xs font-semibold"
+        class="flex items-center gap-1 shrink-0 bg-n-alpha-black2 px-2 py-1 rounded text-xs font-semibold"
         :class="dueDateClass"
       >
         📅 {{ formattedDate }}
@@ -95,13 +95,13 @@
 
     <!-- Botões (Hover) -->
     <div
-      class="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded p-0.5"
+      class="absolute top-2 right-2 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity bg-n-surface-1/90 backdrop-blur-sm rounded p-0.5"
     >
       <!-- Botão de Arquivar (Apenas última coluna) -->
       <button
         v-if="isLastColumn"
         @click.stop="$emit('archive')"
-        class="text-slate-400 hover:text-green-600 p-1 rounded transition-colors"
+        class="text-n-slate-10 hover:text-n-teal-9 p-1 rounded transition-colors"
         title="Arquivar"
       >
         <!-- Folder Icon -->
@@ -121,7 +121,7 @@
       <button
         v-if="!isLastColumn"
         @click.stop="$emit('delete')"
-        class="text-slate-400 hover:text-red-600 p-1 rounded transition-colors"
+        class="text-n-slate-10 hover:text-n-ruby-9 p-1 rounded transition-colors"
         title="Excluir"
       >
         <!-- Trash Icon -->
@@ -243,11 +243,11 @@ const dueDateClass = computed(() => {
   const { dateMidnight } = processedDueDate.value;
 
   if (dateMidnight < todayMidnight) {
-    return "text-red-600 dark:text-red-400";
+    return "text-n-ruby-9 dark:text-n-ruby-9";
   } else if (dateMidnight.getTime() === todayMidnight.getTime()) {
-    return "text-orange-600 dark:text-orange-400";
+    return "text-n-amber-11 dark:text-n-amber-11";
   }
-  return "text-slate-600 dark:text-slate-400";
+  return "text-n-slate-11 dark:text-n-slate-11";
 });
 
 const formattedDate = computed(() => {

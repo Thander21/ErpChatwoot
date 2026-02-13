@@ -8,11 +8,11 @@
             class="w-3 h-3 rounded-full"
             :style="{ backgroundColor: column.color || '#6b7280' }"
           ></div>
-          <h3 class="font-semibold text-slate-900 dark:text-white">
+          <h3 class="font-semibold text-n-slate-12">
             {{ column.name }}
           </h3>
           <span
-            class="text-xs bg-gray-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-1 rounded-full"
+            class="text-xs bg-n-alpha-black2 text-n-slate-11 px-2 py-1 rounded-full"
           >
             {{ cards.length }}
           </span>
@@ -22,7 +22,7 @@
         <div class="flex gap-1">
           <button
             @click="$emit('edit', column)"
-            class="p-1 hover:bg-gray-200 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-400"
+            class="p-1 hover:bg-n-alpha-black2 rounded text-n-slate-11"
             title="Editar coluna"
           >
             <svg
@@ -47,8 +47,8 @@
             class="p-1 rounded transition-colors"
             :class="
               cards.length > 0
-                ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed'
-                : 'hover:bg-red-100 dark:hover:bg-red-900 text-red-600 dark:text-red-400'
+                ? 'text-n-slate-10 cursor-not-allowed'
+                : 'hover:bg-n-ruby-2 text-n-ruby-9'
             "
             :title="
               cards.length > 0
@@ -85,7 +85,7 @@
         <button
           v-if="canCreateCard"
           @click="$emit('add-card', column.id)"
-          class="w-full p-3 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg text-gray-500 dark:text-slate-400 hover:border-gray-400 dark:hover:border-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors text-sm"
+          class="w-full p-3 border-2 border-dashed border-n-weak rounded-lg text-n-slate-11 hover:border-n-slate-10 hover:text-n-slate-12 transition-colors text-sm"
         >
           + Adicionar card
         </button>

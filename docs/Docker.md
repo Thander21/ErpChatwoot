@@ -3,12 +3,12 @@
 df -h /
 
 # 1. Parar os containers
-  
+
 docker-compose -f docker-compose-dev.yaml stop
-docker-compose -f docker-compose-dev.yaml down
-docker image prune -a -f     
-docker volume prune -a -f    
+docker-compose -f docker-compose-dev.yaml down  
 DOCKER_BUILDKIT=1 docker-compose -f docker-compose-dev.yaml up -d --build
+docker image prune -a -f  
+docker volume prune -a -f
 
 # 2. Rodar a migração
 

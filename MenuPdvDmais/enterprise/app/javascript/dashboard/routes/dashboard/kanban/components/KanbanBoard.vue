@@ -3,21 +3,21 @@
     <!-- Header com controles -->
     <div class="flex items-center justify-between mb-2 flex-shrink-0">
       <div class="flex items-center gap-4">
-        <h2 class="text-xl font-semibold text-slate-900 dark:text-white">
+        <h2 class="text-xl font-semibold text-n-slate-12">
           {{ title }}
         </h2>
         <div
-          class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400"
+          class="flex items-center gap-2 text-sm text-n-slate-11"
         >
           <span>{{ totalCards }} cards</span>
           <span v-if="columns.length > 0">•</span>
           <span v-if="columns.length > 0">{{ columns.length }} colunas</span>
           <span v-if="columns.length > 0">{{ columns.length }} colunas</span>
           <slot name="extra-info"></slot>
-          <span class="text-gray-300 dark:text-gray-600">|</span>
+          <span class="text-n-slate-9 dark:text-n-slate-9">|</span>
           <router-link
             :to="archivedUrl"
-            class="hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1"
+            class="hover:text-n-brand dark:hover:text-n-brand hover:underline flex items-center gap-1"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -68,9 +68,9 @@
     <!-- Loading -->
     <div v-if="loading" class="flex flex-col items-center justify-center py-12">
       <div
-        class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-n-brand mb-4"
       ></div>
-      <p class="text-slate-600 dark:text-slate-400">
+      <p class="text-n-slate-11">
         {{ loadingText }}
       </p>
     </div>
@@ -85,7 +85,7 @@
         <button
           @click="prevColumn"
           :disabled="activeColumnIndex === 0"
-          class="p-2 rounded-full bg-gray-200 dark:bg-slate-700 disabled:opacity-50"
+          class="p-2 rounded-full bg-n-alpha-black2 disabled:opacity-50"
         >
           ←
         </button>
@@ -95,7 +95,7 @@
         <button
           @click="nextColumn"
           :disabled="activeColumnIndex === sortedColumns.length - 1"
-          class="p-2 rounded-full bg-gray-200 dark:bg-slate-700 disabled:opacity-50"
+          class="p-2 rounded-full bg-n-alpha-black2 disabled:opacity-50"
         >
           →
         </button>
@@ -134,9 +134,9 @@
 
         <div
           v-if="sortedColumns.length === 0"
-          class="w-full flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-lg"
+          class="w-full flex items-center justify-center border-2 border-dashed border-n-weak rounded-lg"
         >
-          <p class="text-slate-500">Nenhuma coluna disponível.</p>
+          <p class="text-n-slate-11">Nenhuma coluna disponível.</p>
         </div>
       </div>
     </div>
