@@ -155,48 +155,22 @@ const mappedCards = computed(() => {
 const fetchConversations = async () => {
   loading.value = true;
   try {
-    const allConversations = [];
-    let page = 1;
-    let hasMorePages = true;
     const accountId = route.params.accountId;
+    
+    // Chamada direta para o novo endpoint otimizado que retorna todas de uma vez
+    const response = await window.axios.get(
+      `/enterprise/api/v1/accounts/${accountId}/kanban_cards/tarefas_board`
+    );
 
-    while (hasMorePages) {
-      // Use axios directly to ensure params are passed correctly
-      // status: 'all' fetches pending, open, snoozed, and resolved
-      const response = await window.axios.get(
-        `/api/v1/accounts/${accountId}/conversations`,
-        {
-          params: {
-            page: page,
-            status: "all",
-          },
-        },
-      );
+    let pageData = response.data.payload || [];
 
-      let pageData = response.data.payload || response.data.data?.payload || [];
-
-      // Handle potential meta structure
-      if (response.data.data && Array.isArray(response.data.data)) {
-        pageData = response.data.data;
-      }
-
-      if (!Array.isArray(pageData)) {
-        pageData = [];
-      }
-
-      if (pageData.length === 0) {
-        hasMorePages = false;
-      } else {
-        allConversations.push(...pageData);
-        page += 1;
-        // Increase safety limit for production, but kept at 50 for now or until count is reached
-        if (page > 50) hasMorePages = false;
-      }
+    if (!Array.isArray(pageData)) {
+      pageData = [];
     }
 
-    conversations.value = allConversations;
+    conversations.value = pageData;
   } catch (error) {
-    console.error("Erro ao buscar conversas:", error);
+    console.error("Erro ao buscar conversas do Kanban Tarefas:", error);
   } finally {
     loading.value = false;
   }

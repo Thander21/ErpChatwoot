@@ -101,6 +101,7 @@ COPY MenuPdvDmais/core-patches/dashboard.routes.js /app/app/javascript/dashboard
 COPY MenuPdvDmais/core-patches/Sidebar.vue /app/app/javascript/dashboard/components-next/sidebar/
 COPY MenuPdvDmais/core-patches/settings.json /app/app/javascript/dashboard/i18n/locale/en/
 COPY MenuPdvDmais/core-patches/config/routes.rb /app/config/routes.rb
+COPY MenuPdvDmais/core-patches/docker/entrypoints/rails.sh /app/docker/entrypoints/rails.sh
 # 3. Migrations
 COPY MenuPdvDmais/db/migrate /app/db/migrate
 # 3.1 API Patches
@@ -184,6 +185,9 @@ RUN apk add --no-cache curl \
 COPY --from=pre-builder /gems/ /gems/
 COPY --from=pre-builder /app /app
 COPY --from=pre-builder /app/.git_sha /app/.git_sha
+
+# Ensure entrypoints are executable
+RUN chmod +x /app/docker/entrypoints/*.sh && chmod +x /app/docker/entrypoints/helpers/*.rb
 
 WORKDIR /app
 EXPOSE 3000

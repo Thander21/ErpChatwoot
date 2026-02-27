@@ -93,9 +93,9 @@
       </div>
     </div>
 
-    <!-- Botões (Hover) -->
+    <!-- Botões -->
     <div
-      class="absolute top-2 right-2 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity bg-n-surface-1/90 backdrop-blur-sm rounded p-0.5"
+      class="absolute top-2 right-2 flex gap-1 bg-n-surface-1/90 backdrop-blur-sm rounded p-0.5"
     >
       <!-- Botão de Arquivar (Apenas última coluna) -->
       <button
@@ -104,39 +104,17 @@
         class="text-n-slate-10 hover:text-n-teal-9 p-1 rounded transition-colors"
         title="Arquivar"
       >
-        <!-- Folder Icon -->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          class="w-4 h-4"
-        >
-          <path
-            d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
-          />
-        </svg>
+        <span class="i-lucide-inbox size-3.5 block"></span>
       </button>
 
-      <!-- Botão de Excluir (NÃO mostrar na última coluna) -->
+      <!-- Botão de Excluir (Demais colunas) -->
       <button
         v-if="!isLastColumn"
         @click.stop="$emit('delete')"
-        class="text-n-slate-10 hover:text-n-ruby-9 p-1 rounded transition-colors"
+        class="text-n-ruby-9 hover:bg-n-ruby-2 p-1 rounded transition-colors"
         title="Excluir"
       >
-        <!-- Trash Icon -->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          class="w-4 h-4"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-            clip-rule="evenodd"
-          />
-        </svg>
+        <span class="i-lucide-trash-2 size-3.5 block"></span>
       </button>
     </div>
   </div>

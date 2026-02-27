@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     resource :slack_uploads, only: [:show]
   end
 
+  get '/health', to: 'health#show'
   get '/api', to: 'api#index'
   namespace :api, defaults: { format: 'json' } do
     namespace :v1 do
@@ -73,6 +74,13 @@ Rails.application.routes.draw do
             end
             resources :custom_tools
             resources :documents, only: [:index, :show, :create, :destroy]
+            resource :tasks, only: [], controller: 'tasks' do
+              post :rewrite
+              post :summarize
+              post :reply_suggestion
+              post :label_suggestion
+              post :follow_up
+            end
           end
           resource :saml_settings, only: [:show, :create, :update, :destroy]
           resources :agent_bots, only: [:index, :create, :show, :update, :destroy] do
@@ -216,7 +224,9 @@ Rails.application.routes.draw do
               end
             end
 
-            resource :csat_template, only: [:show, :create], controller: 'inbox_csat_templates'
+            resource :csat_template, only: [:show, :create], controller: 'inbox_csat_templates' do
+              post :analyze, on: :collection
+            end
           end
 
           resources :inbox_members, only: [:create, :show], param: :inbox_id do
@@ -436,6 +446,9 @@ Rails.application.routes.draw do
               get :conversations_summary
               get :conversation_traffic
               get :bot_metrics
+              get :inbox_label_matrix
+              get :first_response_time_distribution
+              get :outgoing_messages_count
             end
           end
           resource :year_in_review, only: [:show]
@@ -470,12 +483,6 @@ Rails.application.routes.draw do
       post 'webhooks/firecrawl', to: 'webhooks/firecrawl#process_payload'
     end
   end
-
-  # Loading Enterprise Routes
-  if Rails.root.join('enterprise/config/routes.rb').exist?
-    instance_eval(File.read(Rails.root.join('enterprise/config/routes.rb')))
-  end
-
 
   # ----------------------------------------------------------------------
   # Routes for platform APIs
@@ -559,6 +566,7 @@ Rails.application.routes.draw do
   get 'webhooks/instagram', to: 'webhooks/instagram#verify'
   post 'webhooks/instagram', to: 'webhooks/instagram#events'
   post 'webhooks/tiktok', to: 'webhooks/tiktok#events'
+  post 'webhooks/shopify', to: 'webhooks/shopify#events'
 
   namespace :twitter do
     resource :callback, only: [:show]
@@ -650,4 +658,9 @@ Rails.application.routes.draw do
   # ----------------------------------------------------------------------
   # Routes for testing
   resources :widget_tests, only: [:index] unless Rails.env.production?
+
+  # Loading Enterprise Routes
+  if Rails.root.join('enterprise/config/routes.rb').exist?
+    instance_eval(File.read(Rails.root.join('enterprise/config/routes.rb')))
+  end
 end

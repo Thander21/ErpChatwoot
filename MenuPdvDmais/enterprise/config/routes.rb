@@ -10,6 +10,7 @@ namespace :enterprise, defaults: { format: 'json' } do
             get :companies
             get :contacts_by_company
             get :archived_report
+            get :tarefas_board
           end
           member do
             post :move

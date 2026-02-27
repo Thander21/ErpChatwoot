@@ -2,7 +2,7 @@
 
 # Configuration
 UPSTREAM_REPO="https://github.com/chatwoot/chatwoot.git"
-BRANCH="develop" # or main, depending on stability preference
+BRANCH="develop" # 'latest' is not a branch in Chatwoot's git repo
 TARGET_DIR="chatwoot-base"
 TEMP_DIR="temp_upstream"
 

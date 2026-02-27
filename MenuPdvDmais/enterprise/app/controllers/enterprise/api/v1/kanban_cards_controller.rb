@@ -75,6 +75,48 @@ class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
     render json: @archived_cards, include: [:conversation, :contact, :company, :assignee, :archived_by, :deleted_by]
   end
 
+  # Endpoint otimizado para o Kanban Tarefas
+  def tarefas_board
+    # Permissão básica (Apenas ler conversas da conta)
+    # Busca todas as conversas pertinentes sem paginar, usando filtros direto no banco.
+    # Pendentes (2), Abertas (0), Adiadas (3), Resolvidas (1) em até 7 dias
+    seven_days_ago = 7.days.ago
+    
+    @conversations = @account.conversations
+                             .where("status IN (0, 2, 3) OR (status = 1 AND updated_at >= ?)", seven_days_ago) # resolved within 7 days
+                             .includes(:contact, :assignee, messages: [:attachments])
+
+    # Serialização customizada para entregar um payload menor
+    # e compatível com as expectativas atuais do front-end.
+    # Evita instanciar o ConversationSerializer do backend original se ele for muito pesado.
+    
+    payload = @conversations.map do |conv|
+      {
+        id: conv.display_id, # Frontend expects display_id as id
+        status: conv.status,
+        snoozed_until: conv.snoozed_until,
+        updated_at: conv.updated_at.to_time.to_i, # Match original API format (seconds since epoch)
+        priority: conv.priority,
+        meta: {
+          sender: conv.contact.as_json(only: [:id, :name, :email, :phone_number, :additional_attributes]),
+          assignee: conv.assignee.as_json(only: [:id, :name, :email, :available_name, :thumbnail]),
+          # Extraímos a empresa do Additional Attributes ou como for estruturado. Se for outra lógica, ajustamos.
+          company: conv.contact&.company&.as_json(only: [:id, :name])
+        },
+        # Ultima mensagem p/ description
+        last_non_activity_message: extract_last_message(conv)
+      }
+    end
+
+    render json: { payload: payload }
+  end
+
+  def extract_last_message(conversation)
+    # Replica a logica do front-end ou busca a ultima mensagem que não seja de atividade
+    last_msg = conversation.messages.where.not(message_type: :activity).order(created_at: :desc).first
+    last_msg&.content || "Mensagem sem conteúdo"
+  end
+
   def move
     @kanban_card = @account.kanban_cards.find(params[:id])
 

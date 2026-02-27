@@ -1,86 +1,44 @@
 import { ref, computed } from "vue";
 import ContactAPI from "dashboard/api/contacts";
 
-// Cache configuration
-const CACHE_KEY = "erp_contacts_cache";
-const CACHE_EXPIRY_HOURS = 24;
-
 export function useContacts() {
   const contacts = ref([]);
   const loading = ref(false);
   const searchQuery = ref("");
   const activeFilter = ref("all");
   const expandedCompanies = ref(new Set());
-  
-  // Cache Fns
-  const saveToCache = (data) => {
-    const cacheData = {
-      data: data,
-      timestamp: Date.now(),
-      expiry: Date.now() + CACHE_EXPIRY_HOURS * 60 * 60 * 1000,
-    };
-    localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-  };
 
-  const loadFromCache = () => {
-    try {
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (!cached) return null;
-
-      const cacheData = JSON.parse(cached);
-      if (Date.now() > cacheData.expiry) {
-        localStorage.removeItem(CACHE_KEY);
-        return null;
-      }
-
-      return cacheData.data;
-    } catch (error) {
-      console.warn("Erro ao carregar cache:", error);
-      return null;
-    }
-  };
-
-  const clearCache = () => {
-    localStorage.removeItem(CACHE_KEY);
-  };
+  // Cache configuration
+  // Cache disabled to ensure fresh data from API on page refresh
 
   // Helpers
   const getCompanyName = (contact) => {
     return contact.additional_attributes?.company_name || "";
   };
-  
+
   const formatDate = (dateString) => {
     if (!dateString) return "";
     return new Date(dateString).toLocaleDateString("pt-BR");
   };
-  
+
   const isInvalidPhone = (phone) => {
     if (!phone || phone.trim() === "") return false;
     const cleanPhone = phone.replace(/\D/g, "");
-    
+
     // Validar formato internacional ou brasileiro
     const startsWith55 = cleanPhone.startsWith("55") && cleanPhone.length >= 12;
     const isValidFormat =
       /^\+?55?\d{10,11}$/.test(cleanPhone) ||
-      startsWith55; 
-      
+      startsWith55;
+
     // Nota: A lógica original considerava !isValidFormat como true para isInvalidPhone
-    return !isValidFormat; 
+    return !isValidFormat;
   };
 
   // API Actions
   const fetchContacts = async (forceRefresh = false) => {
     loading.value = true;
     try {
-      if (!forceRefresh) {
-        const cachedData = loadFromCache();
-        if (cachedData) {
-          contacts.value = cachedData;
-          loading.value = false;
-          return;
-        }
-      }
-
       const allContacts = [];
       let page = 1;
       let hasMorePages = true;
@@ -100,7 +58,6 @@ export function useContacts() {
       }
 
       contacts.value = allContacts;
-      saveToCache(allContacts);
     } catch (error) {
       console.error("Erro ao buscar contatos:", error);
     } finally {
@@ -109,34 +66,31 @@ export function useContacts() {
   };
 
   const refreshContacts = async () => {
-    clearCache();
     await fetchContacts(true);
   };
-  
+
   const updateContact = async (contactId, updateData) => {
-      await ContactAPI.update(contactId, updateData);
-      
-      const index = contacts.value.findIndex((c) => c.id === contactId);
-      if (index !== -1) {
-          contacts.value[index] = {
-              ...contacts.value[index],
-              ...updateData,
-              additional_attributes: {
-                  ...contacts.value[index].additional_attributes,
-                  ...updateData.additional_attributes
-              }
-          };
-          saveToCache(contacts.value);
-      }
+    await ContactAPI.update(contactId, updateData);
+
+    const index = contacts.value.findIndex((c) => c.id === contactId);
+    if (index !== -1) {
+      contacts.value[index] = {
+        ...contacts.value[index],
+        ...updateData,
+        additional_attributes: {
+          ...contacts.value[index].additional_attributes,
+          ...updateData.additional_attributes
+        }
+      };
+    }
   };
-  
+
   const deleteContact = async (contactId) => {
-      await ContactAPI.delete(contactId);
-      const index = contacts.value.findIndex((c) => c.id === contactId);
-      if (index !== -1) {
-          contacts.value.splice(index, 1);
-          saveToCache(contacts.value);
-      }
+    await ContactAPI.delete(contactId);
+    const index = contacts.value.findIndex((c) => c.id === contactId);
+    if (index !== -1) {
+      contacts.value.splice(index, 1);
+    }
   };
 
   // Computed Logic
@@ -201,18 +155,18 @@ export function useContacts() {
   });
 
   // Stats
-  const contactsWithoutCompany = computed(() => 
+  const contactsWithoutCompany = computed(() =>
     contacts.value.filter((c) => !getCompanyName(c)).length
   );
-  
-  const contactsWithoutPhone = computed(() => 
+
+  const contactsWithoutPhone = computed(() =>
     contacts.value.filter((c) => !c.phone_number || c.phone_number.trim() === "").length
   );
-  
-  const contactsWithInvalidPhone = computed(() => 
+
+  const contactsWithInvalidPhone = computed(() =>
     contacts.value.filter((c) => isInvalidPhone(c.phone_number)).length
   );
-  
+
   const contactsEligibleForAutoFill = computed(() => {
     return contacts.value.filter((contact) => {
       if (getCompanyName(contact)) return false;
