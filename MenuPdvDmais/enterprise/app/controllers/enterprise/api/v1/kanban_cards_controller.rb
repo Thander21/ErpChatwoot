@@ -112,8 +112,8 @@ class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
   end
 
   def extract_last_message(conversation)
-    # Replica a logica do front-end ou busca a ultima mensagem que não seja de atividade
-    last_msg = conversation.messages.where.not(message_type: :activity).order(created_at: :desc).first
+    # Filter in memory to avoid N+1 queries. 'messages' is already eager loaded.
+    last_msg = conversation.messages.reject(&:activity?).max_by(&:created_at)
     last_msg&.content || "Mensagem sem conteúdo"
   end
 
@@ -149,22 +149,37 @@ class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
   # Varre contatos com company_name e garante que exista a Company e o vínculo
   def sync_companies
     count = 0
+    exceptions = %w[da de di do o a e com]
+
     # Itera sobre contatos que tem nome de empresa no jsonb
     @account.contacts.where("additional_attributes->>'company_name' IS NOT NULL AND additional_attributes->>'company_name' <> ''").find_each do |contact|
-      company_name = contact.additional_attributes['company_name'].strip
-      next if company_name.blank?
+      raw_name = contact.additional_attributes['company_name'].to_s.strip
+      next if raw_name.blank?
+
+      # Padronização do nome da empresa
+      company_name = raw_name.downcase.split.each_with_index.map do |word, index|
+        (index == 0 || !exceptions.include?(word)) ? word.capitalize : word
+      end.join(' ')
 
       # Busca ou Cria a Empresa
       company = @account.companies.find_or_create_by(name: company_name)
       
-      # Atualiza o contato se não estiver vinculado
-      if contact.company_id != company.id
-         contact.update(company_id: company.id)
-         count += 1
+      # Atualiza o contato se não estiver vinculado ou se o nome foi padronizado
+      attrs_to_update = {}
+      attrs_to_update[:company_id] = company.id if contact.company_id != company.id
+      
+      if raw_name != company_name
+        new_attributes = contact.additional_attributes.merge('company_name' => company_name)
+        attrs_to_update[:additional_attributes] = new_attributes
+      end
+
+      if attrs_to_update.present?
+        contact.update(attrs_to_update)
+        count += 1
       end
     end
     
-    render json: { message: "#{count} contatos sincronizados com empresas." }
+    render json: { message: "#{count} contatos sincronizados/padronizados com empresas." }
   end
 
   # LIMPEZA DE EMPRESAS VAZIAS
@@ -175,6 +190,9 @@ class Enterprise::Api::V1::KanbanCardsController < Api::BaseController
     # Nota: Precisamos garantir que não delete empresas que tenham outros dados importantes. 
     # Assumindo que empresa sem contato é "lixo" de digitação.
     @account.companies.left_joins(:contacts).where(contacts: { id: nil }).find_each do |company|
+       # Apaga todo o histórico (Ficha do Cliente) antes de apagar a empresa
+       ClientDeployment.where(company_id: company.id).destroy_all
+       
        company.destroy
        deleted += 1
     end

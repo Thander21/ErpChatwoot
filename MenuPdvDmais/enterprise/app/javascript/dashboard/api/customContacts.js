@@ -24,11 +24,11 @@ class CustomContactsAPI extends ApiClient {
     return axios.post(`${url}/cleanup_companies`);
   }
 
-  getContacts(accountId, page = 1) {
+  getContacts(accountId, options = {}) {
     return axios.get(
       `/enterprise/api/v1/accounts/${accountId}/custom_contacts`,
       {
-        params: { page },
+        params: options,
       },
     );
   }

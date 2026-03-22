@@ -1,17 +1,24 @@
 class Enterprise::Api::V1::CustomContactsController < Api::V1::Accounts::BaseController
   def index
-          page = params[:page].presence || 1
-          contacts = Current.account.contacts.includes(:company).page(page)
+    if params[:all] == 'true'
+      contacts = Current.account.contacts.includes(:company)
+      render json: {
+        payload: contacts.map { |c| serialize_contact(c) }
+      }
+    else
+      page = params[:page].presence || 1
+      contacts = Current.account.contacts.includes(:company).page(page)
 
-          render json: {
-            payload: contacts.map { |c| serialize_contact(c) },
-            meta: {
-              current_page: contacts.current_page,
-              total_pages: contacts.total_pages,
-              total_count: contacts.total_count
-            }
-          }
-        end
+      render json: {
+        payload: contacts.map { |c| serialize_contact(c) },
+        meta: {
+          current_page: contacts.current_page,
+          total_pages: contacts.total_pages,
+          total_count: contacts.total_count
+        }
+      }
+    end
+  end
 
         def update
           contact = Current.account.contacts.find(params[:id])

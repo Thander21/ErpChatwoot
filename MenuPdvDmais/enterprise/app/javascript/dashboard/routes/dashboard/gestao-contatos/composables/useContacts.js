@@ -14,11 +14,44 @@ export function useContacts() {
   const contacts = ref([]);
   const loading = ref(false);
   const searchQuery = ref("");
+  const companySearchQuery = ref("");
   const activeFilter = ref("all");
   const expandedCompanies = ref(new Set());
 
   // Cache configuration
-  // Cache disabled to ensure fresh data from API on page refresh
+  const CACHE_KEY = "erp_contacts_cache";
+  const CACHE_EXPIRY_HOURS = 24;
+
+  const saveToCache = (data) => {
+    const cacheData = {
+      data: data,
+      timestamp: Date.now(),
+      expiry: Date.now() + CACHE_EXPIRY_HOURS * 60 * 60 * 1000,
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+  };
+
+  const loadFromCache = () => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (!cached) return null;
+
+      const cacheData = JSON.parse(cached);
+      if (Date.now() > cacheData.expiry) {
+        localStorage.removeItem(CACHE_KEY);
+        return null;
+      }
+
+      return cacheData.data;
+    } catch (error) {
+      /* debug removed */
+      return null;
+    }
+  };
+
+  const clearCache = () => {
+    localStorage.removeItem(CACHE_KEY);
+  };
 
   // Helpers
   const getCompanyName = (contact) => {
@@ -48,34 +81,29 @@ export function useContacts() {
   const fetchContacts = async (forceRefresh = false) => {
     loading.value = true;
     try {
-      const allContacts = [];
-      let page = 1;
-      let hasMorePages = true;
-      const accountId = store.getters.getCurrentAccountId;
-
-      while (hasMorePages) {
-        const response = await CustomContactsAPI.getContacts(accountId, page);
-
-        let pageData = [];
-        if (response.data && Array.isArray(response.data)) {
-          pageData = response.data;
-        } else if (response.data && Array.isArray(response.data.payload)) {
-          pageData = response.data.payload;
-        } else if (response && Array.isArray(response.payload)) {
-          // caso o interceptor axios já tenha unboxado `response.data`
-          pageData = response.payload;
-        }
-
-        if (!pageData || pageData.length === 0) {
-          hasMorePages = false;
-        } else {
-          allContacts.push(...pageData);
-          page += 1;
-          if (page > 100) hasMorePages = false;
+      if (!forceRefresh) {
+        const cachedData = loadFromCache();
+        if (cachedData) {
+          contacts.value = cachedData;
+          loading.value = false;
+          return;
         }
       }
 
-      contacts.value = allContacts;
+      const accountId = store.getters.getCurrentAccountId;
+      const response = await CustomContactsAPI.getContacts(accountId, { all: true });
+
+      let pageData = [];
+      if (response.data && Array.isArray(response.data)) {
+        pageData = response.data;
+      } else if (response.data && Array.isArray(response.data.payload)) {
+        pageData = response.data.payload;
+      } else if (response && Array.isArray(response.payload)) {
+        pageData = response.payload;
+      }
+
+      contacts.value = pageData;
+      saveToCache(pageData);
     } catch (error) {
       /* debug removed */
     } finally {
@@ -84,6 +112,7 @@ export function useContacts() {
   };
 
   const refreshContacts = async () => {
+    clearCache();
     await fetchContacts(true);
   };
 
@@ -101,6 +130,7 @@ export function useContacts() {
           ...updateData.additional_attributes,
         },
       };
+      saveToCache(contacts.value);
     }
   };
 
@@ -111,6 +141,7 @@ export function useContacts() {
     const index = contacts.value.findIndex((c) => c.id === contactId);
     if (index !== -1) {
       contacts.value.splice(index, 1);
+      saveToCache(contacts.value);
     }
   };
 
@@ -139,14 +170,20 @@ export function useContacts() {
         const name = (contact.name || "").toLowerCase();
         const email = (contact.email || "").toLowerCase();
         const phone = (contact.phone_number || "").toLowerCase();
-        const company = (getCompanyName(contact) || "").toLowerCase();
 
         return (
           name.includes(query) ||
           email.includes(query) ||
-          phone.includes(query) ||
-          company.includes(query)
+          phone.includes(query)
         );
+      });
+    }
+
+    if (companySearchQuery.value.trim()) {
+      const companyQuery = companySearchQuery.value.toLowerCase().trim();
+      filtered = filtered.filter((contact) => {
+        const company = (getCompanyName(contact) || "").toLowerCase();
+        return company.includes(companyQuery);
       });
     }
 
@@ -209,6 +246,7 @@ export function useContacts() {
     contacts,
     loading,
     searchQuery,
+    companySearchQuery,
     activeFilter,
     expandedCompanies,
     filteredContacts,

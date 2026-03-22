@@ -25,6 +25,7 @@ const {
   contacts,
   loading,
   searchQuery,
+  companySearchQuery,
   activeFilter,
   contactsByCompany,
   filteredContacts,
@@ -76,7 +77,7 @@ const syncCompanies = async () => {
         message: response.data.message,
         type: "success",
       });
-      fetchContacts(); // Atualiza lista para refletir mudanças se necessário
+      refreshContacts(); // Atualiza lista limpando o cache para refletir mudanças
     } catch (error) {
       /* debug removed */
       emitter.emit(BUS_EVENTS.SHOW_ALERT, {
@@ -395,46 +396,47 @@ onMounted(() => {
       />
 
       <!-- Search Bar -->
-      <div class="relative w-full">
-        <svg
-          class="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      <div class="flex flex-col sm:flex-row gap-4 w-full">
+        <!-- Company Search -->
+        <div class="relative flex-1">
+          <input
+            :value="companySearchQuery"
+            type="text"
+            placeholder="Pesquisar por empresa..."
+            class="w-full pl-4 pr-12 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            @input="companySearchQuery = $event.target.value"
           />
-        </svg>
-        <input
-          :value="searchQuery"
-          type="text"
-          placeholder="Pesquisar por nome, telefone ou empresa..."
-          class="w-full pl-12 pr-10 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-          @input="searchQuery = $event.target.value"
-        />
-        <button
-          v-if="searchQuery"
-          class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          @click="searchQuery = ''"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+          <button
+            v-if="companySearchQuery"
+            class="absolute inset-y-0 right-0 flex items-center pr-4 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+            @click="companySearchQuery = ''"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+            <!-- X mais espesso e vermelho -->
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- General Search -->
+        <div class="relative flex-1">
+          <input
+            :value="searchQuery"
+            type="text"
+            placeholder="Pesquisar por nome ou telefone..."
+            class="w-full pl-4 pr-12 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            @input="searchQuery = $event.target.value"
+          />
+          <button
+            v-if="searchQuery"
+            class="absolute inset-y-0 right-0 flex items-center pr-4 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+            @click="searchQuery = ''"
+          >
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div class="flex gap-2 w-full">
@@ -498,7 +500,7 @@ onMounted(() => {
         </h3>
         <p class="text-gray-500 dark:text-gray-400">
           {{
-            searchQuery || activeFilter !== "all"
+            searchQuery || companySearchQuery || activeFilter !== "all"
               ? "Tente alterar os filtros ou a busca."
               : "Os contatos aparecerão aqui assim que forem importados."
           }}
