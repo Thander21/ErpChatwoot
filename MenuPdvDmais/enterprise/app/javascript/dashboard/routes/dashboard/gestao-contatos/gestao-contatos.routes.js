@@ -1,3 +1,10 @@
+/*
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/gestao-contatos/gestao-contatos.routes.js
+ * Last Modified: 21/03/2026
+ * Dependencies: -
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+ */
 /**
  * ERP Chatwoot - Gestão de Contatos Routes
  * =============================================================================
@@ -10,15 +17,15 @@
  * =============================================================================
  */
 
-import { frontendURL } from 'dashboard/helper/URLHelper';
-import { ROLES } from 'dashboard/constants/permissions.js';
-import GestaoContatosIndex from './Index.vue';
+import { frontendURL } from "dashboard/helper/URLHelper";
+import { ROLES } from "dashboard/constants/permissions.js";
+import GestaoContatosIndex from "./Index.vue";
 
 export default {
   routes: [
     {
-      path: frontendURL('accounts/:accountId/gestao-contatos'),
-      name: 'gestao_contatos_index',
+      path: frontendURL("accounts/:accountId/gestao-contatos"),
+      name: "gestao_contatos_index",
       component: GestaoContatosIndex,
       meta: {
         permissions: [...ROLES],

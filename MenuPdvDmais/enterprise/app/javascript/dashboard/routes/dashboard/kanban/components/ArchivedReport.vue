@@ -1,3 +1,155 @@
+<!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/kanban/components/ArchivedReport.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { useKanban } from "../composables/useKanban";
+import { useStore } from "vuex";
+import { frontendURL } from "dashboard/helper/URLHelper";
+import KanbanCardModal from "./modais/KanbanCardModal.vue";
+import WootButton from "dashboard/components-next/button/Button.vue";
+
+const store = useStore();
+const { fetchArchivedCards, loadColumns, columns } = useKanban();
+
+const cards = ref([]);
+const loading = ref(false);
+const accountId = computed(() => store.getters.getCurrentAccountId);
+const kanbanUrl = computed(() =>
+  frontendURL(`accounts/${accountId.value}/kanban`),
+);
+
+// Modal state
+const showCardModal = ref(false);
+const selectedCard = ref(null);
+
+// Dates
+const currentDate = new Date();
+const selectedMonth = ref(currentDate.getMonth() + 1);
+const selectedYear = ref(currentDate.getFullYear());
+const selectedStatus = ref("archived"); // Default to archived
+const selectedAgent = ref("");
+const agents = ref([]);
+
+const fetchAgents = async () => {
+  try {
+    if (store.getters["agents/getAgents"].length === 0) {
+      await store.dispatch("agents/get");
+    }
+    agents.value = store.getters["agents/getAgents"];
+  } catch (e) {
+    /* debug removed */
+  }
+};
+
+// Filtered cards based on status
+const filteredCards = computed(() => {
+  if (selectedStatus.value === "all") {
+    return cards.value;
+  }
+  if (selectedStatus.value === "archived") {
+    return cards.value.filter((card) => card.archived_at && !card.deleted_at);
+  }
+  if (selectedStatus.value === "deleted") {
+    return cards.value.filter((card) => card.deleted_at);
+  }
+  return cards.value;
+});
+
+// Apply Agent Filter on top of status filter
+const finalFilteredCards = computed(() => {
+  let result = filteredCards.value;
+
+  if (selectedAgent.value) {
+    result = result.filter((card) => {
+      return card.assignee && card.assignee.id === selectedAgent.value;
+    });
+  }
+
+  return result;
+});
+
+const months = [
+  "Janeiro",
+  "Fevereiro",
+  "Março",
+  "Abril",
+  "Maio",
+  "Junho",
+  "Julho",
+  "Agosto",
+  "Setembro",
+  "Outubro",
+  "Novembro",
+  "Dezembro",
+];
+
+const years = computed(() => {
+  const current = new Date().getFullYear();
+  const list = [];
+  for (let i = current; i >= current - 5; i--) {
+    list.push(i);
+  }
+  return list;
+});
+
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    cards.value = await fetchArchivedCards(
+      selectedMonth.value,
+      selectedYear.value,
+    );
+  } catch (error) {
+    /* debug removed */
+  } finally {
+    loading.value = false;
+  }
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleString("pt-BR");
+};
+
+// Modal Actions
+const openCardModal = (card) => {
+  selectedCard.value = { ...card };
+  showCardModal.value = true;
+};
+
+const closeCardModal = () => {
+  showCardModal.value = false;
+  selectedCard.value = null;
+};
+
+// Stub handlers for modal actions (visual only for now in report)
+const handleCardUpdate = () => {
+  closeCardModal();
+  fetchData(); // Refresh data
+};
+
+const handleCardDelete = () => {
+  closeCardModal();
+  fetchData();
+};
+
+const handleCardArchive = () => {
+  closeCardModal();
+  fetchData();
+};
+
+onMounted(() => {
+  fetchData();
+  loadColumns();
+  fetchAgents();
+});
+</script>
+
 <template>
   <div
     class="flex flex-col h-full overflow-hidden w-full max-w-6xl mx-auto gap-4 p-4"
@@ -35,9 +187,7 @@
         class="flex flex-wrap items-center gap-2 bg-n-surface-1 p-3 rounded-lg border border-n-weak dark:border-n-weak shadow-sm"
       >
         <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-n-slate-11"
-            >Filtros:</span
-          >
+          <span class="text-sm font-medium text-n-slate-11">Filtros:</span>
           <!-- Status Filter -->
           <select
             v-model="selectedStatus"
@@ -81,14 +231,14 @@
             </option>
           </select>
 
-          <woot-button
-            @click="fetchData"
+          <WootButton
             icon="filter"
             color="blue"
             class="ml-2"
+            @click="fetchData"
           >
             Filtrar
-          </woot-button>
+          </WootButton>
         </div>
       </div>
     </div>
@@ -100,7 +250,7 @@
       <div v-if="loading" class="flex items-center justify-center p-12 flex-1">
         <div
           class="animate-spin rounded-full h-12 w-12 border-b-2 border-woot-500"
-        ></div>
+        />
       </div>
 
       <div
@@ -113,9 +263,7 @@
       </div>
 
       <div v-else class="overflow-auto flex-1 custom-scroll">
-        <table
-          class="w-full text-sm text-left text-n-slate-11"
-        >
+        <table class="w-full text-sm text-left text-n-slate-11">
           <thead
             class="text-xs text-n-slate-12 uppercase bg-n-alpha-black2 sticky top-0 border-b border-n-weak"
           >
@@ -208,146 +356,3 @@
     />
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted, computed } from "vue";
-import { useKanban } from "../composables/useKanban";
-import { useStore } from "vuex";
-import { frontendURL } from "dashboard/helper/URLHelper";
-import KanbanCardModal from "./modais/KanbanCardModal.vue";
-import WootButton from "dashboard/components-next/button/Button.vue";
-
-const store = useStore();
-const { fetchArchivedCards, loadColumns, columns } = useKanban();
-
-const cards = ref([]);
-const loading = ref(false);
-const accountId = computed(() => store.getters["getCurrentAccountId"]);
-const kanbanUrl = computed(() =>
-  frontendURL(`accounts/${accountId.value}/kanban`),
-);
-
-// Modal state
-const showCardModal = ref(false);
-const selectedCard = ref(null);
-
-// Dates
-const currentDate = new Date();
-const selectedMonth = ref(currentDate.getMonth() + 1);
-const selectedYear = ref(currentDate.getFullYear());
-const selectedStatus = ref("archived"); // Default to archived
-const selectedAgent = ref("");
-const agents = ref([]);
-
-const fetchAgents = async () => {
-  try {
-    if (store.getters["agents/getAgents"].length === 0) {
-      await store.dispatch("agents/get");
-    }
-    agents.value = store.getters["agents/getAgents"];
-  } catch (e) {
-    console.error("Error fetching agents", e);
-  }
-};
-
-// Filtered cards based on status
-const filteredCards = computed(() => {
-  if (selectedStatus.value === "all") {
-    return cards.value;
-  } else if (selectedStatus.value === "archived") {
-    return cards.value.filter((card) => card.archived_at && !card.deleted_at);
-  } else if (selectedStatus.value === "deleted") {
-    return cards.value.filter((card) => card.deleted_at);
-  }
-  return cards.value;
-});
-
-// Apply Agent Filter on top of status filter
-const finalFilteredCards = computed(() => {
-  let result = filteredCards.value;
-
-  if (selectedAgent.value) {
-    result = result.filter((card) => {
-      return card.assignee && card.assignee.id === selectedAgent.value;
-    });
-  }
-
-  return result;
-});
-
-const months = [
-  "Janeiro",
-  "Fevereiro",
-  "Março",
-  "Abril",
-  "Maio",
-  "Junho",
-  "Julho",
-  "Agosto",
-  "Setembro",
-  "Outubro",
-  "Novembro",
-  "Dezembro",
-];
-
-const years = computed(() => {
-  const current = new Date().getFullYear();
-  const list = [];
-  for (let i = current; i >= current - 5; i--) {
-    list.push(i);
-  }
-  return list;
-});
-
-const fetchData = async () => {
-  loading.value = true;
-  try {
-    cards.value = await fetchArchivedCards(
-      selectedMonth.value,
-      selectedYear.value,
-    );
-  } catch (error) {
-    console.error(error);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const formatDate = (dateString) => {
-  if (!dateString) return "-";
-  return new Date(dateString).toLocaleString("pt-BR");
-};
-
-// Modal Actions
-const openCardModal = (card) => {
-  selectedCard.value = { ...card };
-  showCardModal.value = true;
-};
-
-const closeCardModal = () => {
-  showCardModal.value = false;
-  selectedCard.value = null;
-};
-
-// Stub handlers for modal actions (visual only for now in report)
-const handleCardUpdate = () => {
-  closeCardModal();
-  fetchData(); // Refresh data
-};
-
-const handleCardDelete = () => {
-  closeCardModal();
-  fetchData();
-};
-
-const handleCardArchive = () => {
-  closeCardModal();
-  fetchData();
-};
-
-onMounted(() => {
-  fetchData();
-  loadColumns();
-  fetchAgents();
-});
-</script>

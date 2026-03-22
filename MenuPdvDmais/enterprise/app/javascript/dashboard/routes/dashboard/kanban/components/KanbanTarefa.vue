@@ -1,53 +1,18 @@
 <!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/kanban/components/KanbanTarefa.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
+<!--
   ERP Chatwoot - Kanban Tarefa Component
   Uses generic KanbanBoard to display conversations.
 -->
 
-<template>
-  <div class="h-full">
-    <KanbanBoard
-      title="Kanban de Tarefas"
-      :columns="columns"
-      :cards="mappedCards"
-      :loading="loading"
-      loading-text="Carregando conversas..."
-      :can-create-column="false"
-      :can-create-card="false"
-      :can-delete-column="false"
-      :show-priority-color="true"
-      @edit-card="openConversation"
-    >
-      <template #extra-info>
-        <span>•</span>
-        <button
-          @click="refreshConversations"
-          :disabled="loading"
-          class="px-2 hover:text-blue-600 disabled:opacity-50 text-xs flex items-center gap-1 focus:outline-none"
-          title="Atualizar lista"
-        >
-          <svg
-            class="w-3 h-3"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
-        </button>
-      </template>
-    </KanbanBoard>
-  </div>
-</template>
-
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
-import ConversationAPI from "dashboard/api/conversations";
 import KanbanBoard from "./KanbanBoard.vue";
 
 const route = useRoute();
@@ -156,10 +121,10 @@ const fetchConversations = async () => {
   loading.value = true;
   try {
     const accountId = route.params.accountId;
-    
+
     // Chamada direta para o novo endpoint otimizado que retorna todas de uma vez
     const response = await window.axios.get(
-      `/enterprise/api/v1/accounts/${accountId}/kanban_cards/tarefas_board`
+      `/enterprise/api/v1/accounts/${accountId}/kanban_cards/tarefas_board`,
     );
 
     let pageData = response.data.payload || [];
@@ -170,7 +135,7 @@ const fetchConversations = async () => {
 
     conversations.value = pageData;
   } catch (error) {
-    console.error("Erro ao buscar conversas do Kanban Tarefas:", error);
+    /* debug removed */
   } finally {
     loading.value = false;
   }
@@ -205,3 +170,44 @@ onMounted(() => {
   fetchConversations();
 });
 </script>
+
+<template>
+  <div class="h-full">
+    <KanbanBoard
+      title="Kanban de Tarefas"
+      :columns="columns"
+      :cards="mappedCards"
+      :loading="loading"
+      loading-text="Carregando conversas..."
+      :can-create-column="false"
+      :can-create-card="false"
+      :can-delete-column="false"
+      :show-priority-color="true"
+      @edit-card="openConversation"
+    >
+      <template #extra-info>
+        <span>•</span>
+        <button
+          :disabled="loading"
+          class="px-2 hover:text-blue-600 disabled:opacity-50 text-xs flex items-center gap-1 focus:outline-none"
+          title="Atualizar lista"
+          @click="refreshConversations"
+        >
+          <svg
+            class="w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+        </button>
+      </template>
+    </KanbanBoard>
+  </div>
+</template>

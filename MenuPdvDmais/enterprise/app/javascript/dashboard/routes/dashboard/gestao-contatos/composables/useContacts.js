@@ -1,7 +1,16 @@
+/*
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/gestao-contatos/composables/useContacts.js
+ * Last Modified: 21/03/2026
+ * Dependencies: -
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+ */
 import { ref, computed } from "vue";
-import ContactAPI from "dashboard/api/contacts";
+import { useStore } from "vuex";
+import CustomContactsAPI from "dashboard/api/customContacts";
 
 export function useContacts() {
+  const store = useStore();
   const contacts = ref([]);
   const loading = ref(false);
   const searchQuery = ref("");
@@ -13,7 +22,9 @@ export function useContacts() {
 
   // Helpers
   const getCompanyName = (contact) => {
-    return contact.additional_attributes?.company_name || "";
+    return (
+      contact.company?.name || contact.additional_attributes?.company_name || ""
+    );
   };
 
   const formatDate = (dateString) => {
@@ -27,9 +38,7 @@ export function useContacts() {
 
     // Validar formato internacional ou brasileiro
     const startsWith55 = cleanPhone.startsWith("55") && cleanPhone.length >= 12;
-    const isValidFormat =
-      /^\+?55?\d{10,11}$/.test(cleanPhone) ||
-      startsWith55;
+    const isValidFormat = /^\+?55?\d{10,11}$/.test(cleanPhone) || startsWith55;
 
     // Nota: A lógica original considerava !isValidFormat como true para isInvalidPhone
     return !isValidFormat;
@@ -42,13 +51,22 @@ export function useContacts() {
       const allContacts = [];
       let page = 1;
       let hasMorePages = true;
+      const accountId = store.getters.getCurrentAccountId;
 
       while (hasMorePages) {
-        // Nota: companyFilter estava no código original mas parece não ser usado na UI, mantendo vazio
-        const response = await ContactAPI.get(page, "name", "", "");
-        const pageData = response.data.payload || response.data || [];
+        const response = await CustomContactsAPI.getContacts(accountId, page);
 
-        if (pageData.length === 0) {
+        let pageData = [];
+        if (response.data && Array.isArray(response.data)) {
+          pageData = response.data;
+        } else if (response.data && Array.isArray(response.data.payload)) {
+          pageData = response.data.payload;
+        } else if (response && Array.isArray(response.payload)) {
+          // caso o interceptor axios já tenha unboxado `response.data`
+          pageData = response.payload;
+        }
+
+        if (!pageData || pageData.length === 0) {
           hasMorePages = false;
         } else {
           allContacts.push(...pageData);
@@ -59,7 +77,7 @@ export function useContacts() {
 
       contacts.value = allContacts;
     } catch (error) {
-      console.error("Erro ao buscar contatos:", error);
+      /* debug removed */
     } finally {
       loading.value = false;
     }
@@ -70,7 +88,8 @@ export function useContacts() {
   };
 
   const updateContact = async (contactId, updateData) => {
-    await ContactAPI.update(contactId, updateData);
+    const accountId = store.getters.getCurrentAccountId;
+    await CustomContactsAPI.updateContact(accountId, contactId, updateData);
 
     const index = contacts.value.findIndex((c) => c.id === contactId);
     if (index !== -1) {
@@ -79,14 +98,16 @@ export function useContacts() {
         ...updateData,
         additional_attributes: {
           ...contacts.value[index].additional_attributes,
-          ...updateData.additional_attributes
-        }
+          ...updateData.additional_attributes,
+        },
       };
     }
   };
 
   const deleteContact = async (contactId) => {
-    await ContactAPI.delete(contactId);
+    const accountId = store.getters.getCurrentAccountId;
+    await CustomContactsAPI.deleteContact(accountId, contactId);
+
     const index = contacts.value.findIndex((c) => c.id === contactId);
     if (index !== -1) {
       contacts.value.splice(index, 1);
@@ -135,13 +156,18 @@ export function useContacts() {
   const contactsByCompany = computed(() => {
     const grouped = {};
 
-    contacts.value.forEach((contact) => {
+    // Sempre agrupa usando filteredContacts (aplica busca e filtros dentro dos grupos)
+    filteredContacts.value.forEach((contact) => {
       const companyName = getCompanyName(contact) || "Empresa não informada";
       if (!grouped[companyName]) {
         grouped[companyName] = {
           name: companyName,
           contacts: [],
-          expanded: expandedCompanies.value.has(companyName),
+          // Constrói o objeto company para abrir a Ficha do Cliente
+          company: {
+            name: companyName,
+            id: contact.company_id || contact.company?.id || null,
+          },
         };
       }
       grouped[companyName].contacts.push(contact);
@@ -155,16 +181,19 @@ export function useContacts() {
   });
 
   // Stats
-  const contactsWithoutCompany = computed(() =>
-    contacts.value.filter((c) => !getCompanyName(c)).length
+  const contactsWithoutCompany = computed(
+    () => contacts.value.filter((c) => !getCompanyName(c)).length,
   );
 
-  const contactsWithoutPhone = computed(() =>
-    contacts.value.filter((c) => !c.phone_number || c.phone_number.trim() === "").length
+  const contactsWithoutPhone = computed(
+    () =>
+      contacts.value.filter(
+        (c) => !c.phone_number || c.phone_number.trim() === "",
+      ).length,
   );
 
-  const contactsWithInvalidPhone = computed(() =>
-    contacts.value.filter((c) => isInvalidPhone(c.phone_number)).length
+  const contactsWithInvalidPhone = computed(
+    () => contacts.value.filter((c) => isInvalidPhone(c.phone_number)).length,
   );
 
   const contactsEligibleForAutoFill = computed(() => {
@@ -197,6 +226,6 @@ export function useContacts() {
     deleteContact,
     getCompanyName,
     formatDate,
-    isInvalidPhone
+    isInvalidPhone,
   };
 }

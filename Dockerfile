@@ -73,7 +73,7 @@ RUN sed -i "1i gem 'httparty'\ngem 'multi_xml'" ./Gemfile
 
 # Native compile deps
 RUN --mount=type=cache,target=/var/cache/apk \
-    apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips rust cargo clang clang-libclang yaml-dev
+    apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips rust cargo clang clang-libclang yaml-dev libxml2-dev libxslt-dev
 RUN bundle config set --local force_ruby_platform true
 
 # Install Gems
@@ -108,6 +108,10 @@ COPY MenuPdvDmais/db/migrate /app/db/migrate
 COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/kanbanCards.js /app/app/javascript/dashboard/api/
 COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/kanbanColumns.js /app/app/javascript/dashboard/api/
 COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/customContacts.js /app/app/javascript/dashboard/api/
+COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/clientDeployments.js /app/app/javascript/dashboard/api/
+COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/deploymentActivities.js /app/app/javascript/dashboard/api/
+COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/deploymentSystems.js /app/app/javascript/dashboard/api/
+COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/deploymentTrainings.js /app/app/javascript/dashboard/api/
 COPY MenuPdvDmais/enterprise/app/helpers/enterprise_helper.rb /app/app/helpers/
 # 4. Configs
 # COPY MenuPdvDmais/vite.config.ts /app/
@@ -123,8 +127,8 @@ RUN mkdir -p /app/log
 # Assets Precompile
 # Assets Precompile
 RUN if [ "$RAILS_ENV" = "production" ]; then \
-    NODE_OPTIONS="--max-old-space-size=4096" SECRET_KEY_BASE=precompile_placeholder bundle exec vite build && \
-    SECRET_KEY_BASE=precompile_placeholder bundle exec rails assets:precompile && \
+    CI=true VITE_RUBY_SKIP_INSTALL=true NODE_OPTIONS="--max-old-space-size=4096" SECRET_KEY_BASE=precompile_placeholder bundle exec vite build && \
+    CI=true VITE_RUBY_SKIP_INSTALL=true SECRET_KEY_BASE=precompile_placeholder bundle exec rails assets:precompile && \
     ln -sf /app/public/vite/.vite/manifest.json /app/public/vite/manifest.json && \
     rm -rf spec node_modules tmp/cache; \
     fi

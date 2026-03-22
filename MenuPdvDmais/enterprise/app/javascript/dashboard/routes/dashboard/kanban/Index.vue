@@ -1,4 +1,11 @@
 <!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/kanban/Index.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
+<!--
 ERP Chatwoot - Kanban Index Component
 -->
 
@@ -6,14 +13,14 @@ ERP Chatwoot - Kanban Index Component
 import { ref } from "vue";
 import KanbanTarefa from "./components/KanbanTarefa.vue";
 import KanbanComercial from "./components/KanbanComercial.vue";
-import Tabs from 'dashboard/components/ui/Tabs/Tabs.vue';
-import TabsItem from 'dashboard/components/ui/Tabs/TabsItem.vue';
+import Tabs from "dashboard/components/ui/Tabs/Tabs.vue";
+import TabsItem from "dashboard/components/ui/Tabs/TabsItem.vue";
 
 // Estado da aba ativa (0: Tarefa, 1: Comercial)
 const activeTab = ref(1);
 const tabs = [
-  { key: 'tarefa', name: 'Tarefas', icon: 'clipboard-task-list-ltr' },
-  { key: 'comercial', name: 'Comercial', icon: 'briefcase' }
+  { key: "tarefa", name: "Tarefas", icon: "clipboard-task-list-ltr" },
+  { key: "comercial", name: "Comercial", icon: "briefcase" },
 ];
 
 const onTabChange = (index) => {
@@ -26,10 +33,10 @@ const onTabChange = (index) => {
     <!-- Abas -->
     <div class="mb-4">
       <Tabs :index="activeTab" @change="onTabChange">
-        <TabsItem 
-          v-for="(tab, index) in tabs" 
-          :key="tab.key" 
-          :index="index" 
+        <TabsItem
+          v-for="(tab, index) in tabs"
+          :key="tab.key"
+          :index="index"
           :name="tab.name"
           :show-badge="false"
           :is-compact="true"

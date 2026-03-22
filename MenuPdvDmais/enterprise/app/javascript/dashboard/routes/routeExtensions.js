@@ -1,3 +1,10 @@
+/*
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/routeExtensions.js
+ * Last Modified: 21/03/2026
+ * Dependencies: -
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+ */
 /**
  * ERP Chatwoot - Enterprise Route Extensions
  * =============================================================================
@@ -49,8 +56,12 @@ export function mergeEnterpriseRoutes(dashboardRoutes) {
   }
 
   // Find the main dashboard container route and inject enterprise routes into its children
-  return dashboardRoutes.map(route => {
-    if (route.path && route.path.includes('accounts/:accountId') && route.children) {
+  return dashboardRoutes.map((route) => {
+    if (
+      route.path &&
+      route.path.includes("accounts/:accountId") &&
+      route.children
+    ) {
       return {
         ...route,
         children: [...route.children, ...enterpriseRoutes],

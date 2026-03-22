@@ -1,220 +1,10 @@
-<template>
-  <div
-    v-if="show"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-  >
-    <div
-      class="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-md mx-4 shadow-xl"
-    >
-      <h2 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">
-        {{ isEditing ? "Editar Card" : "Novo Card" }}
-      </h2>
-      <form @submit.prevent="handleSubmit" class="space-y-4">
-        <!-- Seção de Relacionamentos movida para o topo -->
-        <div class="space-y-3">
-          <div>
-            <label
-              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-            >
-              Empresa *
-            </label>
-            <ComboBox
-              v-model="form.company_id"
-              :options="companies"
-              label="Empresa *"
-              placeholder="Selecione uma empresa"
-              search-placeholder="Buscar empresa..."
-              :has-error="errors.company_id"
-              :message="
-                errors.company_id ? 'Por favor, selecione uma empresa' : ''
-              "
-            />
-          </div>
-
-          <div>
-            <ComboBox
-              v-model="form.contact_id"
-              :options="contacts"
-              label="Contato *"
-              placeholder="Selecione o contato"
-              search-placeholder="Buscar contato..."
-              :disabled="!form.company_id"
-              :no-data-text="
-                form.company_id
-                  ? 'Nenhum contato encontrado'
-                  : 'Selecione a empresa primeiro'
-              "
-              :has-error="errors.contact_id"
-              :message="
-                errors.contact_id ? 'Por favor, selecione um contato' : ''
-              "
-            />
-          </div>
-
-          <div>
-            <label
-              class="block text-sm font-medium text-n-slate-12 mb-1"
-            >
-              Vendedor *
-            </label>
-            <select
-              v-model="form.assignee_id"
-              required
-              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
-            >
-              <option value="" disabled selected>Selecione um vendedor</option>
-              <option v-for="agent in agents" :key="agent.id" :value="agent.id">
-                {{ agent.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <woot-input
-            v-model="form.title"
-            type="text"
-            label="Título *"
-            placeholder="Digite o título do card"
-            required
-          />
-        </div>
-
-        <div>
-          <label
-            class="block text-sm font-medium text-n-slate-12 mb-1"
-          >
-            Descrição
-          </label>
-          <textarea
-            v-model="form.description"
-            rows="3"
-            class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
-            placeholder="Digite a descrição (opcional)"
-          ></textarea>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label
-              class="block text-sm font-medium text-n-slate-12 mb-1"
-            >
-              Coluna *
-            </label>
-            <select
-              v-model="form.kanban_column_id"
-              required
-              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
-            >
-              <option value="" disabled selected>Selecione uma coluna</option>
-              <option
-                v-for="column in columns"
-                :key="column.id"
-                :value="column.id"
-              >
-                {{ column.name }}
-              </option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              class="block text-sm font-medium text-n-slate-12 mb-1"
-            >
-              Prioridade
-            </label>
-            <select
-              v-model="form.priority"
-              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
-            >
-              <option value="low">Baixa</option>
-              <option value="normal">Normal</option>
-              <option value="high">Alta</option>
-              <option value="urgent">Urgente</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <woot-input
-            v-model="form.due_date"
-            type="date"
-            label="Data de vencimento"
-          />
-        </div>
-
-        <div
-          class="flex gap-2 pt-4"
-          :class="isEditing ? 'justify-between' : 'justify-end'"
-        >
-          <!-- Delete and Archive buttons (only when editing) -->
-          <div v-if="isEditing" class="flex gap-2">
-            <button
-              type="button"
-              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              @click="handleDelete"
-              :disabled="loading"
-            >
-              Excluir
-            </button>
-
-            <button
-              v-if="isLastColumn"
-              type="button"
-              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              @click="handleArchive"
-              :disabled="loading"
-            >
-              Arquivar
-            </button>
-          </div>
-
-          <!-- Regular action buttons -->
-          <div class="flex gap-2">
-            <button
-              type="button"
-              class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-slate-800 dark:text-gray-200 dark:border-slate-600 dark:hover:bg-slate-700"
-              @click="$emit('close')"
-            >
-              Cancelar
-            </button>
-
-            <button
-              type="submit"
-              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :class="{ 'opacity-50 cursor-not-allowed': loading }"
-              :disabled="loading"
-            >
-              <svg
-                v-if="loading"
-                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                ></circle>
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              {{ isEditing ? "Salvar Alterações" : "Criar Card" }}
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-</template>
-
+<!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/kanban/components/modais/KanbanCardModal.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";
 import { useStore } from "vuex";
@@ -233,7 +23,7 @@ const emit = defineEmits(["close", "submit", "delete", "archive"]);
 const store = useStore();
 
 // Getter para o ID da conta atual for API paths
-const accountId = computed(() => store.getters["getCurrentAccountId"]);
+const accountId = computed(() => store.getters.getCurrentAccountId);
 
 // Check if card is in last column
 const isLastColumn = computed(() => {
@@ -305,7 +95,7 @@ const fetchCompanies = async () => {
 
       // Safety limit to prevent infinite loops (adjust if needed)
       if (currentPage > 100) {
-        console.warn("Reached pagination limit of 100 pages (2500 companies)");
+        /* debug removed */
         hasMore = false;
       }
     }
@@ -326,7 +116,7 @@ const fetchCompanies = async () => {
 
     companies.value = results;
   } catch (error) {
-    console.error("Error fetching companies", error);
+    /* debug removed */
   }
 };
 
@@ -338,7 +128,7 @@ const fetchAgents = async () => {
     }
     agents.value = store.getters["agents/getAgents"];
   } catch (e) {
-    console.error("Error fetching agents", e);
+    /* debug removed */
     // Ultimate fallback
     agents.value = store.getters["agents/getAgents"];
   }
@@ -364,7 +154,7 @@ const fetchContacts = async (companyId) => {
       label: c.name,
     }));
   } catch (e) {
-    console.error(e);
+    /* debug removed */
   }
 };
 
@@ -499,3 +289,212 @@ const handleArchive = () => {
   }
 };
 </script>
+
+<template>
+  <div
+    v-if="show"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div
+      class="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-md mx-4 shadow-xl"
+    >
+      <h2 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">
+        {{ isEditing ? "Editar Card" : "Novo Card" }}
+      </h2>
+      <form class="space-y-4" @submit.prevent="handleSubmit">
+        <!-- Seção de Relacionamentos movida para o topo -->
+        <div class="space-y-3">
+          <div>
+            <label
+              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+            >
+              Empresa *
+            </label>
+            <ComboBox
+              v-model="form.company_id"
+              :options="companies"
+              label="Empresa *"
+              placeholder="Selecione uma empresa"
+              search-placeholder="Buscar empresa..."
+              :has-error="errors.company_id"
+              :message="
+                errors.company_id ? 'Por favor, selecione uma empresa' : ''
+              "
+            />
+          </div>
+
+          <div>
+            <ComboBox
+              v-model="form.contact_id"
+              :options="contacts"
+              label="Contato *"
+              placeholder="Selecione o contato"
+              search-placeholder="Buscar contato..."
+              :disabled="!form.company_id"
+              :no-data-text="
+                form.company_id
+                  ? 'Nenhum contato encontrado'
+                  : 'Selecione a empresa primeiro'
+              "
+              :has-error="errors.contact_id"
+              :message="
+                errors.contact_id ? 'Por favor, selecione um contato' : ''
+              "
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-n-slate-12 mb-1">
+              Vendedor *
+            </label>
+            <select
+              v-model="form.assignee_id"
+              required
+              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
+            >
+              <option value="" disabled selected>Selecione um vendedor</option>
+              <option v-for="agent in agents" :key="agent.id" :value="agent.id">
+                {{ agent.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <WootInput
+            v-model="form.title"
+            type="text"
+            label="Título *"
+            placeholder="Digite o título do card"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-n-slate-12 mb-1">
+            Descrição
+          </label>
+          <textarea
+            v-model="form.description"
+            rows="3"
+            class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
+            placeholder="Digite a descrição (opcional)"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-n-slate-12 mb-1">
+              Coluna *
+            </label>
+            <select
+              v-model="form.kanban_column_id"
+              required
+              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
+            >
+              <option value="" disabled selected>Selecione uma coluna</option>
+              <option
+                v-for="column in columns"
+                :key="column.id"
+                :value="column.id"
+              >
+                {{ column.name }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-n-slate-12 mb-1">
+              Prioridade
+            </label>
+            <select
+              v-model="form.priority"
+              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
+            >
+              <option value="low">Baixa</option>
+              <option value="normal">Normal</option>
+              <option value="high">Alta</option>
+              <option value="urgent">Urgente</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <WootInput
+            v-model="form.due_date"
+            type="date"
+            label="Data de vencimento"
+          />
+        </div>
+
+        <div
+          class="flex gap-2 pt-4"
+          :class="isEditing ? 'justify-between' : 'justify-end'"
+        >
+          <!-- Delete and Archive buttons (only when editing) -->
+          <div v-if="isEditing" class="flex gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :disabled="loading"
+              @click="handleDelete"
+            >
+              Excluir
+            </button>
+
+            <button
+              v-if="isLastColumn"
+              type="button"
+              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :disabled="loading"
+              @click="handleArchive"
+            >
+              Arquivar
+            </button>
+          </div>
+
+          <!-- Regular action buttons -->
+          <div class="flex gap-2">
+            <button
+              type="button"
+              class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-slate-800 dark:text-gray-200 dark:border-slate-600 dark:hover:bg-slate-700"
+              @click="$emit('close')"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              :class="{ 'opacity-50 cursor-not-allowed': loading }"
+              :disabled="loading"
+            >
+              <svg
+                v-if="loading"
+                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              {{ isEditing ? "Salvar Alterações" : "Criar Card" }}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>

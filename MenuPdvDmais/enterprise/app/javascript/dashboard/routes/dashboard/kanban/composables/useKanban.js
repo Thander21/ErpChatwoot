@@ -1,3 +1,10 @@
+/*
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/kanban/composables/useKanban.js
+ * Last Modified: 21/03/2026
+ * Dependencies: -
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+ */
 import { ref, computed } from "vue";
 import KanbanCardsAPI from "dashboard/api/kanbanCards";
 import KanbanColumnsAPI from "dashboard/api/kanbanColumns";
@@ -10,7 +17,7 @@ export function useKanban() {
   // Computed
   const sortedColumns = computed(() => {
     return [...columns.value].sort(
-      (a, b) => (a.position || 0) - (b.position || 0)
+      (a, b) => (a.position || 0) - (b.position || 0),
     );
   });
 
@@ -36,7 +43,7 @@ export function useKanban() {
         }
         await loadColumns();
       } catch (error) {
-        console.warn("Error creating default columns:", error);
+        /* debug removed */
       }
     }
   };
@@ -47,7 +54,7 @@ export function useKanban() {
       const response = await KanbanColumnsAPI.get();
       columns.value = response.data || [];
     } catch (error) {
-      console.error("Error loading columns:", error);
+      /* debug removed */
       // Fallback to defaults only if API fails and we have nothing?
       // For now, let's try to init defaults if empty array returned (though API likely returns empty array if new)
       // Actually, initializeDefaultData check columns.length === 0, so if API error leaves it empty, it might trigger defaults.
@@ -61,7 +68,7 @@ export function useKanban() {
       const response = await KanbanCardsAPI.get();
       kanbanCards.value = response.data || [];
     } catch (error) {
-      console.error("Error loading cards:", error);
+      /* debug removed */
     }
   };
 
@@ -75,7 +82,7 @@ export function useKanban() {
       }
       await loadCards();
     } catch (error) {
-      console.error("Error loading data:", error);
+      /* debug removed */
     } finally {
       loading.value = false;
     }
@@ -89,8 +96,9 @@ export function useKanban() {
         kanbanCards.value.push(response.data);
         return response.data;
       }
+      return null;
     } catch (error) {
-      console.error("Error creating card:", error);
+      /* debug removed */
       throw error;
     }
   };
@@ -103,7 +111,7 @@ export function useKanban() {
         kanbanCards.value.splice(index, 1);
       }
     } catch (error) {
-      console.error("Error deleting card:", error);
+      /* debug removed */
       throw error;
     }
   };
@@ -120,8 +128,9 @@ export function useKanban() {
         }
         return response.data;
       }
+      return null;
     } catch (error) {
-      console.error("Error updating card:", error);
+      /* debug removed */
       throw error;
     }
   };
@@ -133,8 +142,9 @@ export function useKanban() {
         columns.value.push(response.data);
         return response.data;
       }
+      return null;
     } catch (error) {
-      console.error("Error creating column:", error);
+      /* debug removed */
       throw error;
     }
   };
@@ -149,8 +159,9 @@ export function useKanban() {
         }
         return response.data;
       }
+      return null;
     } catch (error) {
-      console.error("Error updating column:", error);
+      /* debug removed */
       throw error;
     }
   };
@@ -163,7 +174,7 @@ export function useKanban() {
         columns.value.splice(index, 1);
       }
     } catch (error) {
-      console.error("Error deleting column:", error);
+      /* debug removed */
       throw error;
     }
   };
@@ -175,13 +186,13 @@ export function useKanban() {
         // Optimistic update
         card.kanban_column_id = columnId;
         card.position = position;
-        
+
         await KanbanCardsAPI.update(cardId, {
           kanban_card: { kanban_column_id: columnId, position },
         });
       }
     } catch (error) {
-      console.error("Error updating card position:", error);
+      /* debug removed */
       loadCards(); // Revert on error
     }
   };
@@ -194,7 +205,7 @@ export function useKanban() {
         kanbanCards.value.splice(index, 1);
       }
     } catch (error) {
-      console.error("Error archiving card:", error);
+      /* debug removed */
       throw error;
     }
   };
@@ -204,8 +215,8 @@ export function useKanban() {
       const response = await KanbanCardsAPI.getArchivedReport(month, year);
       return response.data;
     } catch (error) {
-       console.error("Error fetching archived cards:", error);
-       throw error;
+      /* debug removed */
+      throw error;
     }
   };
 
@@ -228,4 +239,3 @@ export function useKanban() {
     loadColumns,
   };
 }
-

@@ -17,6 +17,27 @@ namespace :enterprise, defaults: { format: 'json' } do
             post :archive
           end
         end
+
+        # Módulo: Controle de Implantação
+        resources :client_deployments, only: [:index, :show, :create, :update, :destroy] do
+          resources :deployment_activities, only: [:index, :create, :update, :destroy]
+          resources :deployment_systems, only: [:index, :create, :update, :destroy]
+          resources :deployment_trainings, only: [:index, :create, :update, :destroy]
+          resources :deployment_installations, only: [:index, :create, :update, :destroy]
+          resources :deployment_hardwares, only: [:index, :create, :update, :destroy]
+          resources :deployment_networks, only: [:index, :create, :update, :destroy]
+        end
+
+        resources :custom_contacts, only: [:index, :update, :destroy]
+        
+        resources :companies, only: [:index] do
+          collection do
+            post :validate_agent
+            post :register_visit
+          end
+        end
+
+        post 'telegram/webhook', to: 'telegram_events#process_payload'
       end
     end
   end

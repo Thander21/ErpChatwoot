@@ -1,3 +1,10 @@
+/*
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/kanban/kanban.routes.js
+ * Last Modified: 21/03/2026
+ * Dependencies: -
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+ */
 /**
  * ERP Chatwoot - Kanban Routes
  * =============================================================================
@@ -10,24 +17,24 @@
  * =============================================================================
  */
 
-import { frontendURL } from 'dashboard/helper/URLHelper';
-import { ROLES } from 'dashboard/constants/permissions.js';
-import KanbanIndex from './Index.vue';
+import { frontendURL } from "dashboard/helper/URLHelper";
+import { ROLES } from "dashboard/constants/permissions.js";
+import KanbanIndex from "./Index.vue";
 
 export default {
   routes: [
     {
-      path: frontendURL('accounts/:accountId/kanban'),
-      name: 'kanban_index',
+      path: frontendURL("accounts/:accountId/kanban"),
+      name: "kanban_index",
       component: KanbanIndex,
       meta: {
         permissions: [...ROLES],
       },
     },
     {
-      path: frontendURL('accounts/:accountId/kanban/archived'),
-      name: 'kanban_archived',
-      component: () => import('./components/ArchivedReport.vue'),
+      path: frontendURL("accounts/:accountId/kanban/archived"),
+      name: "kanban_archived",
+      component: () => import("./components/ArchivedReport.vue"),
       meta: {
         permissions: [...ROLES],
       },

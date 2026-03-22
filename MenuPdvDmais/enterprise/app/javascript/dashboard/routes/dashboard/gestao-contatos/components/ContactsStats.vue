@@ -1,10 +1,30 @@
+<!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/gestao-contatos/components/ContactsStats.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
+<script setup>
+defineProps({
+  totalContacts: Number,
+  contactsWithoutCompany: Number,
+  contactsEligibleForAutoFill: Number,
+  contactsWithoutPhone: Number,
+  contactsWithInvalidPhone: Number,
+  activeFilter: String,
+});
+
+defineEmits(["setFilter"]);
+</script>
+
 <template>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
     <!-- Total de Contatos -->
     <div
-      @click="$emit('setFilter', 'all')"
       class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
       :class="{ 'ring-2 ring-blue-500': activeFilter === 'all' }"
+      @click="$emit('setFilter', 'all')"
     >
       <div class="flex items-center justify-between">
         <div>
@@ -38,9 +58,9 @@
 
     <!-- Contatos sem Empresa -->
     <div
-      @click="$emit('setFilter', 'no_company')"
       class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
       :class="{ 'ring-2 ring-orange-500': activeFilter === 'no_company' }"
+      @click="$emit('setFilter', 'no_company')"
     >
       <div class="flex items-center justify-between">
         <div>
@@ -79,9 +99,9 @@
 
     <!-- Contatos sem Número -->
     <div
-      @click="$emit('setFilter', 'no_phone')"
       class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
       :class="{ 'ring-2 ring-red-500': activeFilter === 'no_phone' }"
+      @click="$emit('setFilter', 'no_phone')"
     >
       <div class="flex items-center justify-between">
         <div>
@@ -114,9 +134,9 @@
 
     <!-- Contatos com Número Inválido -->
     <div
-      @click="$emit('setFilter', 'invalid_phone')"
       class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105"
       :class="{ 'ring-2 ring-yellow-500': activeFilter === 'invalid_phone' }"
+      @click="$emit('setFilter', 'invalid_phone')"
     >
       <div class="flex items-center justify-between">
         <div>
@@ -148,16 +168,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-defineProps({
-  totalContacts: Number,
-  contactsWithoutCompany: Number,
-  contactsEligibleForAutoFill: Number,
-  contactsWithoutPhone: Number,
-  contactsWithInvalidPhone: Number,
-  activeFilter: String,
-});
-
-defineEmits(['setFilter']);
-</script>

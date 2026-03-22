@@ -1,3 +1,10 @@
+/*
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/composables/useEnterpriseSidebar.js
+ * Last Modified: 21/03/2026
+ * Dependencies: -
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+ */
 /**
  * ERP Chatwoot - Enterprise Sidebar Extensions
  * =============================================================================
@@ -11,7 +18,7 @@
  * =============================================================================
  */
 
- /**
+/**
  * Enterprise Sidebar Extensions
  *
  * This composable provides enterprise-specific sidebar menu items
@@ -21,25 +28,25 @@
 export function getEnterpriseSidebarItems() {
   return [
     {
-      name: 'Gestão de Contatos',
-      label: 'Gestão de Contatos',
-      icon: 'i-lucide-folder-open',
-      to: { name: 'gestao_contatos_index' },
-      activeOn: ['gestao_contatos_index'],
+      name: "Gestão de Contatos",
+      label: "Gestão de Contatos",
+      icon: "i-lucide-folder-open",
+      to: { name: "gestao_contatos_index" },
+      activeOn: ["gestao_contatos_index"],
     },
     {
-      name: 'Kanban',
-      label: 'Kanban',
-      icon: 'i-lucide-trello',
-      to: { name: 'kanban_index' },
-      activeOn: ['kanban_index'],
+      name: "Kanban",
+      label: "Kanban",
+      icon: "i-lucide-trello",
+      to: { name: "kanban_index" },
+      activeOn: ["kanban_index"],
     },
     {
-      name: 'Boletos',
-      label: 'Boletos',
-      icon: 'i-lucide-receipt',
-      to: { name: 'boletos_index' },
-      activeOn: ['boletos_index'],
+      name: "Boletos",
+      label: "Boletos",
+      icon: "i-lucide-receipt",
+      to: { name: "boletos_index" },
+      activeOn: ["boletos_index"],
     },
   ];
 }
@@ -52,15 +59,17 @@ export function injectEnterpriseMenuItems(standardMenuItems) {
   const enterpriseItems = getEnterpriseSidebarItems();
 
   // Insert enterprise items after Conversation section (third position)
-  const conversationIndex = standardMenuItems.findIndex(item => item.name === 'Conversation');
+  const conversationIndex = standardMenuItems.findIndex(
+    (item) => item.name === "Conversation",
+  );
 
   if (conversationIndex !== -1) {
     return [
       ...standardMenuItems.slice(0, conversationIndex + 1),
       {
-        name: 'PDv D+',
-        label: 'PDv D+',
-        icon: 'i-lucide-star',
+        name: "PDv D+",
+        label: "PDv D+",
+        icon: "i-lucide-star",
         children: enterpriseItems,
       },
       ...standardMenuItems.slice(conversationIndex + 1),
@@ -68,14 +77,16 @@ export function injectEnterpriseMenuItems(standardMenuItems) {
   }
 
   // Fallback: insert after Reports if Conversation not found
-  const reportsIndex = standardMenuItems.findIndex(item => item.name === 'Reports');
+  const reportsIndex = standardMenuItems.findIndex(
+    (item) => item.name === "Reports",
+  );
   if (reportsIndex !== -1) {
     return [
       ...standardMenuItems.slice(0, reportsIndex + 1),
       {
-        name: 'PDv D+',
-        label: 'PDv D+',
-        icon: 'i-lucide-star',
+        name: "PDv D+",
+        label: "PDv D+",
+        icon: "i-lucide-star",
         children: enterpriseItems,
       },
       ...standardMenuItems.slice(reportsIndex + 1),

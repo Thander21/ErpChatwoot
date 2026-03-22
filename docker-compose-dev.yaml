@@ -2,7 +2,9 @@ x-base: &base
   build:
     context: .
     dockerfile: Dockerfile
-  image: chatwoot-enterprise:latest
+    args:
+      - RAILS_ENV=production
+  image: chatwoot-enterprise:dev
   env_file: .env
   volumes:
     - storage_data:/app/storage
@@ -17,6 +19,9 @@ services:
         condition: service_healthy
     ports:
       - '3003:3000'
+    volumes:
+      - storage_data:/app/storage
+      - ./MenuPdvDmais/db/migrate:/app/db/migrate
     environment:
       - NODE_ENV=production
       - RAILS_ENV=production
@@ -31,10 +36,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    volumes:
+      - storage_data:/app/storage
     environment:
       - NODE_ENV=production
       - RAILS_ENV=production
       - INSTALLATION_ENV=docker
+    entrypoint: /app/docker/entrypoints/rails.sh
     command: [ 'bundle', 'exec', 'sidekiq', '-C', 'config/sidekiq.yml' ]
 
   postgres:

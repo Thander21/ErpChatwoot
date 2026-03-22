@@ -1,3 +1,10 @@
+/*
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/initializeRoutes.js
+ * Last Modified: 21/03/2026
+ * Dependencies: -
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+ */
 /**
  * ERP Chatwoot - Enterprise Routes Initialization
  * =============================================================================
@@ -18,10 +25,10 @@
  * Run this during app initialization to register enterprise modules
  */
 
-import { registerEnterpriseRoutes } from './routeExtensions.js';
-import gestaoContatosRoutes from './dashboard/gestao-contatos/gestao-contatos.routes.js';
-import kanbanRoutes from './dashboard/kanban/kanban.routes.js';
-import boletosRoutes from './dashboard/boletos/boletos.routes.js';
+import { registerEnterpriseRoutes } from "./routeExtensions.js";
+import gestaoContatosRoutes from "./dashboard/gestao-contatos/gestao-contatos.routes.js";
+import kanbanRoutes from "./dashboard/kanban/kanban.routes.js";
+import boletosRoutes from "./dashboard/boletos/boletos.routes.js";
 
 /**
  * Initialize enterprise routes
@@ -33,7 +40,7 @@ export function initializeEnterpriseRoutes() {
   registerEnterpriseRoutes(kanbanRoutes.routes);
   registerEnterpriseRoutes(boletosRoutes.routes);
 
-  console.log('✅ Enterprise routes initialized');
+  /* debug removed */
 }
 
 export default {

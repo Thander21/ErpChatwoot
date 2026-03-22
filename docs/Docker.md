@@ -21,11 +21,11 @@ echo "🧹 Limpando cache Docker..."
 docker image prune -a -f      # Remove imagens não usadas
 docker volume prune -a -f         # Remove volumes órfãos
 
-```
 docker builder prune -a -f        # Remove build cache
 
 remove tudo
 docker system prune -a --volumes
+```
 
 ## Verificar espaço usado:
 

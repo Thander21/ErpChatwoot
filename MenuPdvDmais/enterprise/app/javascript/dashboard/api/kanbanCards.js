@@ -1,9 +1,16 @@
+/*
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/api/kanbanCards.js
+ * Last Modified: 21/03/2026
+ * Dependencies: -
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+ */
 /* global axios */
-import ApiClient from './ApiClient';
+import ApiClient from "./ApiClient";
 
 class KanbanCardsAPI extends ApiClient {
   constructor() {
-    super('kanban_cards', { accountScoped: true, enterprise: true });
+    super("kanban_cards", { accountScoped: true, enterprise: true });
   }
 
   // Sobrescrever o método get para usar o namespace enterprise
@@ -12,7 +19,7 @@ class KanbanCardsAPI extends ApiClient {
 
     // Adicionar parâmetros de query
     const queryParams = new URLSearchParams();
-    Object.keys(params).forEach(key => {
+    Object.keys(params).forEach((key) => {
       if (params[key] !== null && params[key] !== undefined) {
         queryParams.append(key, params[key]);
       }
@@ -29,9 +36,10 @@ class KanbanCardsAPI extends ApiClient {
   move(cardId, kanbanColumnId, position = 0) {
     return axios.post(`${this.url}/${cardId}/move`, {
       kanban_column_id: kanbanColumnId,
-      position: position
+      position: position,
     });
   }
+
   archive(cardId) {
     return axios.post(`${this.url}/${cardId}/archive`);
   }

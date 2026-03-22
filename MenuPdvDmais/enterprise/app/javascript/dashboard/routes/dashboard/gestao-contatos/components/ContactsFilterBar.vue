@@ -1,3 +1,34 @@
+<!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/gestao-contatos/components/ContactsFilterBar.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
+<script setup>
+defineProps({
+  activeFilter: String,
+  filteredCount: Number,
+});
+
+defineEmits(["clearFilter"]);
+
+const getFilterLabel = (filterType) => {
+  switch (filterType) {
+    case "all":
+      return "Todos os Contatos";
+    case "no_company":
+      return "Sem Empresa";
+    case "no_phone":
+      return "Sem Número";
+    case "invalid_phone":
+      return "Número Inválido";
+    default:
+      return "Filtro Desconhecido";
+  }
+};
+</script>
+
 <template>
   <div
     v-if="activeFilter !== 'all'"
@@ -22,41 +53,15 @@
           Filtro ativo: {{ getFilterLabel(activeFilter) }}
         </span>
         <span class="text-sm text-gray-600 dark:text-gray-400">
-          ({{ filteredCount }} contato{{
-            filteredCount !== 1 ? "s" : ""
-          }})
+          ({{ filteredCount }} contato{{ filteredCount !== 1 ? "s" : "" }})
         </span>
       </div>
       <button
-        @click="$emit('clearFilter')"
         class="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+        @click="$emit('clearFilter')"
       >
         Limpar Filtro
       </button>
     </div>
   </div>
 </template>
-
-<script setup>
-defineProps({
-  activeFilter: String,
-  filteredCount: Number,
-});
-
-defineEmits(['clearFilter']);
-
-const getFilterLabel = (filterType) => {
-  switch (filterType) {
-    case "all":
-      return "Todos os Contatos";
-    case "no_company":
-      return "Sem Empresa";
-    case "no_phone":
-      return "Sem Número";
-    case "invalid_phone":
-      return "Número Inválido";
-    default:
-      return "Filtro Desconhecido";
-  }
-};
-</script>

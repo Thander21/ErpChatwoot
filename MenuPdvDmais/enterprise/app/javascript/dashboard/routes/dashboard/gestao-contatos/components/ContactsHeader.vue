@@ -1,3 +1,19 @@
+<!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/gestao-contatos/components/ContactsHeader.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
+<script setup>
+defineProps({
+  searchQuery: String,
+  loading: Boolean,
+});
+
+defineEmits(["update:searchQuery", "refresh"]);
+</script>
+
 <template>
   <div class="flex items-center justify-between mb-4">
     <h1 class="text-3xl font-bold text-slate-900 dark:text-white">
@@ -5,9 +21,9 @@
     </h1>
     <div class="flex gap-2">
       <button
-        @click="$emit('refresh')"
         :disabled="loading"
         class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+        @click="$emit('refresh')"
       >
         <svg
           class="w-4 h-4"
@@ -28,12 +44,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-defineProps({
-  searchQuery: String,
-  loading: Boolean,
-});
-
-defineEmits(['update:searchQuery', 'refresh']);
-</script>

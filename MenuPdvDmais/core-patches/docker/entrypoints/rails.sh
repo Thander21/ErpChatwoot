@@ -35,5 +35,12 @@ do
   sleep 2;
 done
 
+# Inject custom enterprise routes if inclusion is missing
+if ! grep -q "enterprise/config/routes.rb" config/routes.rb; then
+  echo "Injecting enterprise routes inclusion..."
+  # Insert before the last 'end'
+  sed -i '$i \  instance_eval(File.read(Rails.root.join("enterprise/config/routes.rb"))) if Rails.root.join("enterprise/config/routes.rb").exist?' config/routes.rb
+fi
+
 # Execute the main process of the container
 exec "$@"

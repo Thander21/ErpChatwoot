@@ -1,3 +1,60 @@
+<!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/gestao-contatos/components/modais/ContactFormModal.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
+<script setup>
+import { ref, watch, computed } from "vue";
+
+const props = defineProps({
+  show: Boolean,
+  initialData: Object,
+  loading: Boolean,
+});
+
+const emit = defineEmits(["close", "submit"]);
+
+const form = ref({
+  name: "",
+  email: "",
+  phone_number: "",
+  company_name: "",
+});
+
+const isEditing = computed(() => !!props.initialData);
+
+watch(
+  () => props.initialData,
+  (newData) => {
+    if (newData) {
+      form.value = {
+        name: newData.name || "",
+        email: newData.email || "",
+        phone_number: newData.phone_number || "",
+        company_name:
+          newData.company_name ||
+          newData.additional_attributes?.company_name ||
+          "",
+      };
+    } else {
+      form.value = {
+        name: "",
+        email: "",
+        phone_number: "",
+        company_name: "",
+      };
+    }
+  },
+  { immediate: true },
+);
+
+const handleSubmit = () => {
+  emit("submit", { ...form.value });
+};
+</script>
+
 <template>
   <div
     v-if="show"
@@ -11,7 +68,7 @@
       <h2 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">
         {{ isEditing ? "Editar Contato" : "Novo Contato" }}
       </h2>
-      <form @submit.prevent="handleSubmit" class="space-y-4">
+      <form class="space-y-4" @submit.prevent="handleSubmit">
         <div>
           <label
             class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
@@ -70,8 +127,8 @@
           </button>
           <button
             type="button"
-            @click="$emit('close')"
             class="px-4 py-2 bg-gray-300 dark:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-gray-400 dark:hover:bg-slate-500"
+            @click="$emit('close')"
           >
             Cancelar
           </button>
@@ -80,50 +137,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, watch, computed } from 'vue';
-
-const props = defineProps({
-  show: Boolean,
-  initialData: Object,
-  loading: Boolean,
-});
-
-const emit = defineEmits(['close', 'submit']);
-
-const form = ref({
-  name: '',
-  email: '',
-  phone_number: '',
-  company_name: '',
-});
-
-const isEditing = computed(() => !!props.initialData);
-
-watch(
-  () => props.initialData,
-  (newData) => {
-    if (newData) {
-      form.value = {
-        name: newData.name || '',
-        email: newData.email || '',
-        phone_number: newData.phone_number || '',
-        company_name: newData.company_name || newData.additional_attributes?.company_name || '',
-      };
-    } else {
-      form.value = {
-        name: '',
-        email: '',
-        phone_number: '',
-        company_name: '',
-      };
-    }
-  },
-  { immediate: true }
-);
-
-const handleSubmit = () => {
-  emit('submit', { ...form.value });
-};
-</script>

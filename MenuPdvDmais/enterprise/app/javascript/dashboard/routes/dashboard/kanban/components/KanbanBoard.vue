@@ -1,136 +1,10 @@
-<template>
-  <div class="flex flex-col gap-4 h-full bg-n-surface-1">
-    <!-- Header com controles -->
-    <div class="flex items-center justify-between mb-2 flex-shrink-0">
-      <div class="flex items-center gap-4">
-        <h2 class="text-xl font-semibold text-n-slate-12">
-          {{ title }}
-        </h2>
-        <div
-          class="flex items-center gap-2 text-sm text-n-slate-11"
-        >
-          <span>{{ totalCards }} cards</span>
-          <span v-if="columns.length > 0">•</span>
-          <span v-if="columns.length > 0">{{ columns.length }} colunas</span>
-          <span v-if="columns.length > 0">{{ columns.length }} colunas</span>
-          <slot name="extra-info"></slot>
-          <template v-if="archivedUrl">
-            <span class="text-n-slate-9 dark:text-n-slate-9">|</span>
-            <router-link
-              :to="archivedUrl"
-              class="hover:text-n-brand dark:hover:text-n-brand hover:underline flex items-center gap-1.5"
-            >
-              <span class="i-lucide-box size-3.5 block"></span>
-              Arquivados
-            </router-link>
-          </template>
-        </div>
-      </div>
-
-      <div class="flex flex-col sm:flex-row gap-2">
-        <woot-button
-          v-if="canCreateCard"
-          @click="$emit('create-card')"
-          color="teal"
-          icon="plus"
-        >
-          <span class="hidden sm:inline">Novo Card</span>
-          <span class="sm:hidden">Card</span>
-        </woot-button>
-
-        <woot-button
-          v-if="canCreateColumn"
-          @click="$emit('create-column')"
-          color="blue"
-          icon="plus"
-        >
-          <span class="hidden sm:inline">Nova Coluna</span>
-          <span class="sm:hidden">Coluna</span>
-        </woot-button>
-
-        <!-- Slot para botões extras (ex: Refresh na aba Tarefas) -->
-        <slot name="actions"></slot>
-      </div>
-    </div>
-
-    <!-- Loading -->
-    <div v-if="loading" class="flex flex-col items-center justify-center py-12">
-      <div
-        class="animate-spin rounded-full h-12 w-12 border-b-2 border-n-brand mb-4"
-      ></div>
-      <p class="text-n-slate-11">
-        {{ loadingText }}
-      </p>
-    </div>
-
-    <!-- Kanban Board -->
-    <div v-else class="flex-1 min-h-0 relative">
-      <!-- Mobile Controls (Visible only on small screens) -->
-      <div
-        class="sm:hidden flex justify-between items-center mb-2"
-        v-if="sortedColumns.length > 0"
-      >
-        <button
-          @click="prevColumn"
-          :disabled="activeColumnIndex === 0"
-          class="p-2 rounded-full bg-n-alpha-black2 disabled:opacity-50"
-        >
-          ←
-        </button>
-        <span class="text-sm font-medium">
-          {{ activeColumnIndex + 1 }} / {{ sortedColumns.length }}
-        </span>
-        <button
-          @click="nextColumn"
-          :disabled="activeColumnIndex === sortedColumns.length - 1"
-          class="p-2 rounded-full bg-n-alpha-black2 disabled:opacity-50"
-        >
-          →
-        </button>
-      </div>
-
-      <!-- Scrollable Container (Desktop) / Slider (Mobile) -->
-      <div class="h-full flex gap-4 overflow-x-auto pb-4 snap-x flex-nowrap">
-        <template v-for="(column, index) in sortedColumns" :key="column.id">
-          <div
-            class="h-full snap-center shrink-0 transition-opacity duration-300"
-            :class="{
-              'block w-full': isMobile,
-              hidden: isMobile && index !== activeColumnIndex,
-              block: !isMobile,
-              'w-80': !isMobile, // Fixed width for desktop columns
-            }"
-          >
-            <KanbanColumn
-              :column="column"
-              :cards="getCardsForColumn(column)"
-              :can-create-card="canCreateCard"
-              :can-delete-column="canDeleteColumn"
-              :show-priority-color="showPriorityColor"
-              @edit="$emit('edit-column', column)"
-              @delete="$emit('delete-column', column)"
-              @add-card="$emit('add-card-to-column', column.id)"
-              @edit-card="(card) => $emit('edit-card', card)"
-              @delete-card="(card) => $emit('delete-card', card)"
-              @archive-card="(card) => $emit('archive-card', card)"
-              :is-last-column="index === sortedColumns.length - 1"
-              @dragstart="onDragStart"
-              @drop="onDrop"
-            />
-          </div>
-        </template>
-
-        <div
-          v-if="sortedColumns.length === 0"
-          class="w-full flex items-center justify-center border-2 border-dashed border-n-weak rounded-lg"
-        >
-          <p class="text-n-slate-11">Nenhuma coluna disponível.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
+<!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/kanban/components/KanbanBoard.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import KanbanColumn from "./KanbanColumn.vue";
@@ -265,3 +139,134 @@ onUnmounted(() => {
   window.removeEventListener("resize", handleResize);
 });
 </script>
+
+<template>
+  <div class="flex flex-col gap-4 h-full bg-n-surface-1">
+    <!-- Header com controles -->
+    <div class="flex items-center justify-between mb-2 flex-shrink-0">
+      <div class="flex items-center gap-4">
+        <h2 class="text-xl font-semibold text-n-slate-12">
+          {{ title }}
+        </h2>
+        <div class="flex items-center gap-2 text-sm text-n-slate-11">
+          <span>{{ totalCards }} cards</span>
+          <span v-if="columns.length > 0">•</span>
+          <span v-if="columns.length > 0">{{ columns.length }} colunas</span>
+          <span v-if="columns.length > 0">{{ columns.length }} colunas</span>
+          <slot name="extra-info" />
+          <template v-if="archivedUrl">
+            <span class="text-n-slate-9 dark:text-n-slate-9">|</span>
+            <router-link
+              :to="archivedUrl"
+              class="hover:text-n-brand dark:hover:text-n-brand hover:underline flex items-center gap-1.5"
+            >
+              <span class="i-lucide-box size-3.5 block" />
+              Arquivados
+            </router-link>
+          </template>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2">
+        <WootButton
+          v-if="canCreateCard"
+          color="teal"
+          icon="plus"
+          @click="$emit('create-card')"
+        >
+          <span class="hidden sm:inline">Novo Card</span>
+          <span class="sm:hidden">Card</span>
+        </WootButton>
+
+        <WootButton
+          v-if="canCreateColumn"
+          color="blue"
+          icon="plus"
+          @click="$emit('create-column')"
+        >
+          <span class="hidden sm:inline">Nova Coluna</span>
+          <span class="sm:hidden">Coluna</span>
+        </WootButton>
+
+        <!-- Slot para botões extras (ex: Refresh na aba Tarefas) -->
+        <slot name="actions" />
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div v-if="loading" class="flex flex-col items-center justify-center py-12">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-b-2 border-n-brand mb-4"
+      />
+      <p class="text-n-slate-11">
+        {{ loadingText }}
+      </p>
+    </div>
+
+    <!-- Kanban Board -->
+    <div v-else class="flex-1 min-h-0 relative">
+      <!-- Mobile Controls (Visible only on small screens) -->
+      <div
+        v-if="sortedColumns.length > 0"
+        class="sm:hidden flex justify-between items-center mb-2"
+      >
+        <button
+          :disabled="activeColumnIndex === 0"
+          class="p-2 rounded-full bg-n-alpha-black2 disabled:opacity-50"
+          @click="prevColumn"
+        >
+          ←
+        </button>
+        <span class="text-sm font-medium">
+          {{ activeColumnIndex + 1 }} / {{ sortedColumns.length }}
+        </span>
+        <button
+          :disabled="activeColumnIndex === sortedColumns.length - 1"
+          class="p-2 rounded-full bg-n-alpha-black2 disabled:opacity-50"
+          @click="nextColumn"
+        >
+          →
+        </button>
+      </div>
+
+      <!-- Scrollable Container (Desktop) / Slider (Mobile) -->
+      <div class="h-full flex gap-4 overflow-x-auto pb-4 snap-x flex-nowrap">
+        <template v-for="(column, index) in sortedColumns" :key="column.id">
+          <div
+            class="h-full snap-center shrink-0 transition-opacity duration-300"
+            :class="{
+              'block w-full': isMobile,
+              hidden: isMobile && index !== activeColumnIndex,
+              block: !isMobile,
+              'w-80': !isMobile, // Fixed width for desktop columns
+            }"
+          >
+            <KanbanColumn
+              :column="column"
+              :cards="getCardsForColumn(column)"
+              :can-create-card="canCreateCard"
+              :can-delete-column="canDeleteColumn"
+              :show-priority-color="showPriorityColor"
+              :is-last-column="index === sortedColumns.length - 1"
+              @edit="$emit('edit-column', column)"
+              @delete="$emit('delete-column', column)"
+              @add-card="$emit('add-card-to-column', column.id)"
+              @edit-card="(card) => $emit('edit-card', card)"
+              @delete-card="(card) => $emit('delete-card', card)"
+              @archive-card="(card) => $emit('archive-card', card)"
+              @dragstart="onDragStart"
+              @drop="onDrop"
+            />
+          </div>
+        </template>
+
+        <div
+          v-if="sortedColumns.length === 0"
+          class="w-full flex items-center justify-center border-2 border-dashed border-n-weak rounded-lg"
+        >
+          <p class="text-n-slate-11">Nenhuma coluna disponível.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

@@ -1,0 +1,177 @@
+# Estrutura de Regras de IA (Modelo Reutilizável)
+
+Este documento descreve a estrutura de pastas e arquivos de regras de IA usada no projeto, com submenus recomendados para cada arquivo e o objetivo de cada seção.  
+Pode ser copiado para outros repositórios com ajustes mínimos de stack, fluxos e políticas de validação.
+
+## 1) Estrutura de Pastas e Arquivos
+
+```text
+<raiz-do-projeto>/
+├── .cursorrules
+├── .ai/
+│   ├── workflows.md
+│   └── rules/
+│       ├── tech-stack.md
+│       ├── coding-style.md
+│       ├── performance.md
+│       ├── security.md
+│       ├── troubleshooting.md
+│       ├── ai-behavior.md
+│       └── refactoring-executor.md
+└── docs/
+    └── regras.ia.md
+```
+
+## 2) Papel de Cada Arquivo
+
+### `.cursorrules` (arquivo de entrada)
+**Função:** ser a porta de entrada das regras para qualquer interação da IA.
+
+**Submenus recomendados:**
+1. Regras de comunicação (idioma do chat, tom e concisão)
+2. Regras globais imutáveis (ex.: cabeçalho obrigatório)
+3. Estrutura das regras (sem duplicação)
+4. Índice oficial apontando para `.ai/*`
+5. Contexto operacional resumido do projeto
+
+**Conteúdo esperado:**
+- Resumo curto de funcionamento do projeto
+- Regras que nunca devem sair deste arquivo
+- Links/caminhos para regras detalhadas
+
+### `.ai/workflows.md`
+**Função:** descrever rotinas operacionais e checklist de execução/validação.
+
+**Submenus recomendados:**
+1. Fluxo para nova fonte de dados
+2. Fluxo para integrações externas (ex.: n8n)
+3. Fluxo para mudanças de UI + backend
+4. Validação pré-fechamento de tarefa
+5. Registro fixo de exceções
+
+**Conteúdo esperado:**
+- Sequência prática de execução por tipo de tarefa
+- Comandos obrigatórios de validação
+- Política para exceções com justificativa técnica
+
+### `.ai/rules/tech-stack.md`
+**Função:** definir stack oficial, arquitetura e limites de tecnologia.
+
+**Submenus recomendados:**
+1. Estrutura do monorepo
+2. Backend
+3. Frontend
+4. Orquestração/infra
+5. Variáveis de ambiente por domínio
+
+**Conteúdo esperado:**
+- Frameworks/libraries oficiais
+- Padrão de execução (Docker-first ou local-first)
+- Decisões arquiteturais que não devem ser contraditas
+
+### `.ai/rules/coding-style.md`
+**Função:** padronizar estilo de código e organização de responsabilidades.
+
+**Submenus recomendados:**
+1. Organização por camadas/pastas
+2. Convenções de nomenclatura
+3. Regras para async/erros
+4. Regras de UI/estado
+5. Contrato de respostas HTTP
+
+**Conteúdo esperado:**
+- Convenções de nomes e tipagem
+- Limites de complexidade por camada
+- Regras para evitar drift entre equipes
+
+### `.ai/rules/performance.md`
+**Função:** estabelecer boas práticas de performance e custo operacional.
+
+**Submenus recomendados:**
+1. Otimização de chamadas de IA
+2. Estratégias de deduplicação/cache
+3. Limites de scraping/polling
+4. Boas práticas de banco local
+
+**Conteúdo esperado:**
+- Regras de eficiência de tokens/chamadas
+- Proteções contra abusos de scraping
+- Princípios para manter latência baixa
+
+### `.ai/rules/security.md`
+**Função:** consolidar políticas de segurança e dados sensíveis.
+
+**Submenus recomendados:**
+1. Gestão de variáveis de ambiente
+2. Logs e mascaramento de segredo
+3. PII e exposição de dados
+4. Segurança de integrações externas
+
+**Conteúdo esperado:**
+- O que nunca pode ser commitado
+- Regras de sanitização de logs
+- Condições de proteção por ambiente
+
+### `.ai/rules/troubleshooting.md`
+**Função:** acelerar diagnóstico com playbooks de falhas comuns.
+
+**Submenus recomendados:**
+1. Falhas de containers/build
+2. Falhas de banco
+3. Falhas de integração (webhook, filas, n8n)
+4. Falhas de parsing/IA
+
+**Conteúdo esperado:**
+- Sintoma → causa provável → ação recomendada
+- Procedimentos curtos e repetíveis
+
+### `.ai/rules/ai-behavior.md`
+**Função:** definir comportamento esperado da IA no projeto.
+
+**Submenus recomendados:**
+1. Reutilização antes de recriar
+2. Limites de responsabilidade por serviço
+3. Tratamento de incerteza e fallback
+4. Regras de linguagem do código e output
+5. Política de provider de IA
+
+**Conteúdo esperado:**
+- Como a IA deve decidir em cenários ambíguos
+- O que é proibido sugerir sem pedido explícito
+
+### `.ai/rules/refactoring-executor.md`
+**Função:** orientar execução de refatorações seguras e incrementais.
+
+**Submenus recomendados:**
+1. Escopo mínimo de refatoração
+2. Ordem de execução por camadas
+3. Critérios de rollback
+4. Validação após refatorar
+
+**Conteúdo esperado:**
+- Estratégia para mudanças sem quebrar fluxo
+- Critérios objetivos de aceitação técnica
+
+## 3) Princípios de Governança das Regras
+
+1. **Sem duplicação:** detalhes ficam em `.ai/*`; `.cursorrules` mantém resumo e índice.
+2. **Atualização em conjunto:** ao mudar regra técnica, revisar `.cursorrules`, `.ai/*` e `README.md`.
+3. **Rastreabilidade:** qualquer exceção de validação deve ficar registrada em `.ai/workflows.md`.
+4. **Neutralidade de porta/host:** preferir variáveis de ambiente e evitar hardcode.
+5. **Reuso entre projetos:** copiar estrutura inteira e ajustar apenas stack, fluxos e políticas locais.
+
+## 4) Como Aplicar em Outro Projeto
+
+1. Copie a árvore de arquivos desta estrutura.
+2. Ajuste `tech-stack.md` para o stack real do novo projeto.
+3. Ajuste `workflows.md` para os fluxos operacionais do time.
+4. Defina em `.cursorrules` as únicas regras globais imutáveis.
+5. Publique no README onde ficam as regras e como validar tarefas.
+
+## 5) Checklist de Implantação
+
+- `.cursorrules` criado como entrada principal.
+- `.ai/rules/*` criado com regras separadas por domínio.
+- `.ai/workflows.md` com validações obrigatórias e exceções.
+- `README.md` com referência explícita às regras.
+- Time alinhado sobre política de atualização sem duplicação.

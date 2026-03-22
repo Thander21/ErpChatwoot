@@ -1,64 +1,14 @@
 <!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/kanban/components/KanbanComercial.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
+<!--
   ERP Chatwoot - Kanban Comercial View
   Controls business logic for Commercial Kanban and passes data to generic KanbanBoard.
 -->
-<template>
-  <div class="h-full">
-    <KanbanBoard
-      title="Kanban Comercial"
-      :columns="columns"
-      :cards="kanbanCards"
-      :loading="loading"
-      :can-create-column="true"
-      :can-create-card="true"
-      :show-priority-color="true"
-      :archived-url="archivedUrl"
-      @create-card="openNewCardModal"
-      @create-column="openNewColumnModal"
-      @edit-column="openEditColumnModal"
-      @delete-column="handleDeleteColumn"
-      @add-card-to-column="openNewCardModalForColumn"
-      @edit-card="openEditCardModal"
-      @delete-card="handleDeleteCard"
-      @archive-card="handleArchiveCard"
-      @card-moved="handleCardMoved"
-    />
-
-    <!-- Modals -->
-    <KanbanCardModal
-      :show="showCardModal"
-      :columns="sortedColumns"
-      :initial-data="editingCard"
-      :loading="actionLoading"
-      @close="closeCardModal"
-      @submit="handleCardSubmit"
-      @delete="handleDeleteCard"
-      @archive="handleArchiveCard"
-    />
-
-    <KanbanColumnModal
-      :show="showColumnModal"
-      :initial-data="editingColumn"
-      :loading="actionLoading"
-      @close="closeColumnModal"
-      @submit="handleColumnSubmit"
-    />
-
-    <!-- Confirm Modal -->
-    <ConfirmModal
-      :show="showConfirmModal"
-      :title="confirmTitle"
-      :message="confirmMessage"
-      :user-name="currentUserName"
-      :confirm-label="confirmLabel"
-      :confirm-color="confirmColor"
-      :loading="actionLoading"
-      @confirm="handleConfirm"
-      @cancel="closeConfirmModal"
-    />
-  </div>
-</template>
-
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
@@ -305,3 +255,60 @@ onMounted(() => {
   loadData();
 });
 </script>
+
+<template>
+  <div class="h-full">
+    <KanbanBoard
+      title="Kanban Comercial"
+      :columns="columns"
+      :cards="kanbanCards"
+      :loading="loading"
+      :can-create-column="true"
+      :can-create-card="true"
+      :show-priority-color="true"
+      :archived-url="archivedUrl"
+      @create-card="openNewCardModal"
+      @create-column="openNewColumnModal"
+      @edit-column="openEditColumnModal"
+      @delete-column="handleDeleteColumn"
+      @add-card-to-column="openNewCardModalForColumn"
+      @edit-card="openEditCardModal"
+      @delete-card="handleDeleteCard"
+      @archive-card="handleArchiveCard"
+      @card-moved="handleCardMoved"
+    />
+
+    <!-- Modals -->
+    <KanbanCardModal
+      :show="showCardModal"
+      :columns="sortedColumns"
+      :initial-data="editingCard"
+      :loading="actionLoading"
+      @close="closeCardModal"
+      @submit="handleCardSubmit"
+      @delete="handleDeleteCard"
+      @archive="handleArchiveCard"
+    />
+
+    <KanbanColumnModal
+      :show="showColumnModal"
+      :initial-data="editingColumn"
+      :loading="actionLoading"
+      @close="closeColumnModal"
+      @submit="handleColumnSubmit"
+    />
+
+    <!-- Confirm Modal -->
+    <ConfirmModal
+      :show="showConfirmModal"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      :user-name="currentUserName"
+      :confirm-label="confirmLabel"
+      :confirm-color="confirmColor"
+      :loading="actionLoading"
+      @confirm="handleConfirm"
+      @cancel="closeConfirmModal"
+    />
+  </div>
+</template>

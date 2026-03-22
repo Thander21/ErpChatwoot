@@ -1,3 +1,130 @@
+<!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/kanban/components/KanbanCard.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
+<script setup>
+import { computed } from "vue";
+import { useStore } from "vuex";
+import Avatar from "dashboard/components-next/avatar/Avatar.vue";
+
+const props = defineProps({
+  card: {
+    type: Object,
+    required: true,
+  },
+  statusColor: {
+    type: String,
+    default: null,
+  },
+  showPriorityColor: {
+    type: Boolean,
+    default: true,
+  },
+  isLastColumn: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+defineEmits(["dragstart", "edit", "delete", "archive"]);
+
+const store = useStore();
+const accountId = computed(() => store.getters.getCurrentAccountId);
+
+const contactUrl = computed(() => {
+  if (!props.card.contact) return "#";
+  return `/app/accounts/${accountId.value}/contacts/${props.card.contact.id}`;
+});
+
+const headerText = computed(() => {
+  // 1. Tenta pegar o nome da empresa nos atributos adicionais do contato
+  const additionalAttributesName =
+    props.card.contact &&
+    props.card.contact.additional_attributes &&
+    props.card.contact.additional_attributes.company_name;
+
+  if (additionalAttributesName) {
+    return additionalAttributesName;
+  }
+
+  // 2. Fallback para o objeto company (Kanban Comercial)
+  const companyName = props.card.company ? props.card.company.name : "";
+  if (companyName) {
+    return companyName;
+  }
+
+  // 3. Padrão se não encontrar nada
+  return "Falta Empresa";
+});
+
+const headerTitle = computed(() => headerText.value);
+
+const getPriorityColor = (priority) => {
+  if (props.statusColor) return props.statusColor;
+
+  // Retorna diretamente o HEX da cor para garantir que funcione
+  switch (priority) {
+    case "low":
+    case 0:
+    case "0":
+      return "#60a5fa"; // blue-400
+    case "normal":
+    case "medium":
+    case 1:
+    case "1":
+      return "#22c55e"; // green-500
+    case "high":
+    case 2:
+    case "2":
+      return "#eab308"; // yellow-500
+    case "urgent":
+    case 3:
+    case "3":
+      return "#dc2626"; // red-600
+    default:
+      return "#d1d5db"; // gray-300
+  }
+};
+
+const processedDueDate = computed(() => {
+  if (!props.card.due_date) return null;
+  const date = new Date(props.card.due_date);
+  // Reset time for comparison
+  const dateMidnight = new Date(date);
+  dateMidnight.setHours(0, 0, 0, 0);
+  return { date, dateMidnight };
+});
+
+const dueDateClass = computed(() => {
+  if (!processedDueDate.value) return "";
+
+  const today = new Date();
+  const todayMidnight = new Date(today.setHours(0, 0, 0, 0));
+  const { dateMidnight } = processedDueDate.value;
+
+  if (dateMidnight < todayMidnight) {
+    return "text-n-ruby-9 dark:text-n-ruby-9";
+  }
+  if (dateMidnight.getTime() === todayMidnight.getTime()) {
+    return "text-n-amber-11 dark:text-n-amber-11";
+  }
+  return "text-n-slate-11 dark:text-n-slate-11";
+});
+
+const formattedDate = computed(() => {
+  if (!processedDueDate.value) return "";
+  // Use browser default locale or fallback to pt-BR if needed, but cleaner to rely on browser
+  return processedDueDate.value.date.toLocaleDateString(undefined, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+});
+</script>
+
 <template>
   <div
     class="kanban-card-container group bg-n-surface-1 rounded-lg p-3 shadow-sm hover:shadow-md transition-all active:cursor-grabbing flex flex-col gap-2 cursor-grab relative overflow-hidden border border-n-weak"
@@ -79,9 +206,9 @@
           />
           <span class="text-xs">{{ card.assignee.name }}</span>
         </div>
-        <span v-else class="text-n-slate-10 italic text-[10px]"
-          >Não atribuído</span
-        >
+        <span v-else
+class="text-n-slate-10 italic text-[10px]"
+          >Não atribuído</span>
       </div>
 
       <div
@@ -100,144 +227,25 @@
       <!-- Botão de Arquivar (Apenas última coluna) -->
       <button
         v-if="isLastColumn"
-        @click.stop="$emit('archive')"
         class="text-n-slate-10 hover:text-n-teal-9 p-1 rounded transition-colors"
         title="Arquivar"
+        @click.stop="$emit('archive')"
       >
-        <span class="i-lucide-inbox size-3.5 block"></span>
+        <span class="i-lucide-inbox size-3.5 block" />
       </button>
 
       <!-- Botão de Excluir (Demais colunas) -->
       <button
         v-if="!isLastColumn"
-        @click.stop="$emit('delete')"
         class="text-n-ruby-9 hover:bg-n-ruby-2 p-1 rounded transition-colors"
         title="Excluir"
+        @click.stop="$emit('delete')"
       >
-        <span class="i-lucide-trash-2 size-3.5 block"></span>
+        <span class="i-lucide-trash-2 size-3.5 block" />
       </button>
     </div>
   </div>
 </template>
-
-<script setup>
-import { computed } from "vue";
-import { useStore } from "vuex";
-import Avatar from "dashboard/components-next/avatar/Avatar.vue";
-
-const props = defineProps({
-  card: {
-    type: Object,
-    required: true,
-  },
-  statusColor: {
-    type: String,
-    default: null,
-  },
-  showPriorityColor: {
-    type: Boolean,
-    default: true,
-  },
-  isLastColumn: {
-    type: Boolean,
-    default: false,
-  },
-});
-
-defineEmits(["dragstart", "edit", "delete", "archive"]);
-
-const store = useStore();
-const accountId = computed(() => store.getters["getCurrentAccountId"]);
-
-const contactUrl = computed(() => {
-  if (!props.card.contact) return "#";
-  return `/app/accounts/${accountId.value}/contacts/${props.card.contact.id}`;
-});
-
-const headerText = computed(() => {
-  // 1. Tenta pegar o nome da empresa nos atributos adicionais do contato
-  const additionalAttributesName =
-    props.card.contact &&
-    props.card.contact.additional_attributes &&
-    props.card.contact.additional_attributes.company_name;
-
-  if (additionalAttributesName) {
-    return additionalAttributesName;
-  }
-
-  // 2. Fallback para o objeto company (Kanban Comercial)
-  const companyName = props.card.company ? props.card.company.name : "";
-  if (companyName) {
-    return companyName;
-  }
-
-  // 3. Padrão se não encontrar nada
-  return "Falta Empresa";
-});
-
-const headerTitle = computed(() => headerText.value);
-
-const getPriorityColor = (priority) => {
-  if (props.statusColor) return props.statusColor;
-
-  // Retorna diretamente o HEX da cor para garantir que funcione
-  switch (priority) {
-    case "low":
-    case 0:
-    case "0":
-      return "#60a5fa"; // blue-400
-    case "normal":
-    case "medium":
-    case 1:
-    case "1":
-      return "#22c55e"; // green-500
-    case "high":
-    case 2:
-    case "2":
-      return "#eab308"; // yellow-500
-    case "urgent":
-    case 3:
-    case "3":
-      return "#dc2626"; // red-600
-    default:
-      return "#d1d5db"; // gray-300
-  }
-};
-
-const processedDueDate = computed(() => {
-  if (!props.card.due_date) return null;
-  const date = new Date(props.card.due_date);
-  // Reset time for comparison
-  const dateMidnight = new Date(date);
-  dateMidnight.setHours(0, 0, 0, 0);
-  return { date, dateMidnight };
-});
-
-const dueDateClass = computed(() => {
-  if (!processedDueDate.value) return "";
-
-  const today = new Date();
-  const todayMidnight = new Date(today.setHours(0, 0, 0, 0));
-  const { dateMidnight } = processedDueDate.value;
-
-  if (dateMidnight < todayMidnight) {
-    return "text-n-ruby-9 dark:text-n-ruby-9";
-  } else if (dateMidnight.getTime() === todayMidnight.getTime()) {
-    return "text-n-amber-11 dark:text-n-amber-11";
-  }
-  return "text-n-slate-11 dark:text-n-slate-11";
-});
-
-const formattedDate = computed(() => {
-  if (!processedDueDate.value) return "";
-  // Use browser default locale or fallback to pt-BR if needed, but cleaner to rely on browser
-  return processedDueDate.value.date.toLocaleDateString(undefined, {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-});
-</script>
 
 <style scoped>
 /* Estilo para garantir posicionamento correto do botão excluir */

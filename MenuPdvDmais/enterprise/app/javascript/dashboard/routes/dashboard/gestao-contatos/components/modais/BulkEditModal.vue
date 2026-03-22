@@ -1,3 +1,30 @@
+<!--
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/gestao-contatos/components/modais/BulkEditModal.vue
+ * Last Modified: 21/03/2026
+ * Dependencies: vue
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+-->
+<script setup>
+import { ref } from "vue";
+
+defineProps({
+  show: Boolean,
+  selectedCount: Number,
+  loading: Boolean,
+});
+
+const emit = defineEmits(["close", "submit"]);
+
+const form = ref({
+  company_name: "",
+});
+
+const handleSubmit = () => {
+  emit("submit", { ...form.value });
+};
+</script>
+
 <template>
   <div
     v-if="show"
@@ -18,7 +45,7 @@
         selecionado{{ selectedCount !== 1 ? "s" : "" }}
       </p>
 
-      <form @submit.prevent="handleSubmit" class="space-y-4">
+      <form class="space-y-4" @submit.prevent="handleSubmit">
         <div
           class="bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4 mb-4"
         >
@@ -74,8 +101,8 @@
           </button>
           <button
             type="button"
-            @click="$emit('close')"
             class="px-4 py-2 bg-gray-300 dark:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-gray-400 dark:hover:bg-slate-500"
+            @click="$emit('close')"
           >
             Cancelar
           </button>
@@ -84,23 +111,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue';
-
-defineProps({
-  show: Boolean,
-  selectedCount: Number,
-  loading: Boolean,
-});
-
-const emit = defineEmits(['close', 'submit']);
-
-const form = ref({
-  company_name: '',
-});
-
-const handleSubmit = () => {
-  emit('submit', { ...form.value });
-};
-</script>

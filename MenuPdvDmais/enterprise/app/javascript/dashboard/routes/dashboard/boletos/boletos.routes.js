@@ -1,3 +1,10 @@
+/*
+ * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/boletos/boletos.routes.js
+ * Last Modified: 21/03/2026
+ * Dependencies: -
+ * Calls: -
+ * Description: (Adicionar descrição em português)
+ */
 /**
  * ERP Chatwoot - Boletos Routes
  * =============================================================================
@@ -10,15 +17,15 @@
  * =============================================================================
  */
 
-import { frontendURL } from 'dashboard/helper/URLHelper';
-import { ROLES } from 'dashboard/constants/permissions.js';
-import BoletosIndex from './Index.vue';
+import { frontendURL } from "dashboard/helper/URLHelper";
+import { ROLES } from "dashboard/constants/permissions.js";
+import BoletosIndex from "./Index.vue";
 
 export default {
   routes: [
     {
-      path: frontendURL('accounts/:accountId/boletos'),
-      name: 'boletos_index',
+      path: frontendURL("accounts/:accountId/boletos"),
+      name: "boletos_index",
       component: BoletosIndex,
       meta: {
         permissions: [...ROLES],
