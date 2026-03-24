@@ -93,12 +93,25 @@ class Captain::Assistant::AgentRunnerService
     text_parts.join(' ')
   end
 
+  # Response formatting methods
   def process_agent_result(result)
     Rails.logger.info "[Captain V2] Agent result: #{result.inspect}"
-    output = result.output
-    response = output.is_a?(Hash) ? output.with_indifferent_access : { 'response' => output.to_s, 'reasoning' => 'Processed by agent' }
+    response = format_response(result.output)
+
+    # Extract agent name from context
     response['agent_name'] = result.context&.dig(:current_agent)
+
     response
+  end
+
+  def format_response(output)
+    return output.with_indifferent_access if output.is_a?(Hash)
+
+    # Fallback for backwards compatibility
+    {
+      'response' => output.to_s,
+      'reasoning' => 'Processed by agent'
+    }
   end
 
   def error_response(error_message)
@@ -121,15 +134,13 @@ class Captain::Assistant::AgentRunnerService
   end
 
   def build_conversation_state(state)
-    state[:conversation] = slice_attrs(@conversation, CONVERSATION_STATE_ATTRIBUTES)
+    state[:conversation] = @conversation.attributes.symbolize_keys.slice(*CONVERSATION_STATE_ATTRIBUTES)
     state[:channel_type] = @conversation.inbox&.channel_type
-    state[:contact] = slice_attrs(@conversation.contact, CONTACT_STATE_ATTRIBUTES) if @conversation.contact
-    state[:campaign] = slice_attrs(@conversation.campaign, CAMPAIGN_STATE_ATTRIBUTES) if @conversation.campaign
-    state[:contact_inbox] = slice_attrs(@conversation.contact_inbox, CONTACT_INBOX_STATE_ATTRIBUTES) if @conversation.contact_inbox
-  end
+    state[:contact] = @conversation.contact.attributes.symbolize_keys.slice(*CONTACT_STATE_ATTRIBUTES) if @conversation.contact
+    state[:campaign] = @conversation.campaign.attributes.symbolize_keys.slice(*CAMPAIGN_STATE_ATTRIBUTES) if @conversation.campaign
+    return unless @conversation.contact_inbox
 
-  def slice_attrs(record, keys)
-    record.attributes.symbolize_keys.slice(*keys)
+    state[:contact_inbox] = @conversation.contact_inbox.attributes.symbolize_keys.slice(*CONTACT_INBOX_STATE_ATTRIBUTES)
   end
 
   def build_and_wire_agents

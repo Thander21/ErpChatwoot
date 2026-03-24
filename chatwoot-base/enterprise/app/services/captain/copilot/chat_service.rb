@@ -11,8 +11,7 @@ class Captain::Copilot::ChatService < Llm::BaseAiService
     @user = nil
     @copilot_thread = nil
     @previous_history = []
-    @conversation = @account.conversations.find_by(display_id: config[:conversation_id])
-    @conversation_id = @conversation&.display_id
+    @conversation_id = config[:conversation_id]
 
     setup_user(config)
     setup_message_history(config)

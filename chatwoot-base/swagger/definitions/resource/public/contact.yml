@@ -7,20 +7,11 @@ properties:
     type: string
     description: The session identifier of the contact
   name:
-    type:
-      - string
-      - 'null'
-    description: Name of the contact when available
+    type: string
+    description: Name of the contact
   email:
-    type:
-      - string
-      - 'null'
+    type: string
     description: Email of the contact
-  phone_number:
-    type:
-      - string
-      - 'null'
-    description: Phone number of the contact
   pubsub_token:
     type: string
     description: The token to be used to connect to chatwoot websocket

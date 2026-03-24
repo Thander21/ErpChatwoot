@@ -17,11 +17,13 @@ module Concerns::Agentable
 
     if context
       state = context.context[:state] || {}
-      config = state[:assistant_config] || {}
+      conversation_data = state[:conversation] || {}
+      contact_data = state[:contact] || {}
+      campaign_data = state[:campaign] || {}
       enhanced_context = enhanced_context.merge(
-        conversation: state[:conversation] || {},
-        contact: config['feature_contact_attributes'].present? ? state[:contact] : nil,
-        campaign: state[:campaign] || {}
+        conversation: conversation_data,
+        contact: contact_data,
+        campaign: campaign_data
       )
     end
 

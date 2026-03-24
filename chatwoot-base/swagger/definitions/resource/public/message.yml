@@ -1,32 +1,38 @@
 type: object
 properties:
   id:
-    type: integer
+    type: string
     description: Id of the message
   content:
-    type:
-      - string
-      - 'null'
-    description: Text content of the message. Can be null for attachment-only messages.
+    type: string
+    description: Text content of the message
   message_type:
-    type: integer
-    description: "Denotes the message type. Possible values: 0 (incoming), 1 (outgoing), 2 (activity), 3 (template)"
+    type: string
+    description: Denotes the message type
   content_type:
     type: string
     description: Content type of the message
   content_attributes:
-    type: object
+    type: string
     description: Additional content attributes of the message
   created_at:
-    type: integer
-    description: Created at Unix timestamp of the message
+    type: string
+    description: Created at time stamp of the message
   conversation_id:
-    type: integer
-    description: Display Id of the conversation the message belongs to
+    type: string
+    description: Conversation Id of the message
   attachments:
     type: array
-    description: Attachments if any
     items:
-      $ref: '#/components/schemas/public_message_attachment'
+      type: object
+    description: Attachments if any
   sender:
-    $ref: '#/components/schemas/public_message_sender'
+    type: object
+    description: Details of the sender
+
+
+
+
+
+
+

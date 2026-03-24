@@ -52,7 +52,7 @@ InstallationConfig.find_or_create_by(name: 'INSTALLATION_PRICING_PLAN_QUANTITY')
 puts 'Licença enterprise configurada!'
 "
 
-# rodar em prod
+# rodar em prod no coolify no terminal do rails
 
 bundle exec rails runner "InstallationConfig.find_or_create_by(name:'INSTALLATION_PRICING_PLAN').update(value: 'enterprise'); InstallationConfig.find_or_create_by(name: 'INSTALLATION_PRICING_PLAN_QUANTITY').update(value: 999999); puts 'Licença enterprise configurada!'"
 

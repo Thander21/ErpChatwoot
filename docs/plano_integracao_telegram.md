@@ -81,7 +81,7 @@ Para ativar o bot e conectar ao Chatwoot no domínio de produção:
 2.  **Comando de Ativação**:
     Execute via `curl` para registrar o webhook no Telegram:
     ```bash
-    curl -X POST "https://api.telegram.org/bot8763085841:AAE9ESml0I2BF6sgFmWBQ18aGoZjfGmLHgc/setWebhook?url=https://erpchat.pdvdmais.com.br/enterprise/api/v1/accounts/1/telegram/webhook"
+    curl -X POST "https://api.telegram.org/bot<token>/setWebhook?url=https://erpchat.pdvdmais.com.br/enterprise/api/v1/accounts/1/telegram/webhook"
     ```
     *(Substitua `1` pelo ID da conta correta e `<SEU_TOKEN>` pelo token do BotFather)*
 

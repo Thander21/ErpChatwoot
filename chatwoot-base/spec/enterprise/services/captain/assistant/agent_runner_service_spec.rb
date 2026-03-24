@@ -393,7 +393,7 @@ RSpec.describe Captain::Assistant::AgentRunnerService do
       )
     end
 
-    it 'always includes contact attributes in state for tool access' do
+    it 'includes contact attributes when contact is present' do
       state = service.send(:build_state)
 
       expect(state[:contact]).to include(
