@@ -28,3 +28,8 @@ redis_data/
 *.swo
 .DS_Store
 docker-compose.prod.yaml
+
+node_modules/
+MenuPdvDmais/node_modules/
+MenuPdvDmais/package-lock.json
+

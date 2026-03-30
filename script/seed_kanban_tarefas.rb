@@ -1,4 +1,5 @@
-# Usage: bundle exec rails runner seed_kanban_tarefas.rb
+# docker compose -f docker-compose-dev.yaml exec -T rails bundle exec rails runner - < script/seed_kanban_tarefas.rb
+
 
 def log(msg)
   puts "[SeedKanban] #{msg}"

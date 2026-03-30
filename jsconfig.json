@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "dashboard/*": ["chatwoot-base/app/javascript/dashboard/*"],
+      "shared/*": ["chatwoot-base/app/javascript/shared/*"],
+      "@/*": ["chatwoot-base/app/javascript/*"]
+    }
+  },
+  "include": ["MenuPdvDmais/enterprise/**/*", "chatwoot-base/app/javascript/**/*"]
+}

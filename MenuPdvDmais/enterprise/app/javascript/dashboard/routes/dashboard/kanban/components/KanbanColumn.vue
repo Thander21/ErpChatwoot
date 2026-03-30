@@ -7,6 +7,7 @@
 -->
 <script setup>
 import KanbanCard from "./KanbanCard.vue";
+import WootButton from "dashboard/components-next/button/Button.vue";
 
 const props = defineProps({
   column: {
@@ -70,32 +71,29 @@ defineEmits([
 
         <!-- Column Actions -->
         <div class="flex gap-1">
-          <button
-            class="p-1 hover:bg-n-alpha-black2 rounded text-n-slate-11"
+          <WootButton
+            variant="ghost"
+            color="slate"
+            size="xs"
+            icon="pen"
             title="Editar coluna"
             @click="$emit('edit', column)"
-          >
-            <span class="i-lucide-pen size-4 block" />
-          </button>
+          />
 
-          <button
+          <WootButton
             v-if="canDeleteColumn"
             :disabled="cards.length > 0"
-            class="p-1 rounded transition-colors"
-            :class="
-              cards.length > 0
-                ? 'text-n-slate-10 cursor-not-allowed'
-                : 'hover:bg-n-ruby-2 text-n-ruby-9'
-            "
+            variant="ghost"
+            color="ruby"
+            size="xs"
+            icon="trash"
             :title="
               cards.length > 0
                 ? 'Remova todos os cards antes de excluir a coluna'
                 : 'Excluir coluna'
             "
             @click="$emit('delete', column)"
-          >
-            <span class="i-lucide-trash-2 size-4 block" />
-          </button>
+          />
         </div>
       </div>
 
@@ -107,14 +105,16 @@ defineEmits([
         @dragover.prevent
         @dragenter.prevent
       >
-        <!-- Add Card Button -->
-        <button
+        <WootButton
           v-if="canCreateCard"
-          class="w-full p-3 border-2 border-dashed border-n-weak rounded-lg text-n-slate-11 hover:border-n-slate-10 hover:text-n-slate-12 transition-colors text-sm"
+          variant="outline"
+          color="slate"
+          icon="plus"
+          class="w-full border-dashed"
           @click="$emit('add-card', column.id)"
         >
-          + Adicionar card
-        </button>
+          Adicionar card
+        </WootButton>
 
         <!-- Cards -->
         <KanbanCard

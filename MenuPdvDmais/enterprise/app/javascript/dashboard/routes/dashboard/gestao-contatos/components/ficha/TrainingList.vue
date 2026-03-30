@@ -16,6 +16,10 @@
 import { ref, reactive, computed } from "vue";
 import { useStore } from "vuex";
 import BaseTechnicalList from "./BaseTechnicalList.vue";
+import WootButton from "dashboard/components-next/button/Button.vue";
+import WootInput from "dashboard/components-next/input/Input.vue";
+import WootSelect from "dashboard/components-next/select/Select.vue";
+import WootTextArea from "dashboard/components-next/textarea/TextArea.vue";
 /* global axios */
 
 const props = defineProps({
@@ -37,6 +41,13 @@ const newTraining = reactive({
   duration_minutes: null,
   notes: "",
 });
+ 
+const contactOptions = computed(() =>
+  companyContacts.value.map((c) => ({
+    value: c.id,
+    label: `${c.name}${c.phone_number ? ` · ${c.phone_number}` : ""}`,
+  })),
+);
 
 async function loadContacts() {
   try {
@@ -95,16 +106,16 @@ function handleAdd() {
         <div class="flex-1 min-w-0 pr-4">
           <div class="flex items-center gap-2 flex-wrap mb-1">
             <span
-              class="text-sm font-semibold text-slate-800 dark:text-slate-200"
+              class="text-sm font-semibold text-n-slate-12"
               >{{ item.contact?.name || "Contato" }}</span
             >
             <span
-              class="text-[10px] bg-purple-50 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-full font-medium"
+              class="text-[10px] bg-n-purple-3 text-n-purple-11 px-2 py-0.5 rounded-full font-medium"
             >
               {{ item.system_name }}
             </span>
           </div>
-          <p v-if="item.contact?.phone_number" class="text-xs text-slate-500">
+          <p v-if="item.contact?.phone_number" class="text-xs text-n-slate-10">
             📱 {{ item.contact.phone_number }}
           </p>
         </div>
@@ -112,50 +123,40 @@ function handleAdd() {
           <div class="flex flex-col items-end gap-1">
             <span
               v-if="item.trained_at"
-              class="text-[10px] font-bold px-2 py-0.5 bg-purple-50 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 rounded-full"
+              class="text-[10px] font-bold px-2 py-0.5 bg-n-purple-3 text-n-purple-11 rounded-full"
             >
               {{ formatDate(item.trained_at) }}
             </span>
             <span
               v-if="item.duration_minutes"
-              class="text-[9px] font-semibold text-slate-400 uppercase tracking-wide"
+              class="text-[9px] font-semibold text-n-slate-10 uppercase tracking-wide"
             >
               ⏱️ {{ item.duration_minutes }}min
             </span>
           </div>
-          <button
-            class="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+          <WootButton
+            variant="ghost"
+            color="ruby"
+            size="sm"
+            class="p-1"
+            icon="trash"
             @click.stop="$emit('remove', item.id)"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-          </button>
+          />
         </div>
       </div>
 
       <p
         v-if="item.notes"
-        class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mt-2 mb-3"
+        class="text-sm text-n-slate-11 line-clamp-2 mt-2 mb-3"
       >
         {{ item.notes }}
       </p>
 
       <div
-        class="flex items-center gap-2 mt-2 pt-2 border-t border-gray-50 dark:border-slate-700/50 text-[11px] text-slate-400"
+        class="flex items-center gap-2 mt-2 pt-2 border-t border-n-weak text-[11px] text-n-slate-10"
       >
         <div
-          class="w-5 h-5 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center overflow-hidden border border-purple-100 dark:border-purple-800"
+          class="w-5 h-5 rounded-full bg-n-alpha-black2 flex items-center justify-center overflow-hidden border border-n-weak"
         >
           <img
             v-if="item.trained_by?.avatar_url"
@@ -164,11 +165,11 @@ function handleAdd() {
           />
           <span
             v-else
-            class="text-[10px] font-bold text-purple-600 dark:text-purple-400 capitalize"
+            class="text-[10px] font-bold text-n-slate-12 capitalize"
             >{{ item.trained_by?.name?.charAt(0) || "I" }}</span
           >
         </div>
-        <span class="text-slate-500 dark:text-slate-400"
+        <span class="text-n-slate-10"
           >Instrutor: {{ item.trained_by?.name || "Sistema" }}</span
         >
       </div>
@@ -177,66 +178,54 @@ function handleAdd() {
     <template #form>
       <div class="space-y-3">
         <div>
-          <label class="text-xs text-slate-500 block mb-1"
-            >Quem foi treinado?</label
-          >
-          <select
+          <WootSelect
             v-model="newTraining.contact_id"
-            class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Selecionar contato...</option>
-            <option
-              v-for="contact in companyContacts"
-              :key="contact.id"
-              :value="contact.id"
-            >
-              {{ contact.name
-              }}{{ contact.phone_number ? ` · ${contact.phone_number}` : "" }}
-            </option>
-          </select>
+            label="Quem foi treinado?"
+            :options="contactOptions"
+            placeholder="Selecionar contato..."
+            class="w-full"
+          />
         </div>
-        <input
+        <WootInput
           v-model="newTraining.system_name"
           placeholder="Sistema treinado (ex: PDV Dmais)"
-          class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full"
         />
         <div class="grid grid-cols-2 gap-2">
-          <input
+          <WootInput
             v-model="newTraining.trained_at"
             type="date"
-            class="px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full"
           />
-          <input
+          <WootInput
             v-model.number="newTraining.duration_minutes"
             type="number"
             placeholder="Duração (min)"
-            class="px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full"
           />
         </div>
-        <textarea
+        <WootTextArea
           v-model="newTraining.notes"
+          label="Observações"
           placeholder="Assuntos abordados, dúvidas levantadas..."
-          rows="3"
-          class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          auto-height
         />
-        <div class="flex gap-2">
-          <button
-            :disabled="
-              !newTraining.contact_id ||
-              !newTraining.system_name ||
-              !newTraining.trained_at
-            "
-            class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+        <div class="flex gap-2 pt-2">
+          <WootButton
+            :disabled="!newTraining.contact_id || !newTraining.system_name || !newTraining.trained_at"
+            color="blue"
+            class="flex-1"
             @click="handleAdd"
           >
             Registrar
-          </button>
-          <button
-            class="px-4 py-2 text-slate-500 hover:bg-gray-200 dark:hover:bg-slate-700 text-sm rounded-lg transition-colors"
+          </WootButton>
+          <WootButton
+            variant="outline"
+            color="slate"
             @click="showForm = false"
           >
             Cancelar
-          </button>
+          </WootButton>
         </div>
       </div>
     </template>

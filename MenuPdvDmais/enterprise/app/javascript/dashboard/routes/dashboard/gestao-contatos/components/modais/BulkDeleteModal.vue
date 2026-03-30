@@ -6,6 +6,8 @@
  * Description: (Adicionar descrição em português)
 -->
 <script setup>
+import WootButton from "dashboard/components-next/button/Button.vue";
+
 defineProps({
   show: Boolean,
   selectedCount: Number,
@@ -18,19 +20,19 @@ defineEmits(["close", "submit"]);
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-n-overlay flex items-center justify-center z-50"
     @click="$emit('close')"
   >
     <div
-      class="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-lg mx-4"
+      class="bg-n-solid-1 border border-n-weak rounded-lg p-6 w-full max-w-lg mx-4"
       @click.stop
     >
       <div class="flex items-center gap-3 mb-4">
         <div
-          class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center"
+          class="w-12 h-12 bg-n-red-3 rounded-full flex items-center justify-center"
         >
           <svg
-            class="w-6 h-6 text-red-600 dark:text-red-400"
+            class="w-6 h-6 text-n-red-11"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -44,21 +46,21 @@ defineEmits(["close", "submit"]);
           </svg>
         </div>
         <div>
-          <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+          <h2 class="text-xl font-bold text-n-slate-12">
             Confirmar Exclusão
           </h2>
-          <p class="text-sm text-slate-600 dark:text-slate-400">
+          <p class="text-sm text-n-slate-11">
             Esta ação não pode ser desfeita
           </p>
         </div>
       </div>
 
       <div
-        class="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg p-4 mb-6"
+        class="bg-n-red-3 border border-n-red-6 rounded-lg p-4 mb-6"
       >
         <div class="flex items-start gap-3">
           <svg
-            class="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5"
+            class="w-5 h-5 text-n-red-11 mt-0.5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -71,11 +73,11 @@ defineEmits(["close", "submit"]);
             />
           </svg>
           <div>
-            <p class="text-sm font-medium text-red-800 dark:text-red-200">
+            <p class="text-sm font-medium text-n-red-12">
               Você está prestes a deletar
               {{ selectedCount }} contato{{ selectedCount !== 1 ? "s" : "" }}
             </p>
-            <p class="text-sm text-red-700 dark:text-red-300 mt-1">
+            <p class="text-sm text-n-red-11 mt-1">
               Todos os dados desses contatos, incluindo conversas e histórico,
               serão permanentemente removidos.
             </p>
@@ -84,19 +86,22 @@ defineEmits(["close", "submit"]);
       </div>
 
       <div class="flex gap-2">
-        <button
-          class="flex-1 px-4 py-2 bg-gray-300 dark:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-gray-400 dark:hover:bg-slate-500 transition-colors"
+        <WootButton
+          variant="outline"
+          color="slate"
+          class="flex-1"
           @click="$emit('close')"
         >
           Cancelar
-        </button>
-        <button
-          :disabled="loading"
-          class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+        </WootButton>
+        <WootButton
+          :is-loading="loading"
+          color="ruby"
+          class="flex-1"
           @click="$emit('submit')"
         >
           {{ loading ? "Deletando..." : "Deletar Contatos" }}
-        </button>
+        </WootButton>
       </div>
     </div>
   </div>

@@ -14,6 +14,8 @@
 -->
 <script setup>
 import { computed, ref, watch } from "vue";
+import WootButton from "dashboard/components-next/button/Button.vue";
+import WootSelect from "dashboard/components-next/select/Select.vue";
 
 const props = defineProps({
   deployment: { type: Object, required: true },
@@ -29,47 +31,47 @@ const counters = computed(() => [
     icon: "🎓",
     count: props.deployment.trainings_count,
     label: "Treino",
-    color: "text-purple-600 dark:text-purple-400",
+    color: "text-n-slate-11",
   },
   {
     id: "installations",
     icon: "🛠️",
     count: props.deployment.installations_count,
     label: "Implan.",
-    color: "text-blue-600 dark:text-blue-400",
+    color: "text-n-blue-11",
   },
   {
     id: "systems",
     icon: "💻",
     count: props.deployment.systems_count,
     label: "Sistemas",
-    color: "text-green-600 dark:text-green-400",
+    color: "text-n-green-11",
   },
   {
     id: "hardwares",
     icon: "🔌",
     count: props.deployment.hardwares_count,
     label: "Hard.",
-    color: "text-orange-600 dark:text-orange-400",
+    color: "text-n-orange-11",
   },
   {
     id: "networks",
     icon: "🌐",
     count: props.deployment.networks_count,
     label: "Rede",
-    color: "text-teal-600 dark:text-teal-400",
+    color: "text-n-teal-11",
   },
 ]);
 
 const statusClass = computed(() => {
   const map = {
     pending:
-      "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
+      "bg-n-yellow-3 text-n-yellow-11",
     in_progress:
-      "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+      "bg-n-blue-3 text-n-blue-11",
     completed:
-      "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-    on_hold: "bg-gray-100 text-gray-700 dark:bg-gray-900/40 dark:text-gray-300",
+      "bg-n-green-3 text-n-green-11",
+    on_hold: "bg-n-slate-3 text-n-slate-11",
   };
   return map[props.deployment.status] || map.pending;
 });
@@ -89,6 +91,13 @@ function formatDateTime(dateStr) {
     minute: "2-digit",
   });
 }
+ 
+const statusOptions = [
+  { value: "pending", label: "⏳ Pendente" },
+  { value: "in_progress", label: "🔄 Em andamento" },
+  { value: "completed", label: "✅ Concluído" },
+  { value: "on_hold", label: "⏸️ Pausado" },
+];
 
 // --- PAGINAÇÃO E ORDENAÇÃO DE ATIVIDADES GERAIS ---
 const currentPage = ref(1);
@@ -145,43 +154,38 @@ function getActivityIcon(type) {
   <div class="p-4 space-y-4">
     <!-- Card de implantação ativa -->
     <div
-      class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-4"
+      class="bg-n-brand/5 border border-n-brand/10 rounded-xl p-4"
     >
       <div class="flex items-start justify-between mb-3">
         <div class="flex-1">
           <h3
-            class="font-semibold text-slate-800 dark:text-slate-200 text-sm leading-tight"
+            class="font-semibold text-n-slate-12 text-sm leading-tight"
           >
             {{ deployment.title }}
           </h3>
           <p
             v-if="deployment.started_at"
-            class="text-xs text-slate-500 dark:text-slate-400 mt-0.5"
+            class="text-xs text-n-slate-11 mt-0.5"
           >
             Início: {{ formatDate(deployment.started_at) }}
           </p>
         </div>
         <!-- Badge de status -->
-        <select
-          :value="deployment.status"
-          :class="statusClass"
-          class="text-xs font-semibold px-2 py-1 rounded-full border-0 cursor-pointer ml-2"
-          @change="$emit('update-status', $event.target.value)"
-        >
-          <option value="pending">⏳ Pendente</option>
-          <option value="in_progress">🔄 Em andamento</option>
-          <option value="completed">✅ Concluído</option>
-          <option value="on_hold">⏸️ Pausado</option>
-        </select>
+        <WootSelect
+          :model-value="deployment.status"
+          :options="statusOptions"
+          class="min-w-[140px]"
+          @update:model-value="$emit('update-status', $event)"
+        />
       </div>
 
       <!-- Técnico responsável -->
       <div
         v-if="deployment.assignee"
-        class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400"
+        class="flex items-center gap-2 text-xs text-n-slate-11"
       >
         <div
-          class="w-6 h-6 bg-blue-200 dark:bg-blue-700 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-200 font-bold text-xs"
+          class="w-6 h-6 bg-n-brand/10 rounded-full flex items-center justify-center text-n-brand font-bold text-xs"
         >
           {{ deployment.assignee.name?.[0]?.toUpperCase() }}
         </div>
@@ -192,22 +196,22 @@ function getActivityIcon(type) {
     <!-- Próxima visita em destaque -->
     <div
       v-if="nextSchedule"
-      class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4"
+      class="bg-n-alpha-black2 border border-n-weak rounded-xl p-4"
     >
       <div class="flex items-center gap-2 mb-2">
         <span class="text-lg">📅</span>
         <span
-          class="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide"
+          class="text-xs font-semibold text-n-slate-12 uppercase tracking-wide"
           >Próxima Visita</span
         >
       </div>
-      <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">
+      <p class="text-sm font-semibold text-n-slate-12">
         {{ formatDateTime(nextSchedule.occurred_at) }}
       </p>
-      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">
+      <p class="text-sm text-n-slate-11 mt-1 line-clamp-2">
         {{ nextSchedule.description }}
       </p>
-      <p v-if="nextSchedule.user" class="text-xs text-slate-500 mt-1">
+      <p v-if="nextSchedule.user" class="text-xs text-n-slate-11 mt-1">
         👤 {{ nextSchedule.user.name }}
       </p>
     </div>
@@ -217,14 +221,14 @@ function getActivityIcon(type) {
       <div
         v-for="counter in counters"
         :key="counter.id"
-        class="bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl p-2.5 text-center shadow-sm"
+        class="bg-n-surface-1 border border-n-weak rounded-xl p-2.5 text-center shadow-sm"
       >
         <div class="text-xl mb-0.5">{{ counter.icon }}</div>
         <div class="text-lg font-bold leading-tight" :class="counter.color">
           {{ counter.count || 0 }}
         </div>
         <div
-          class="text-[10px] uppercase font-bold text-slate-400 tracking-tight"
+          class="text-[10px] uppercase font-bold text-n-slate-11 tracking-tight"
         >
           {{ counter.label }}
         </div>
@@ -234,26 +238,26 @@ function getActivityIcon(type) {
     <!-- Notas gerais -->
     <div
       v-if="deployment.notes"
-      class="bg-gray-50 dark:bg-slate-800 rounded-xl p-4"
+      class="bg-n-alpha-black2 rounded-xl p-4"
     >
       <p
-        class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2"
+        class="text-xs font-semibold text-n-slate-11 uppercase tracking-wide mb-2"
       >
         Observações
       </p>
-      <p class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+      <p class="text-sm text-n-slate-12 whitespace-pre-wrap">
         {{ deployment.notes }}
       </p>
     </div>
 
     <!-- Feed de Últimas Atividades (Paginado para 5) -->
-    <div class="mt-6 border-t border-gray-100 dark:border-slate-700/50 pt-6">
+    <div class="mt-6 border-t border-n-weak pt-6">
       <h4
-        class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center justify-between"
+        class="text-sm font-bold text-n-slate-12 mb-4 flex items-center justify-between"
       >
         Registro Global Atividades
         <span
-          class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-full font-semibold uppercase tracking-wide border border-gray-200 dark:border-slate-700"
+          class="text-[10px] bg-n-alpha-black2 text-n-slate-11 px-2 py-0.5 rounded-full font-semibold uppercase tracking-wide border border-n-weak"
         >
           {{ sortedActivities.length }} Total
         </span>
@@ -262,7 +266,7 @@ function getActivityIcon(type) {
       <div class="space-y-3">
         <div
           v-if="displayedActivities.length === 0"
-          class="text-center py-6 text-slate-400 text-[13px] italic border border-dashed border-gray-200 dark:border-slate-700 rounded-xl"
+          class="text-center py-6 text-n-slate-11 text-[13px] italic border border-dashed border-n-weak rounded-xl"
         >
           Nenhuma atividade registrada na timeline
         </div>
@@ -270,7 +274,7 @@ function getActivityIcon(type) {
         <div
           v-for="activity in displayedActivities"
           :key="activity.id"
-          class="p-3 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-xl shadow-sm flex flex-col gap-2"
+          class="p-3 bg-n-surface-1 border border-n-weak rounded-xl shadow-sm flex flex-col gap-2"
         >
           <div class="flex justify-between items-start">
             <div class="flex items-start gap-2.5">
@@ -278,13 +282,13 @@ function getActivityIcon(type) {
                 getActivityIcon(activity.activity_type)
               }}</span>
               <p
-                class="text-sm font-semibold text-slate-700 dark:text-slate-300 leading-snug"
+                class="text-sm font-semibold text-n-slate-12 leading-snug"
               >
                 {{ activity.description }}
               </p>
             </div>
             <span
-              class="text-[10px] font-bold px-2 py-0.5 bg-gray-50 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 rounded border border-gray-100 dark:border-slate-700 shrink-0"
+              class="text-[10px] font-bold px-2 py-0.5 bg-n-alpha-black2 text-n-slate-11 rounded border border-n-weak shrink-0"
             >
               {{ formatDateTime(activity.occurred_at || activity.created_at) }}
             </span>
@@ -297,21 +301,25 @@ function getActivityIcon(type) {
         v-if="totalPages > 1"
         class="flex items-center justify-between pt-4 mt-2"
       >
-        <button
+        <WootButton
           :disabled="currentPage === 1"
-          class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors"
+          variant="outline"
+          color="slate"
+          size="sm"
           @click="prevPage"
         >
           Anterior
-        </button>
-        <span class="text-[11px] text-slate-400 font-medium tracking-wide">Pág. {{ currentPage }} de {{ totalPages }}</span>
-        <button
+        </WootButton>
+        <span class="text-[11px] text-n-slate-11 font-medium tracking-wide">Pág. {{ currentPage }} de {{ totalPages }}</span>
+        <WootButton
           :disabled="currentPage === totalPages"
-          class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 disabled:opacity-30 transition-colors"
+          variant="outline"
+          color="slate"
+          size="sm"
           @click="nextPage"
         >
           Próximo
-        </button>
+        </WootButton>
       </div>
     </div>
   </div>

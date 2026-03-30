@@ -15,6 +15,9 @@
 <script setup>
 import { ref, reactive } from "vue";
 import BaseTechnicalList from "./BaseTechnicalList.vue";
+import WootButton from "dashboard/components-next/button/Button.vue";
+import WootInput from "dashboard/components-next/input/Input.vue";
+import WootTextArea from "dashboard/components-next/textarea/TextArea.vue";
 
 const props = defineProps({
   installations: { type: Array, default: () => [] },
@@ -58,23 +61,23 @@ function handleAdd() {
   >
     <template #card="{ item }">
       <div class="flex justify-between items-start mb-2">
-        <h4 class="font-bold text-slate-900 dark:text-white">
+        <h4 class="font-bold text-n-slate-12">
           {{ item.installation_name }}
         </h4>
         <span
-          class="text-[10px] font-medium px-2 py-0.5 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 rounded-full"
+          class="text-[10px] font-medium px-2 py-0.5 bg-n-blue-3 text-n-blue-11 rounded-full"
         >
           {{ formatDate(item.installed_at) }}
         </span>
       </div>
-      <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-3">
+      <p class="text-sm text-n-slate-11 line-clamp-2 mb-3">
         {{ item.notes }}
       </p>
       <div
-        class="flex items-center gap-2 mt-2 pt-2 border-t border-gray-50 dark:border-slate-700/50 text-[11px] text-slate-400"
+        class="flex items-center gap-2 mt-2 pt-2 border-t border-n-weak text-[11px] text-n-slate-10"
       >
         <div
-          class="w-5 h-5 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center overflow-hidden border border-blue-100 dark:border-blue-800"
+          class="w-5 h-5 rounded-full bg-n-blue-3 flex items-center justify-center overflow-hidden border border-n-blue-6"
         >
           <img
             v-if="item.installed_by?.avatar_url"
@@ -83,49 +86,49 @@ function handleAdd() {
           />
           <span
             v-else
-            class="text-[10px] font-bold text-blue-600 dark:text-blue-400 capitalize"
+            class="text-[10px] font-bold text-n-blue-11 capitalize"
             >{{ item.installed_by?.name?.charAt(0) || "A" }}</span
           >
         </div>
-        <span class="text-slate-500 dark:text-slate-400"
+        <span class="text-n-slate-10"
           >Agente: {{ item.installed_by?.name || "Sistema" }}</span
         >
       </div>
     </template>
 
     <template #form>
-      <input
+      <WootInput
         v-model="newInstallation.installation_name"
         placeholder="Nome da implantação (ex: Troca de Servidor)"
-        class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="w-full"
       />
-      <input
+      <WootInput
         v-model="newInstallation.installed_at"
         type="date"
-        class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="w-full"
       />
-      <textarea
+      <WootTextArea
         v-model="newInstallation.notes"
+        label="Observações"
         placeholder="Detalhes e observações"
-        rows="3"
-        class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        auto-height
       />
-      <div class="flex gap-2">
-        <button
-          :disabled="
-            !newInstallation.installation_name || !newInstallation.installed_at
-          "
-          class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+      <div class="flex gap-2 pt-2">
+        <WootButton
+          :disabled="!newInstallation.installation_name || !newInstallation.installed_at"
+          color="blue"
+          class="flex-1"
           @click="handleAdd"
         >
           Registrar
-        </button>
-        <button
-          class="px-4 py-2 text-slate-500 hover:bg-gray-200 dark:hover:bg-slate-700 text-sm rounded-lg transition-colors"
+        </WootButton>
+        <WootButton
+          variant="outline"
+          color="slate"
           @click="showForm = false"
         >
           Cancelar
-        </button>
+        </WootButton>
       </div>
     </template>
   </BaseTechnicalList>

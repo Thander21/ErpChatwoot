@@ -12,6 +12,8 @@ import { useStore } from "vuex";
 import { frontendURL } from "dashboard/helper/URLHelper";
 import KanbanCardModal from "./modais/KanbanCardModal.vue";
 import WootButton from "dashboard/components-next/button/Button.vue";
+import WootSelect from "dashboard/components-next/select/Select.vue";
+import Spinner from "dashboard/components-next/spinner/Spinner.vue";
 
 const store = useStore();
 const { fetchArchivedCards, loadColumns, columns } = useKanban();
@@ -92,10 +94,23 @@ const years = computed(() => {
   const current = new Date().getFullYear();
   const list = [];
   for (let i = current; i >= current - 5; i--) {
-    list.push(i);
+    list.push({ value: i, label: i.toString() });
   }
   return list;
 });
+ 
+const statusOptions = [
+  { value: "all", label: "Todos os Status" },
+  { value: "archived", label: "Apenas Arquivados" },
+  { value: "deleted", label: "Apenas Excluídos" },
+];
+ 
+const monthOptions = months.map((m, i) => ({ value: i + 1, label: m }));
+ 
+const agentOptions = computed(() => [
+  { value: "", label: "Todos os Vendedores" },
+  ...agents.value.map((a) => ({ value: a.id, label: a.name })),
+]);
 
 const fetchData = async () => {
   loading.value = true;
@@ -157,84 +172,52 @@ onMounted(() => {
     <!-- Header Section -->
     <div class="flex flex-col gap-4 flex-shrink-0">
       <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-semibold text-slate-900 dark:text-white">
+        <h1 class="text-2xl font-semibold text-n-slate-12">
           Relatório de Arquivados e Excluídos
         </h1>
-        <router-link
-          :to="kanbanUrl"
-          class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1"
+        <WootButton
+          variant="link"
+          color="slate"
+          size="sm"
+          icon="arrow-left"
+          @click="$router.push(kanbanUrl)"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
           Voltar para Kanban
-        </router-link>
+        </WootButton>
       </div>
-
-      <!-- Filters Bar -->
+ 
       <div
-        class="flex flex-wrap items-center gap-2 bg-n-surface-1 p-3 rounded-lg border border-n-weak dark:border-n-weak shadow-sm"
+        class="flex flex-wrap items-center gap-3 bg-n-surface-1 p-3 rounded-lg border border-n-weak dark:border-n-weak shadow-sm"
       >
         <div class="flex items-center gap-2">
           <span class="text-sm font-medium text-n-slate-11">Filtros:</span>
-          <!-- Status Filter -->
-          <select
+          <WootSelect
             v-model="selectedStatus"
-            class="reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2 px-3"
-          >
-            <option value="all">Todos os Status</option>
-            <option value="archived">Apenas Arquivados</option>
-            <option value="deleted">Apenas Excluídos</option>
-          </select>
-
-          <select
+            :options="statusOptions"
+            class="min-w-[170px]"
+          />
+ 
+          <WootSelect
             v-model="selectedMonth"
-            class="reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2 px-3"
-          >
-            <option
-              v-for="(month, index) in months"
-              :key="index"
-              :value="index + 1"
-            >
-              {{ month }}
-            </option>
-          </select>
-
-          <select
+            :options="monthOptions"
+            class="min-w-[130px]"
+          />
+ 
+          <WootSelect
             v-model="selectedYear"
-            class="reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2 px-3"
-          >
-            <option v-for="year in years" :key="year" :value="year">
-              {{ year }}
-            </option>
-          </select>
-
-          <!-- Agent Filter -->
-          <select
+            :options="years"
+            class="min-w-[100px]"
+          />
+ 
+          <WootSelect
             v-model="selectedAgent"
-            class="reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2 px-8"
-          >
-            <option value="">Todos os Vendedores</option>
-            <option v-for="agent in agents" :key="agent.id" :value="agent.id">
-              {{ agent.name }}
-            </option>
-          </select>
-
+            :options="agentOptions"
+            class="min-w-[180px]"
+          />
+ 
           <WootButton
             icon="filter"
             color="blue"
-            class="ml-2"
             @click="fetchData"
           >
             Filtrar
@@ -247,10 +230,9 @@ onMounted(() => {
     <div
       class="flex-1 overflow-hidden bg-n-surface-1 rounded-lg border border-n-weak dark:border-n-weak shadow flex flex-col"
     >
-      <div v-if="loading" class="flex items-center justify-center p-12 flex-1">
-        <div
-          class="animate-spin rounded-full h-12 w-12 border-b-2 border-woot-500"
-        />
+      <div v-if="loading" class="flex flex-col items-center justify-center p-12 flex-1">
+        <Spinner :size="48" class="text-n-brand mb-4" />
+        <p class="text-n-slate-11">Carregando relatório...</p>
       </div>
 
       <div
@@ -286,13 +268,13 @@ onMounted(() => {
               <td class="py-4 px-6">
                 <span
                   v-if="card.deleted_at"
-                  class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
+                  class="bg-n-ruby-3 text-n-ruby-11 text-xs font-medium px-2.5 py-0.5 rounded"
                 >
                   Excluído
                 </span>
                 <span
                   v-else
-                  class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
+                  class="bg-n-teal-3 text-n-teal-11 text-xs font-medium px-2.5 py-0.5 rounded"
                 >
                   Arquivado
                 </span>

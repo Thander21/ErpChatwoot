@@ -1,3 +1,5 @@
+# docker compose -f docker-compose-dev.yaml exec -T rails bundle exec rails runner - < script/fix_user.rb
+
 email = 'teste@teste.com'
 password = 'Teste12!@'
 

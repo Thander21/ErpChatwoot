@@ -7,6 +7,8 @@
 -->
 <script setup>
 import { ref, computed, watch } from "vue";
+import WootButton from "dashboard/components-next/button/Button.vue";
+import Spinner from "dashboard/components-next/spinner/Spinner.vue";
 import { useDeployment } from "../composables/useDeployment";
 import DeploymentSummary from "./ficha/DeploymentSummary.vue";
 import ActivityFeed from "./ficha/ActivityFeed.vue";
@@ -215,18 +217,18 @@ async function handleRemoveTraining(trainingId) {
 
     <!-- Painel principal -->
     <div
-      class="relative w-[95vw] sm:max-w-6xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl flex flex-col h-[95vh] overflow-hidden transition-all duration-300 transform"
+      class="relative w-[95vw] sm:max-w-6xl bg-n-solid-1 rounded-2xl shadow-2xl flex flex-col h-[95vh] overflow-hidden transition-all duration-300 transform"
     >
       <!-- Header fixo -->
       <div
-        class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-slate-700 shrink-0"
+        class="flex items-center justify-between px-4 py-3 border-b border-n-weak dark:border-n-weak shrink-0"
       >
         <div class="flex items-center gap-3">
           <div
-            class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center"
+            class="w-10 h-10 bg-n-brand/10 rounded-xl flex items-center justify-center"
           >
             <svg
-              class="w-5 h-5 text-blue-600 dark:text-blue-400"
+              class="w-5 h-5 text-n-brand"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -241,62 +243,36 @@ async function handleRemoveTraining(trainingId) {
           </div>
           <div>
             <h2
-              class="text-lg font-bold text-slate-900 dark:text-white leading-tight"
+              class="text-lg font-bold text-n-slate-12 leading-tight"
             >
               {{ company.name }}
             </h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">
+            <p class="text-xs text-n-slate-11">
               Ficha do Cliente
             </p>
           </div>
         </div>
-        <button
-          class="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+        <WootButton
+          variant="ghost"
+          color="slate"
+          icon="x"
+          size="sm"
           @click="$emit('close')"
-        >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+        />
       </div>
 
       <!-- Estado de loading -->
       <div v-if="loading" class="flex-1 flex items-center justify-center py-12">
-        <div class="flex flex-col items-center gap-3 text-slate-400">
-          <svg class="w-8 h-8 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            />
-          </svg>
-          <span class="text-sm">Carregando ficha...</span>
+        <div class="flex flex-col items-center gap-3 text-n-slate-11">
+          <Spinner :size="32" class="text-n-brand" />
+          <span class="text-sm text-n-slate-11">Carregando ficha...</span>
         </div>
       </div>
 
       <!-- Conteúdo principal -->
       <template v-else>
-        <!-- Abas de navegação -->
         <div
-          class="flex border-b border-gray-200 dark:border-slate-700 px-4 shrink-0 overflow-x-auto"
+          class="flex border-b border-n-weak dark:border-n-weak px-4 shrink-0 overflow-x-auto"
         >
           <button
             v-for="tab in tabs"
@@ -304,8 +280,8 @@ async function handleRemoveTraining(trainingId) {
             class="flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors mr-1"
             :class="
               activeTab === tab.key
-                ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                : 'border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                ? 'border-n-brand text-n-brand dark:text-n-brand'
+                : 'border-transparent text-n-slate-11 hover:text-n-slate-12 dark:hover:text-n-slate-12'
             "
             @click="activeTab = tab.key"
           >
@@ -313,7 +289,7 @@ async function handleRemoveTraining(trainingId) {
             {{ tab.label }}
             <span
               v-if="tab.count !== undefined && tab.count > 0"
-              class="bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs px-1.5 py-0.5 rounded-full"
+              class="bg-n-alpha-black2 dark:bg-n-brand/10 text-n-brand dark:text-n-brand text-xs px-1.5 py-0.5 rounded-full"
             >
               {{ tab.count }}
             </span>
@@ -321,7 +297,7 @@ async function handleRemoveTraining(trainingId) {
         </div>
 
         <!-- Conteúdo das abas -->
-        <div class="flex-1 flex flex-col min-h-0 w-full">
+        <div class="flex-1 flex flex-col min-h-0 w-full bg-n-surface-1">
           <!-- Aba: Resumo -->
           <div
             v-if="activeTab === 'summary'"
@@ -339,17 +315,17 @@ async function handleRemoveTraining(trainingId) {
               class="flex flex-col items-center justify-center py-12 px-6 text-center"
             >
               <div
-                class="w-16 h-16 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4 text-3xl"
+                class="w-16 h-16 bg-n-brand/10 rounded-2xl flex items-center justify-center mb-4 text-3xl"
               >
                 📊
               </div>
               <h3
-                class="text-base font-semibold text-slate-700 dark:text-slate-300"
+                class="text-base font-semibold text-n-slate-12"
               >
                 Nenhuma implantação iniciada
               </h3>
               <p
-                class="text-sm text-slate-500 dark:text-slate-400 max-w-xs mt-1"
+                class="text-sm text-n-slate-11 max-w-xs mt-1"
               >
                 Escolha qualquer uma das abas de registro acima para começar a
                 documentar os dados técnicos desta empresa.

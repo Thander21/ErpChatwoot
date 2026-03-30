@@ -16,6 +16,7 @@
 import { ref } from "vue";
 import { useRoute } from "vue-router";
 import WootButton from "dashboard/components-next/button/Button.vue";
+import WootInput from "dashboard/components-next/input/Input.vue";
 
 const props = defineProps({
   contact: { type: Object, required: true },
@@ -184,15 +185,22 @@ async function handleSave() {
       </div>
 
       <!-- Toggle Button -->
-      <button
-        class="inline-flex items-center min-w-0 gap-2 transition-all duration-100 ease-out border-0 rounded-lg outline-1 outline disabled:opacity-50 text-n-slate-12 hover:enabled:bg-n-alpha-2 focus-visible:bg-n-alpha-2 outline-transparent h-6 w-6 p-0 text-xs active:enabled:scale-[0.97] justify-center"
-        @click="toggleCard"
+      <div 
+        @click.stop
+        class="flex items-center"
       >
-        <span
-          class="i-lucide-chevron-down flex-shrink-0 transition-transform duration-200"
-          :class="{ 'rotate-180': isExpanded }"
-        />
-      </button>
+        <WootButton
+          variant="ghost"
+          color="slate"
+          size="xs"
+          @click="toggleCard"
+        >
+          <span
+            class="i-lucide-chevron-down flex-shrink-0 transition-transform duration-200"
+            :class="{ 'rotate-180': isExpanded }"
+          />
+        </WootButton>
+      </div>
     </div>
 
     <!-- Expanded Content (Accordion) -->
@@ -214,53 +222,23 @@ async function handleSave() {
                 >Editar detalhes</span
               >
               <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-                <div class="relative flex flex-col min-w-0 gap-1 w-full">
-                  <input
-                    v-model="editForm.name"
-                    class="w-full h-10 px-3 py-2.5 block reset-base text-sm outline outline-1 outline-offset-[-1px] rounded-lg bg-n-alpha-black2 border-none outline-n-weak dark:outline-n-weak focus:outline-n-brand dark:focus:outline-n-brand text-n-slate-12 placeholder:text-n-slate-10 transition-all duration-200"
-                    type="text"
-                    placeholder="Nome completo"
-                  />
+                <div class="w-full">
+                  <WootInput v-model="editForm.name" placeholder="Nome completo" class="w-full" />
                 </div>
-                <div class="relative flex flex-col min-w-0 gap-1 w-full">
-                  <input
-                    v-model="editForm.email"
-                    class="w-full h-10 px-3 py-2.5 block reset-base text-sm outline outline-1 outline-offset-[-1px] rounded-lg bg-n-alpha-black2 border-none outline-n-weak dark:outline-n-weak focus:outline-n-brand dark:focus:outline-n-brand text-n-slate-12 placeholder:text-n-slate-10 transition-all duration-200"
-                    type="text"
-                    placeholder="Email"
-                  />
+                <div class="w-full">
+                  <WootInput v-model="editForm.email" placeholder="Email" class="w-full" />
                 </div>
-                <div class="relative flex flex-col min-w-0 gap-1 w-full">
-                  <input
-                    v-model="editForm.phone_number"
-                    class="w-full h-10 px-3 py-2.5 block reset-base text-sm outline outline-1 outline-offset-[-1px] rounded-lg bg-n-alpha-black2 border-none outline-n-weak dark:outline-n-weak focus:outline-n-brand dark:focus:outline-n-brand text-n-slate-12 placeholder:text-n-slate-10 transition-all duration-200"
-                    type="text"
-                    placeholder="Telefone"
-                  />
+                <div class="w-full">
+                  <WootInput v-model="editForm.phone_number" placeholder="Telefone" class="w-full" />
                 </div>
-                <div class="relative flex flex-col min-w-0 gap-1 w-full">
-                  <input
-                    v-model="editForm.company_name"
-                    class="w-full h-10 px-3 py-2.5 block reset-base text-sm outline outline-1 outline-offset-[-1px] rounded-lg bg-n-alpha-black2 border-none outline-n-weak dark:outline-n-weak focus:outline-n-brand dark:focus:outline-n-brand text-n-slate-12 placeholder:text-n-slate-10 transition-all duration-200"
-                    type="text"
-                    placeholder="Empresa"
-                  />
+                <div class="w-full">
+                  <WootInput v-model="editForm.company_name" placeholder="Empresa" class="w-full" />
                 </div>
-                <div class="relative flex flex-col min-w-0 gap-1 w-full">
-                  <input
-                    v-model="editForm.city"
-                    class="w-full h-10 px-3 py-2.5 block reset-base text-sm outline outline-1 outline-offset-[-1px] rounded-lg bg-n-alpha-black2 border-none outline-n-weak dark:outline-n-weak focus:outline-n-brand dark:focus:outline-n-brand text-n-slate-12 placeholder:text-n-slate-10 transition-all duration-200"
-                    type="text"
-                    placeholder="Cidade"
-                  />
+                <div class="w-full">
+                  <WootInput v-model="editForm.city" placeholder="Cidade" class="w-full" />
                 </div>
-                <div class="relative flex flex-col min-w-0 gap-1 w-full">
-                  <input
-                    v-model="editForm.bio"
-                    class="w-full h-10 px-3 py-2.5 block reset-base text-sm outline outline-1 outline-offset-[-1px] rounded-lg bg-n-alpha-black2 border-none outline-n-weak dark:outline-n-weak focus:outline-n-brand dark:focus:outline-n-brand text-n-slate-12 placeholder:text-n-slate-10 transition-all duration-200"
-                    type="text"
-                    placeholder="Bio"
-                  />
+                <div class="w-full">
+                  <WootInput v-model="editForm.bio" placeholder="Bio" class="w-full" />
                 </div>
               </div>
             </div>
@@ -284,16 +262,20 @@ async function handleSave() {
             <div
               class="flex flex-col items-start border-t border-n-strong px-0 py-5 mt-4"
             >
-              <button
-                class="hover:!no-underline text-n-slate-12 inline-flex items-center min-w-0 gap-2 transition-all duration-100 ease-out border-0 rounded-lg outline-1 outline disabled:opacity-50 text-n-slate-11 hover:enabled:text-n-ruby-9 focus-visible:text-n-ruby-9 hover:enabled:underline focus-visible:underline outline-transparent p-0 font-medium underline-offset-2 text-sm active:enabled:scale-[0.97] justify-center flex-row-reverse"
+              <WootButton
+                variant="link"
+                color="ruby"
+                class="hover:!no-underline"
                 @click="isDeleteConfirmOpen = !isDeleteConfirmOpen"
               >
-                <span
-                  class="i-lucide-chevron-down flex-shrink-0 transition-transform"
-                  :class="{ 'rotate-180': isDeleteConfirmOpen }"
-                />
-                <span class="min-w-0 truncate">Deletar contato</span>
-              </button>
+                <div class="flex items-center gap-2">
+                  <span class="min-w-0 truncate">Deletar contato</span>
+                  <span
+                    class="i-lucide-chevron-down flex-shrink-0 transition-transform"
+                    :class="{ 'rotate-180': isDeleteConfirmOpen }"
+                  />
+                </div>
+              </WootButton>
 
               <div
                 class="transition-all duration-300 ease-in-out grid w-full overflow-hidden"

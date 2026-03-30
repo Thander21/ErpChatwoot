@@ -11,6 +11,8 @@ import { useStore } from "vuex";
 import WootButton from "dashboard/components-next/button/Button.vue";
 import WootInput from "dashboard/components-next/input/Input.vue";
 import ComboBox from "dashboard/components-next/combobox/ComboBox.vue";
+import WootTextArea from "dashboard/components-next/textarea/TextArea.vue";
+import WootSelect from "dashboard/components-next/select/Select.vue";
 
 const props = defineProps({
   show: Boolean,
@@ -64,6 +66,21 @@ const errors = ref({
 
 const isEditing = ref(false);
 const selectedCompany = ref(null);
+ 
+const agentOptions = computed(() =>
+  agents.value.map((a) => ({ value: a.id, label: a.name })),
+);
+ 
+const columnOptions = computed(() =>
+  (props.columns || []).map((c) => ({ value: c.id, label: c.name })),
+);
+ 
+const priorityOptions = [
+  { value: "low", label: "Baixa" },
+  { value: "normal", label: "Normal" },
+  { value: "high", label: "Alta" },
+  { value: "urgent", label: "Urgente" },
+];
 
 const fetchCompanies = async () => {
   try {
@@ -293,12 +310,12 @@ const handleArchive = () => {
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-n-overlay flex items-center justify-center z-50"
   >
     <div
-      class="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-md mx-4 shadow-xl"
+      class="bg-n-solid-1 border border-n-weak rounded-lg p-6 w-full max-w-md mx-4 shadow-xl"
     >
-      <h2 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">
+      <h2 class="text-xl font-bold mb-4 text-n-slate-12">
         {{ isEditing ? "Editar Card" : "Novo Card" }}
       </h2>
       <form class="space-y-4" @submit.prevent="handleSubmit">
@@ -306,7 +323,7 @@ const handleArchive = () => {
         <div class="space-y-3">
           <div>
             <label
-              class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+              class="block text-sm font-medium text-n-slate-11 mb-1"
             >
               Empresa *
             </label>
@@ -344,19 +361,13 @@ const handleArchive = () => {
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-n-slate-12 mb-1">
-              Vendedor *
-            </label>
-            <select
+            <WootSelect
               v-model="form.assignee_id"
-              required
-              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
-            >
-              <option value="" disabled selected>Selecione um vendedor</option>
-              <option v-for="agent in agents" :key="agent.id" :value="agent.id">
-                {{ agent.name }}
-              </option>
-            </select>
+              label="Vendedor *"
+              :options="agentOptions"
+              placeholder="Selecione um vendedor"
+              class="w-full"
+            />
           </div>
         </div>
 
@@ -371,51 +382,32 @@ const handleArchive = () => {
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-n-slate-12 mb-1">
-            Descrição
-          </label>
-          <textarea
+          <WootTextArea
             v-model="form.description"
-            rows="3"
-            class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
+            label="Descrição"
             placeholder="Digite a descrição (opcional)"
+            auto-height
           />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-n-slate-12 mb-1">
-              Coluna *
-            </label>
-            <select
+            <WootSelect
               v-model="form.kanban_column_id"
-              required
-              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
-            >
-              <option value="" disabled selected>Selecione uma coluna</option>
-              <option
-                v-for="column in columns"
-                :key="column.id"
-                :value="column.id"
-              >
-                {{ column.name }}
-              </option>
-            </select>
+              label="Coluna *"
+              :options="columnOptions"
+              placeholder="Selecione uma coluna"
+              class="w-full"
+            />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-n-slate-12 mb-1">
-              Prioridade
-            </label>
-            <select
+            <WootSelect
               v-model="form.priority"
-              class="w-full reset-base text-sm !mb-0 outline outline-1 border-none border-0 outline-offset-[-1px] rounded-lg bg-white dark:bg-slate-900 text-n-slate-12 transition-all duration-500 ease-in-out outline-n-weak dark:outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 focus:outline-n-brand dark:focus:outline-n-brand py-2.5 px-3"
-            >
-              <option value="low">Baixa</option>
-              <option value="normal">Normal</option>
-              <option value="high">Alta</option>
-              <option value="urgent">Urgente</option>
-            </select>
+              label="Prioridade"
+              :options="priorityOptions"
+              class="w-full"
+            />
           </div>
         </div>
 
@@ -433,65 +425,41 @@ const handleArchive = () => {
         >
           <!-- Delete and Archive buttons (only when editing) -->
           <div v-if="isEditing" class="flex gap-2">
-            <button
-              type="button"
-              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :disabled="loading"
+            <WootButton
+              color="ruby"
+              :is-loading="loading"
               @click="handleDelete"
             >
               Excluir
-            </button>
+            </WootButton>
 
-            <button
+            <WootButton
               v-if="isLastColumn"
-              type="button"
-              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :disabled="loading"
+              color="teal"
+              :is-loading="loading"
               @click="handleArchive"
             >
               Arquivar
-            </button>
+            </WootButton>
           </div>
 
           <!-- Regular action buttons -->
           <div class="flex gap-2">
-            <button
-              type="button"
-              class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:bg-slate-800 dark:text-gray-200 dark:border-slate-600 dark:hover:bg-slate-700"
+            <WootButton
+              variant="outline"
+              color="slate"
               @click="$emit('close')"
             >
               Cancelar
-            </button>
+            </WootButton>
 
-            <button
+            <WootButton
               type="submit"
-              class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              :class="{ 'opacity-50 cursor-not-allowed': loading }"
-              :disabled="loading"
+              color="blue"
+              :is-loading="loading"
             >
-              <svg
-                v-if="loading"
-                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                />
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
               {{ isEditing ? "Salvar Alterações" : "Criar Card" }}
-            </button>
+            </WootButton>
           </div>
         </div>
       </form>

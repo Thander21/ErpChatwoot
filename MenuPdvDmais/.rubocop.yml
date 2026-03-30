@@ -1,0 +1,9 @@
+inherit_from:
+  - ../chatwoot-base/.rubocop.yml
+
+AllCops:
+  Exclude:
+    - 'db/schema.rb'
+    - 'db/migrate/**/*'
+    - 'config/**/*'
+    - 'bin/**/*'

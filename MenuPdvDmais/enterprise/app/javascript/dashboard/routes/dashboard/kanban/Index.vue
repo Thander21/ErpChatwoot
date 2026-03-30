@@ -29,9 +29,9 @@ const onTabChange = (index) => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full bg-white dark:bg-slate-900 p-4">
+  <div class="flex flex-col h-full bg-n-surface-1 p-4 overflow-x-auto">
     <!-- Abas -->
-    <div class="mb-4">
+    <div class="mb-4 flex-shrink-0">
       <Tabs :index="activeTab" @change="onTabChange">
         <TabsItem
           v-for="(tab, index) in tabs"
@@ -45,11 +45,11 @@ const onTabChange = (index) => {
     </div>
 
     <!-- Conteúdo das Abas -->
-    <div v-if="activeTab === 0" class="flex-1 overflow-hidden">
+    <div v-if="activeTab === 0" class="flex-1 min-h-0">
       <KanbanTarefa />
     </div>
 
-    <div v-if="activeTab === 1" class="flex-1 overflow-hidden">
+    <div v-if="activeTab === 1" class="flex-1 min-h-0">
       <KanbanComercial />
     </div>
   </div>

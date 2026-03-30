@@ -16,6 +16,7 @@
 import { computed, watch } from "vue";
 import { useAlert } from "dashboard/composables";
 import ContactCard from "./ContactCard.vue";
+import WootButton from "dashboard/components-next/button/Button.vue";
 
 const props = defineProps({
   contacts: {
@@ -178,19 +179,7 @@ const handleDeleteContact = (contact) => {
               class="transform transition-transform duration-200 text-n-slate-11 group-hover/header:text-n-brand"
               :class="{ 'rotate-90': expandedCompanyNames.has(groupItem.name) }"
             >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+              <span class="i-lucide-chevron-right size-4" />
             </span>
             <h3
               class="font-medium text-n-slate-12 group-hover/header:text-n-brand"
@@ -203,36 +192,24 @@ const handleDeleteContact = (contact) => {
               {{ groupItem.contacts.length }}
             </span>
           </div>
-          <!-- Botão Ficha do Cliente -->
-          <button
+          <WootButton
             v-if="groupItem.name !== 'Empresa não informada'"
-            class="ml-auto flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold tracking-wide text-n-slate-11 hover:text-n-brand bg-white hover:bg-n-brand/10 border border-n-strong hover:border-n-brand/30 dark:bg-n-solid-2 dark:text-n-slate-11 dark:border-n-weak dark:hover:bg-n-brand/20 dark:hover:text-n-brand rounded-md transition-all duration-300 ease-out shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+            variant="outline"
+            color="slate"
+            size="xs"
+            icon="folder"
+            class="ml-auto"
             title="Abrir Ficha do Cliente"
             @click.stop="handleOpenProfile(groupItem.company)"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
-              />
-            </svg>
-            <span>Ficha da Empresa</span>
-          </button>
+            Ficha da Empresa
+          </WootButton>
         </div>
 
         <!-- Contacts in Group -->
         <div
           v-show="expandedCompanyNames.has(groupItem.name)"
-          class="flex flex-col gap-2 pl-4 border-l-2 border-slate-200 dark:border-slate-700 ml-2"
+          class="flex flex-col gap-2 pl-4 border-l-2 border-n-weak ml-2"
         >
           <div
             v-for="contact in groupItem.contacts"
