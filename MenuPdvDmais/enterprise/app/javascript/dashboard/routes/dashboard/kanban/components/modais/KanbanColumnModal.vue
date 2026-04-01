@@ -9,6 +9,7 @@
 import { ref, watch } from "vue";
 import WootButton from "dashboard/components-next/button/Button.vue";
 import WootInput from "dashboard/components-next/input/Input.vue";
+import ColorPicker from "dashboard/components-next/colorpicker/ColorPicker.vue";
 
 const props = defineProps({
   show: Boolean,
@@ -52,12 +53,12 @@ const handleSubmit = () => {
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-n-overlay flex items-center justify-center z-50"
   >
     <div
-      class="bg-white dark:bg-slate-900 rounded-lg p-6 w-full max-w-md mx-4 shadow-xl"
+      class="bg-n-solid-1 border border-n-weak rounded-lg p-6 w-full max-w-md mx-4 shadow-xl"
     >
-      <h2 class="text-xl font-bold mb-4 text-slate-900 dark:text-white">
+      <h2 class="text-xl font-bold mb-4 text-n-slate-12">
         {{ isEditing ? "Editar Coluna" : "Nova Coluna" }}
       </h2>
       <form class="space-y-4" @submit.prevent="handleSubmit">
@@ -71,14 +72,12 @@ const handleSubmit = () => {
 
         <div>
           <label
-            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+            class="block text-sm font-medium text-n-slate-11 mb-2"
           >
-            Cor
+            Cor da Coluna
           </label>
-          <input
+          <ColorPicker
             v-model="form.color"
-            type="color"
-            class="w-full h-10 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800"
           />
         </div>
 
@@ -91,17 +90,18 @@ const handleSubmit = () => {
         />
 
         <div class="flex gap-2 pt-4 justify-end">
-          <WootButton variant="clear" color="slate" @click="$emit('close')">
+          <WootButton
+            variant="outline"
+            color="slate"
+            @click="$emit('close')"
+          >
             Cancelar
           </WootButton>
 
           <WootButton
             type="submit"
             :is-loading="loading"
-            variant="solid"
             color="blue"
-            :class="{ 'opacity-50 cursor-not-allowed': loading }"
-            :disabled="loading"
           >
             {{ isEditing ? "Atualizar" : "Criar Coluna" }}
           </WootButton>

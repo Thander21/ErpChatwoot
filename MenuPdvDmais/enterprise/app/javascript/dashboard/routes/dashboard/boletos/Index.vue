@@ -22,7 +22,7 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <div class="h-full w-full">
+  <div class="h-full w-full bg-n-surface-1">
     <iframe
       src="https://personal-tggn0jb7.outsystemscloud.com/STICRM/ChatwootBoletos"
       class="w-full h-full border-0"

@@ -6,6 +6,8 @@
  * Description: (Adicionar descrição em português)
 -->
 <script setup>
+import WootButton from "dashboard/components-next/button/Button.vue";
+
 defineProps({
   searchQuery: String,
   loading: Boolean,
@@ -16,31 +18,18 @@ defineEmits(["update:searchQuery", "refresh"]);
 
 <template>
   <div class="flex items-center justify-between mb-4">
-    <h1 class="text-3xl font-bold text-slate-900 dark:text-white">
+    <h1 class="text-3xl font-bold text-n-slate-12">
       Gestão de Contatos
     </h1>
     <div class="flex gap-2">
-      <button
-        :disabled="loading"
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+      <WootButton
+        color="blue"
+        icon="refresh-cw"
+        :is-loading="loading"
         @click="$emit('refresh')"
       >
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          :class="{ 'animate-spin': loading }"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-          />
-        </svg>
         Recarregar
-      </button>
+      </WootButton>
     </div>
   </div>
 </template>

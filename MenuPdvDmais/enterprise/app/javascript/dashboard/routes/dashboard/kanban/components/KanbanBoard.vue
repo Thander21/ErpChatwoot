@@ -9,6 +9,7 @@
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import KanbanColumn from "./KanbanColumn.vue";
 import WootButton from "dashboard/components-next/button/Button.vue";
+import Spinner from "dashboard/components-next/spinner/Spinner.vue";
 
 const props = defineProps({
   title: {
@@ -96,12 +97,12 @@ const getCardsForColumn = (column) => {
 };
 
 // Mobile State
-const activeColumnIndex = ref(0);
-const isMobile = ref(window.innerWidth < 640);
+// const activeColumnIndex = ref(0);
+// const isMobile = ref(window.innerWidth < 640);
 
-const handleResize = () => {
-  isMobile.value = window.innerWidth < 640;
-};
+// const handleResize = () => {
+//   isMobile.value = window.innerWidth < 640;
+// };
 
 // Drag & Drop
 const onDragStart = (event, card) => {
@@ -119,32 +120,32 @@ const onDrop = (event, columnId) => {
 };
 
 // Mobile Nav
-const nextColumn = () => {
-  if (activeColumnIndex.value < sortedColumns.value.length - 1) {
-    activeColumnIndex.value++;
-  }
-};
+// const nextColumn = () => {
+//   if (activeColumnIndex.value < sortedColumns.value.length - 1) {
+//     activeColumnIndex.value++;
+//   }
+// };
 
-const prevColumn = () => {
-  if (activeColumnIndex.value > 0) {
-    activeColumnIndex.value--;
-  }
-};
+// const prevColumn = () => {
+//   if (activeColumnIndex.value > 0) {
+//     activeColumnIndex.value--;
+//   }
+// };
 
-onMounted(() => {
-  window.addEventListener("resize", handleResize);
-});
+// onMounted(() => {
+//   window.addEventListener("resize", handleResize);
+// });
 
-onUnmounted(() => {
-  window.removeEventListener("resize", handleResize);
-});
+// onUnmounted(() => {
+//   window.removeEventListener("resize", handleResize);
+// });
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 h-full bg-n-surface-1">
+  <div class="flex flex-col h-full bg-n-surface-1">
     <!-- Header com controles -->
-    <div class="flex items-center justify-between mb-2 flex-shrink-0">
-      <div class="flex items-center gap-4">
+    <div class="flex items-center justify-between mb-4 flex-shrink-0">
+      <div class="flex items-center gap-3">
         <h2 class="text-xl font-semibold text-n-slate-12">
           {{ title }}
         </h2>
@@ -152,13 +153,12 @@ onUnmounted(() => {
           <span>{{ totalCards }} cards</span>
           <span v-if="columns.length > 0">•</span>
           <span v-if="columns.length > 0">{{ columns.length }} colunas</span>
-          <span v-if="columns.length > 0">{{ columns.length }} colunas</span>
           <slot name="extra-info" />
           <template v-if="archivedUrl">
-            <span class="text-n-slate-9 dark:text-n-slate-9">|</span>
+            <span class="text-n-slate-9">|</span>
             <router-link
               :to="archivedUrl"
-              class="hover:text-n-brand dark:hover:text-n-brand hover:underline flex items-center gap-1.5"
+              class="hover:text-n-brand hover:underline flex items-center gap-1.5"
             >
               <span class="i-lucide-box size-3.5 block" />
               Arquivados
@@ -167,7 +167,7 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-2">
+      <div class="flex gap-2">
         <WootButton
           v-if="canCreateCard"
           color="teal"
@@ -188,59 +188,21 @@ onUnmounted(() => {
           <span class="sm:hidden">Coluna</span>
         </WootButton>
 
-        <!-- Slot para botões extras (ex: Refresh na aba Tarefas) -->
         <slot name="actions" />
       </div>
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="flex flex-col items-center justify-center py-12">
-      <div
-        class="animate-spin rounded-full h-12 w-12 border-b-2 border-n-brand mb-4"
-      />
-      <p class="text-n-slate-11">
-        {{ loadingText }}
-      </p>
+    <div v-if="loading" class="flex flex-col items-center justify-center py-12 flex-1">
+      <Spinner :size="48" class="text-n-brand mb-4" />
+      <p class="text-n-slate-11">{{ loadingText }}</p>
     </div>
 
-    <!-- Kanban Board -->
-    <div v-else class="flex-1 min-h-0 relative">
-      <!-- Mobile Controls (Visible only on small screens) -->
-      <div
-        v-if="sortedColumns.length > 0"
-        class="sm:hidden flex justify-between items-center mb-2"
-      >
-        <button
-          :disabled="activeColumnIndex === 0"
-          class="p-2 rounded-full bg-n-alpha-black2 disabled:opacity-50"
-          @click="prevColumn"
-        >
-          ←
-        </button>
-        <span class="text-sm font-medium">
-          {{ activeColumnIndex + 1 }} / {{ sortedColumns.length }}
-        </span>
-        <button
-          :disabled="activeColumnIndex === sortedColumns.length - 1"
-          class="p-2 rounded-full bg-n-alpha-black2 disabled:opacity-50"
-          @click="nextColumn"
-        >
-          →
-        </button>
-      </div>
-
-      <!-- Scrollable Container (Desktop) / Slider (Mobile) -->
-      <div class="h-full flex gap-4 overflow-x-auto pb-4 snap-x flex-nowrap">
+    <!-- Kanban Board Container -->
+    <div v-else class="flex-1 min-h-0">
+      <div class="flex gap-3 pb-4 min-w-max h-full">
         <template v-for="(column, index) in sortedColumns" :key="column.id">
-          <div
-            class="h-full snap-center shrink-0 transition-opacity duration-300"
-            :class="{
-              'block w-full': isMobile,
-              hidden: isMobile && index !== activeColumnIndex,
-              block: !isMobile,
-              'w-80': !isMobile, // Fixed width for desktop columns
-            }"
-          >
+          <div class="flex-shrink-0 w-72 h-full">
             <KanbanColumn
               :column="column"
               :cards="getCardsForColumn(column)"
@@ -262,7 +224,7 @@ onUnmounted(() => {
 
         <div
           v-if="sortedColumns.length === 0"
-          class="w-full flex items-center justify-center border-2 border-dashed border-n-weak rounded-lg"
+          class="w-full flex items-center justify-center border-2 border-dashed border-n-weak rounded-lg h-64"
         >
           <p class="text-n-slate-11">Nenhuma coluna disponível.</p>
         </div>

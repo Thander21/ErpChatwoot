@@ -15,6 +15,9 @@
 <script setup>
 import { ref, reactive } from "vue";
 import BaseTechnicalList from "./BaseTechnicalList.vue";
+import WootButton from "dashboard/components-next/button/Button.vue";
+import WootInput from "dashboard/components-next/input/Input.vue";
+import WootTextArea from "dashboard/components-next/textarea/TextArea.vue";
 
 const props = defineProps({
   networks: { type: Array, default: () => [] },
@@ -59,23 +62,23 @@ function handleAdd() {
   >
     <template #card="{ item }">
       <div class="flex justify-between items-start mb-2">
-        <h4 class="font-bold text-slate-900 dark:text-white">
+        <h4 class="font-bold text-n-slate-12">
           {{ item.network_type }}
         </h4>
         <span
-          class="text-[10px] font-medium px-2 py-0.5 bg-green-50 dark:bg-green-900/40 text-green-600 dark:text-green-300 rounded-full"
+          class="text-[10px] font-medium px-2 py-0.5 bg-n-green-3 text-n-green-11 rounded-full"
         >
           {{ formatDate(item.installed_at) }}
         </span>
       </div>
-      <p class="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 mb-3">
+      <p class="text-sm text-n-slate-11 line-clamp-2 mb-3">
         {{ item.notes }}
       </p>
       <div
-        class="flex items-center gap-2 mt-2 pt-2 border-t border-gray-50 dark:border-slate-700/50 text-[11px] text-slate-400"
+        class="flex items-center gap-2 mt-2 pt-2 border-t border-n-weak text-[11px] text-n-slate-10"
       >
         <div
-          class="w-5 h-5 rounded-full bg-green-50 dark:bg-green-900/30 flex items-center justify-center overflow-hidden border border-green-100 dark:border-green-800"
+          class="w-5 h-5 rounded-full bg-n-green-3 flex items-center justify-center overflow-hidden border border-n-green-6"
         >
           <img
             v-if="item.installed_by?.avatar_url"
@@ -84,11 +87,11 @@ function handleAdd() {
           />
           <span
             v-else
-            class="text-[10px] font-bold text-green-600 dark:text-green-400 capitalize"
+            class="text-[10px] font-bold text-n-green-11 capitalize"
             >{{ item.installed_by?.name?.charAt(0) || "?" }}</span
           >
         </div>
-        <span class="text-slate-500 dark:text-slate-400"
+        <span class="text-n-slate-10"
           >Agente: {{ item.installed_by?.name || "Sistema" }}</span
         >
       </div>
@@ -96,42 +99,44 @@ function handleAdd() {
 
     <template #form>
       <div class="grid grid-cols-2 gap-2">
-        <input
+        <WootInput
           v-model="newNetwork.network_type"
           placeholder="Tipo (ex: Wi-Fi, Cabeada)"
-          class="px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full"
         />
-        <input
+        <WootInput
           v-model="newNetwork.installed_at"
           type="date"
-          class="px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full"
         />
       </div>
-      <input
+      <WootInput
         v-model="newNetwork.infrastructure_details"
         placeholder="Detalhes da infraestrutura (ex: Roteador principal)"
-        class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="w-full"
       />
-      <textarea
+      <WootTextArea
         v-model="newNetwork.notes"
+        label="Observações"
         placeholder="Observações adicionais"
-        rows="2"
-        class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        auto-height
       />
-      <div class="flex gap-2">
-        <button
+      <div class="flex gap-2 pt-2">
+        <WootButton
           :disabled="!newNetwork.network_type || !newNetwork.installed_at"
-          class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+          color="blue"
+          class="flex-1"
           @click="handleAdd"
         >
           Registrar
-        </button>
-        <button
-          class="px-4 py-2 text-slate-500 hover:bg-gray-200 dark:hover:bg-slate-700 text-sm rounded-lg transition-colors"
+        </WootButton>
+        <WootButton
+          variant="outline"
+          color="slate"
           @click="showForm = false"
         >
           Cancelar
-        </button>
+        </WootButton>
       </div>
     </template>
   </BaseTechnicalList>

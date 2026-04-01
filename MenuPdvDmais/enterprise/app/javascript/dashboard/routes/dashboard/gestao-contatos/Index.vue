@@ -18,6 +18,10 @@ import BulkEditModal from "./components/modais/BulkEditModal.vue";
 import BulkDeleteModal from "./components/modais/BulkDeleteModal.vue";
 import CompanyProfile from "./components/CompanyProfile.vue";
 import CustomContactsAPI from "dashboard/api/customContacts";
+import ConfirmModal from "../kanban/components/modais/ConfirmModal.vue";
+import WootButton from "dashboard/components-next/button/Button.vue";
+import WootInput from "dashboard/components-next/input/Input.vue";
+import Spinner from "dashboard/components-next/spinner/Spinner.vue";
 import { emitter } from "shared/helpers/mitt";
 import { BUS_EVENTS } from "shared/constants/busEvents";
 
@@ -57,6 +61,20 @@ const isSyncing = ref(false);
 const isCleaning = ref(false);
 const profileCompany = ref(null); // Empresa selecionada para Ficha do Cliente
 
+// Confirm Modal State
+const showConfirmModal = ref(false);
+const confirmTitle = ref("");
+const confirmMessage = ref("");
+const confirmLabel = ref("Confirmar");
+const confirmColor = ref("red");
+const confirmAction = ref(null);
+const confirmTarget = ref(null);
+
+const currentUserName = computed(() => {
+  const user = store.getters.getCurrentUser;
+  return user?.name || user?.email || "Usuário";
+});
+
 // Abre a ficha do cliente para a empresa
 const openCompanyProfile = (company) => {
   profileCompany.value = company;
@@ -64,12 +82,26 @@ const openCompanyProfile = (company) => {
 
 const accountId = computed(() => store.getters.getCurrentAccountId);
 
-const syncCompanies = async () => {
-  if (
-    confirm(
-      "Isso irá criar empresas baseadas nos nomes preenchidos nos contatos. Deseja continuar?",
-    )
-  ) {
+const syncCompanies = () => {
+  confirmTitle.value = "Sincronizar Empresas";
+  confirmMessage.value = "Isso irá criar empresas baseadas nos nomes preenchidos nos contatos. Deseja continuar?";
+  confirmLabel.value = "Sincronizar";
+  confirmColor.value = "blue";
+  confirmAction.value = "sync";
+  showConfirmModal.value = true;
+};
+
+const cleanupCompanies = () => {
+  confirmTitle.value = "Limpar Empresas";
+  confirmMessage.value = "Isso apagará todas as empresas que não possuem contatos vinculados. Deseja continuar?";
+  confirmLabel.value = "Limpar";
+  confirmColor.value = "red";
+  confirmAction.value = "cleanup";
+  showConfirmModal.value = true;
+};
+
+const handleConfirm = async () => {
+  if (confirmAction.value === "sync") {
     isSyncing.value = true;
     try {
       const response = await CustomContactsAPI.syncCompanies(accountId.value);
@@ -77,25 +109,17 @@ const syncCompanies = async () => {
         message: response.data.message,
         type: "success",
       });
-      refreshContacts(); // Atualiza lista limpando o cache para refletir mudanças
+      refreshContacts();
     } catch (error) {
-      /* debug removed */
       emitter.emit(BUS_EVENTS.SHOW_ALERT, {
         message: "Erro ao sincronizar empresas.",
         type: "error",
       });
     } finally {
       isSyncing.value = false;
+      showConfirmModal.value = false;
     }
-  }
-};
-
-const cleanupCompanies = async () => {
-  if (
-    confirm(
-      "Isso apagará todas as empresas que não possuem contatos vinculados. Deseja continuar?",
-    )
-  ) {
+  } else if (confirmAction.value === "cleanup") {
     isCleaning.value = true;
     try {
       const response = await CustomContactsAPI.cleanupCompanies(
@@ -106,13 +130,28 @@ const cleanupCompanies = async () => {
         type: "success",
       });
     } catch (error) {
-      /* debug removed */
       emitter.emit(BUS_EVENTS.SHOW_ALERT, {
         message: "Erro ao limpar empresas.",
         type: "error",
       });
     } finally {
       isCleaning.value = false;
+      showConfirmModal.value = false;
+    }
+  } else if (confirmAction.value === "delete-contact") {
+    try {
+      await deleteContact(confirmTarget.value.id);
+      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: "Contato deletado com sucesso!",
+        type: "success",
+      });
+    } catch (error) {
+      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
+        message: "Erro ao deletar contato.",
+        type: "error",
+      });
+    } finally {
+      showConfirmModal.value = false;
     }
   }
 };
@@ -231,21 +270,14 @@ const handleInlineUpdate = async ({ id, payload }) => {
 };
 
 // Delete
-const openDeleteModal = async (contact) => {
-  if (confirm(`Tem certeza que deseja deletar ${contact.name}?`)) {
-    try {
-      await deleteContact(contact.id);
-      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
-        message: "Contato deletado com sucesso!",
-        type: "success",
-      });
-    } catch (error) {
-      emitter.emit(BUS_EVENTS.SHOW_ALERT, {
-        message: "Erro ao deletar contato.",
-        type: "error",
-      });
-    }
-  }
+const openDeleteModal = (contact) => {
+  confirmTitle.value = "Excluir Contato";
+  confirmMessage.value = `Tem certeza que deseja deletar ${contact.name}? Toda a história com este contato será removida.`;
+  confirmLabel.value = "Deletar";
+  confirmColor.value = "red";
+  confirmAction.value = "delete-contact";
+  confirmTarget.value = contact;
+  showConfirmModal.value = true;
 };
 
 // Bulk Actions
@@ -373,9 +405,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div
-    class="flex flex-col h-full overflow-hidden w-full max-w-5xl mx-auto gap-4 p-4"
-  >
+  <div class="flex flex-col h-full bg-n-surface-1 p-4 w-full max-w-7xl mx-auto">
     <!-- Header Section (Fixed) -->
     <div class="flex flex-col gap-4 flex-shrink-0">
       <ContactsHeader
@@ -397,67 +427,62 @@ onMounted(() => {
 
       <!-- Search Bar -->
       <div class="flex flex-col sm:flex-row gap-4 w-full">
-        <!-- Company Search -->
         <div class="relative flex-1">
-          <input
-            :value="companySearchQuery"
-            type="text"
+          <WootInput
+            v-model="companySearchQuery"
             placeholder="Pesquisar por empresa..."
-            class="w-full pl-4 pr-12 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-            @input="companySearchQuery = $event.target.value"
+            class="w-full"
+            custom-input-class="pl-4 pr-12"
           />
-          <button
+          <WootButton
             v-if="companySearchQuery"
-            class="absolute inset-y-0 right-0 flex items-center pr-4 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+            variant="ghost"
+            color="ruby"
+            icon="x"
+            size="sm"
+            class="absolute inset-y-0 right-1 my-auto"
             @click="companySearchQuery = ''"
-          >
-            <!-- X mais espesso e vermelho -->
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          />
         </div>
 
-        <!-- General Search -->
         <div class="relative flex-1">
-          <input
-            :value="searchQuery"
-            type="text"
+          <WootInput
+            v-model="searchQuery"
             placeholder="Pesquisar por nome ou telefone..."
-            class="w-full pl-4 pr-12 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-            @input="searchQuery = $event.target.value"
+            class="w-full"
+            custom-input-class="pl-4 pr-12"
           />
-          <button
+          <WootButton
             v-if="searchQuery"
-            class="absolute inset-y-0 right-0 flex items-center pr-4 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+            variant="ghost"
+            color="ruby"
+            icon="x"
+            size="sm"
+            class="absolute inset-y-0 right-1 my-auto"
             @click="searchQuery = ''"
-          >
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          />
         </div>
       </div>
 
       <div class="flex gap-2 w-full">
-        <button
-          :disabled="isSyncing"
-          class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-300 rounded-lg transition-colors text-sm font-medium"
+        <WootButton
+          color="blue"
+          icon="refresh-cw"
+          :is-loading="isSyncing"
+          class="flex-1"
           @click="syncCompanies"
         >
-          <span v-if="isSyncing" class="animate-spin">Wait</span>
-          <span v-else>🔄</span>
           Atualizar Empresas
-        </button>
-        <button
-          :disabled="isCleaning"
-          class="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-300 rounded-lg transition-colors text-sm font-medium"
+        </WootButton>
+        <WootButton
+          color="ruby"
+          icon="trash-2"
+          :is-loading="isCleaning"
+          class="flex-1"
           @click="cleanupCompanies"
         >
-          <span v-if="isCleaning" class="animate-spin">Wait</span>
-          <span v-else>🗑️</span>
           Limpar Vazias
-        </button>
+        </WootButton>
       </div>
 
       <ContactsFilterBar
@@ -468,37 +493,23 @@ onMounted(() => {
     </div>
 
     <!-- Scrollable Content -->
-    <div class="flex-1 overflow-y-auto pr-2 min-h-0 custom-scroll">
+    <div class="flex-1 overflow-y-auto min-h-0">
       <!-- Loading State -->
       <div
         v-if="loading"
         class="flex flex-col items-center justify-center py-12"
       >
-        <div
-          class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"
-        />
-        <p class="text-slate-600 dark:text-slate-400">Carregando contatos...</p>
+        <Spinner :size="48" class="text-n-brand mb-4" />
+        <p class="text-n-slate-11">Carregando contatos...</p>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="filteredContacts.length === 0" class="text-center py-12">
-        <svg
-          class="w-16 h-16 text-gray-400 mx-auto mb-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-          />
-        </svg>
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+        <span class="i-lucide-users size-16 text-n-slate-9 block mx-auto mb-4" />
+        <h3 class="text-lg font-medium text-n-slate-12 mb-2">
           Nenhum contato encontrado
         </h3>
-        <p class="text-gray-500 dark:text-gray-400">
+        <p class="text-n-slate-11">
           {{
             searchQuery || companySearchQuery || activeFilter !== "all"
               ? "Tente alterar os filtros ou a busca."
@@ -568,6 +579,16 @@ onMounted(() => {
       :company="profileCompany"
       :is-open="!!profileCompany"
       @close="profileCompany = null"
+    />
+    <ConfirmModal
+      :show="showConfirmModal"
+      :title="confirmTitle"
+      :message="confirmMessage"
+      :user-name="currentUserName"
+      :confirm-label="confirmLabel"
+      :confirm-color="confirmColor"
+      @confirm="handleConfirm"
+      @cancel="showConfirmModal = false"
     />
   </div>
 </template>

@@ -1,0 +1,21 @@
+{
+  "name": "menupdvdmais",
+  "version": "1.0.0",
+  "description": "",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/eslint-parser": "^7.28.6",
+    "eslint": "^8.57.1",
+    "eslint-plugin-vue": "^10.8.0",
+    "knip": "^6.1.0",
+    "vue": "^3.5.31"
+  }
+}

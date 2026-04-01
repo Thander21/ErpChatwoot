@@ -57,3 +57,14 @@ Para diretrizes específicas, você DEVE consultar os seguintes arquivos antes d
 - `core-patches/`: Arquivos que sobrescrevem o core do Chatwoot.
 - `db/migrate/`: Migrações adicionais do banco de dados.
 - `app/` & `config/`: Interceptações e configurações customizadas.
+
+## 🎨 CSS & Design System Rules
+1. **Schema de CSS**: SEMPRE use o **design system do Chatwoot** com prefixo `n-` (ex: `n-surface-1`, `n-slate-12`, `n-brand`).
+2. **Classes Permitidas**: 
+   - `n-*` (cores, surfaces, borders do Chatwoot)
+   - `i-lucide-*` (ícones Lucide)
+   - Classes Tailwind padrão (spacing, layout, flexbox) apenas quando não houver equivalente `n-*`
+3. **Proibido**: Classes CSS customizadas, cores hardcoded (`#fff`, `rgb()`), ou estilos inline.
+4. **Layout Base**: Use `bg-n-surface-1` para backgrounds principais, `text-n-slate-12` para títulos, `text-n-slate-11` para texto secundário.
+5. **Scroll Horizontal**: Para listas horizontais, use `overflow-x-auto` no container pai + `min-w-max` no conteúdo + `flex-shrink-0` nos itens.
+6. **Componentes Oficiais (Woot)**: SEMPRE priorize reusar os componentes Vue nativos do Chatwoot (ex: `WootButton`, `WootInput`, `WootModal`) ao invés de recriar estruturas na mão usando tags HTML (`<button>`, `<input>`) poluidas com classes. O Tailwind padrão do Chatwoot **NÃO compila cores genéricas** (como `bg-red-600` ou `bg-green-600`). Para ações, importe `WootButton` de `dashboard/components-next/button/Button.vue` e use as propriedades `color="ruby"` (Vermelho), `color="teal"` (Verde Sucesso) ou `color="blue"` (Primário) para garantir a exibição perfeita.

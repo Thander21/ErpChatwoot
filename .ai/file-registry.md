@@ -16,6 +16,8 @@ Estes arquivos são cópias modificadas do core. **Sempre edite a versão em Men
 | `app/javascript/dashboard/components/layout/Sidebar.vue` | `app/javascript/dashboard/components/layout/Sidebar.vue` | Injeção de menus: Kanban, Financeiro, Contatos. |
 | `app/javascript/dashboard/routes/dashboard/dashboard.routes.js` | `app/javascript/dashboard/routes/dashboard/dashboard.routes.js` | Merge de `routeExtensions` Enterprise. |
 | `config/routes.rb` | `config/routes.rb` | Namespace `enterprise` e rotas de API customizadas. |
+| `app/javascript/dashboard/i18n/locale/en/settings.json` | `settings.json` | Customização de labels da interface, como `GESTAO_CONTATOS`. |
+| `docker/entrypoints/rails.sh` | `docker/entrypoints/rails.sh` | Customização do entrypoint do Rails para injetar lógica ou ignorar migrações específicas. |
 
 ---
 

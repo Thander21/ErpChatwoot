@@ -92,20 +92,26 @@
 
 ---
 
-## 🧹 Workflow 6: Auditoria e Limpeza (Dead Code em MenuPdvDmais)
+## 🧹 Workflow 6: Auditoria, Validação Estática e Limpeza
 **Trigger**: Mensalmente ou pós-refatorações estruturais (como a unificação da Ficha).
 
 ### Ferramentas e Comandos Recomendados:
-1. **Ruby (Unused Code)**: `docker compose -f docker-compose-dev.yaml exec rails bundle exec unused | grep MenuPdvDmais` (Encontra métodos não chamados apenas no custom).
-2. **JS (Dead Files/Imports)**: Utilizar a biblioteca `unimported` focada no diretório: `npx unimported --cwd MenuPdvDmais/`.
-3. **JS (Duplicidade Estrutural)**: `docker compose -f docker-compose-dev.yaml exec rails npx jscpd MenuPdvDmais/` (Monitorar blocos de Vue idênticos).
-4. **Segurança**: `docker compose -f docker-compose-dev.yaml exec rails bundle exec brakeman -p MenuPdvDmais/`.
+1. **Knip (JavaScript/Vue)**: O Knip é ideal para detectar arquivos órfãos sem referências.
+2. **Ruby (Unused Code)**: `docker compose -f docker-compose-dev.yaml exec rails bundle exec unused | grep MenuPdvDmais`
+3. **Segurança Brakeman**: `docker compose -f docker-compose-dev.yaml exec rails bundle exec brakeman -p MenuPdvDmais/`
+
+### Passos de Validação Estática (Host Layer):
+// turbo
+1. **Varredura de JS Órfãos**: `cd MenuPdvDmais && npx knip`
+// turbo
+2. **Lint Isolado (Vue/JS)**: `cd MenuPdvDmais && npx eslint --ext .js,.vue enterprise/app/javascript/ --fix`
+// turbo
+3. **Lint Backend (Docker)**: `docker compose -f docker-compose-dev.yaml exec rails bundle exec rubocop -A MenuPdvDmais/`
 
 ### Passos da Limpeza:
-1. **Identificar**: Rodar os comandos acima e apontar arquivos soltos (ex: `ActivityQuickForm.vue` após migração).
-2. **Remover Código Morto Manualmente**: Deletar funções exportadas que não têm mais instâncias de importação no diretório `MenuPdvDmais`.
-3. **Refatoração**: Remover comentários obsoletos de debug (`console.log`, `debugger`, código comentado).
-4. **Validação**: Executar o Workflow 5 para garantir que as remoções não quebraram dependências em cadeia.
+1. **Identificar**: Rodar os comandos acima e localizar arquivos não cobertos.
+2. **Remover Código Morto Manualmente**: Deletar do repositório componentes não listados no entrypoint.
+3. **Validação**: Subir a infra local e garantir que não quebrou dependências.
 
 ---
 

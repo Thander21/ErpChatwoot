@@ -1,0 +1,8 @@
+{
+  "entry": [
+    "enterprise/app/javascript/dashboard/routes/initializeRoutes.js",
+    "enterprise/app/javascript/dashboard/routes/routeExtensions.js",
+    "enterprise/app/javascript/dashboard/composables/useEnterpriseSidebar.js"
+  ],
+  "project": ["enterprise/app/javascript/**/*.{js,vue}"]
+}

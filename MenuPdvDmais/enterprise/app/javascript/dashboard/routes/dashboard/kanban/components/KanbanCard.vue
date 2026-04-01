@@ -9,6 +9,7 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 import Avatar from "dashboard/components-next/avatar/Avatar.vue";
+import WootButton from "dashboard/components-next/button/Button.vue";
 
 const props = defineProps({
   card: {
@@ -224,25 +225,25 @@ class="text-n-slate-10 italic text-[10px]"
     <div
       class="absolute top-2 right-2 flex gap-1 bg-n-surface-1/90 backdrop-blur-sm rounded p-0.5"
     >
-      <!-- Botão de Arquivar (Apenas última coluna) -->
-      <button
+      <WootButton
         v-if="isLastColumn"
-        class="text-n-slate-10 hover:text-n-teal-9 p-1 rounded transition-colors"
+        variant="ghost"
+        color="teal"
+        size="xs"
+        icon="inbox"
         title="Arquivar"
         @click.stop="$emit('archive')"
-      >
-        <span class="i-lucide-inbox size-3.5 block" />
-      </button>
+      />
 
-      <!-- Botão de Excluir (Demais colunas) -->
-      <button
+      <WootButton
         v-if="!isLastColumn"
-        class="text-n-ruby-9 hover:bg-n-ruby-2 p-1 rounded transition-colors"
+        variant="ghost"
+        color="ruby"
+        size="xs"
+        icon="trash"
         title="Excluir"
         @click.stop="$emit('delete')"
-      >
-        <span class="i-lucide-trash-2 size-3.5 block" />
-      </button>
+      />
     </div>
   </div>
 </template>
