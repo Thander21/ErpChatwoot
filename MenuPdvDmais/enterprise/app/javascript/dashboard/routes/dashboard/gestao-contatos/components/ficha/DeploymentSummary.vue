@@ -15,7 +15,6 @@
 <script setup>
 import { computed, ref, watch } from "vue";
 import WootButton from "dashboard/components-next/button/Button.vue";
-import WootSelect from "dashboard/components-next/select/Select.vue";
 
 const props = defineProps({
   deployment: { type: Object, required: true },
@@ -63,24 +62,6 @@ const counters = computed(() => [
   },
 ]);
 
-const statusClass = computed(() => {
-  const map = {
-    pending:
-      "bg-n-yellow-3 text-n-yellow-11",
-    in_progress:
-      "bg-n-blue-3 text-n-blue-11",
-    completed:
-      "bg-n-green-3 text-n-green-11",
-    on_hold: "bg-n-slate-3 text-n-slate-11",
-  };
-  return map[props.deployment.status] || map.pending;
-});
-
-function formatDate(dateStr) {
-  if (!dateStr) return "";
-  return new Date(dateStr).toLocaleDateString("pt-BR");
-}
-
 function formatDateTime(dateStr) {
   if (!dateStr) return "";
   return new Date(dateStr).toLocaleString("pt-BR", {
@@ -92,13 +73,6 @@ function formatDateTime(dateStr) {
   });
 }
  
-const statusOptions = [
-  { value: "pending", label: "⏳ Pendente" },
-  { value: "in_progress", label: "🔄 Em andamento" },
-  { value: "completed", label: "✅ Concluído" },
-  { value: "on_hold", label: "⏸️ Pausado" },
-];
-
 // --- PAGINAÇÃO E ORDENAÇÃO DE ATIVIDADES GERAIS ---
 const currentPage = ref(1);
 const itemsPerPage = 5; // Resumo mostra 5.
@@ -152,47 +126,6 @@ function getActivityIcon(type) {
 
 <template>
   <div class="p-4 space-y-4">
-    <!-- Card de implantação ativa -->
-    <div
-      class="bg-n-brand/5 border border-n-brand/10 rounded-xl p-4"
-    >
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex-1">
-          <h3
-            class="font-semibold text-n-slate-12 text-sm leading-tight"
-          >
-            {{ deployment.title }}
-          </h3>
-          <p
-            v-if="deployment.started_at"
-            class="text-xs text-n-slate-11 mt-0.5"
-          >
-            Início: {{ formatDate(deployment.started_at) }}
-          </p>
-        </div>
-        <!-- Badge de status -->
-        <WootSelect
-          :model-value="deployment.status"
-          :options="statusOptions"
-          class="min-w-[140px]"
-          @update:model-value="$emit('update-status', $event)"
-        />
-      </div>
-
-      <!-- Técnico responsável -->
-      <div
-        v-if="deployment.assignee"
-        class="flex items-center gap-2 text-xs text-n-slate-11"
-      >
-        <div
-          class="w-6 h-6 bg-n-brand/10 rounded-full flex items-center justify-center text-n-brand font-bold text-xs"
-        >
-          {{ deployment.assignee.name?.[0]?.toUpperCase() }}
-        </div>
-        <span>{{ deployment.assignee.name }}</span>
-      </div>
-    </div>
-
     <!-- Próxima visita em destaque -->
     <div
       v-if="nextSchedule"

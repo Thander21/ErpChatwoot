@@ -1,9 +1,9 @@
 <!--
  * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/kanban/components/modais/KanbanCardModal.vue
- * Last Modified: 21/03/2026
+ * Last Modified: 07/05/2026
  * Dependencies: vue
  * Calls: -
- * Description: (Adicionar descrição em português)
+ * Description: Modal de criação/edição de card do Kanban comercial; corpo rolável e ações fixas no rodapé.
 -->
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";
@@ -311,14 +311,21 @@ const handleArchive = () => {
   <div
     v-if="show"
     class="fixed inset-0 bg-n-overlay flex items-center justify-center z-50"
+    @click.self="$emit('close')"
   >
     <div
-      class="bg-n-solid-1 border border-n-weak rounded-lg p-6 w-full max-w-md mx-4 shadow-xl"
+      class="bg-n-solid-1 border border-n-weak rounded-lg p-6 w-full max-w-md mx-4 shadow-xl max-h-[90vh] min-h-0 flex flex-col overflow-hidden"
     >
-      <h2 class="text-xl font-bold mb-4 text-n-slate-12">
+      <h2 class="text-xl font-bold mb-4 text-n-slate-12 flex-shrink-0">
         {{ isEditing ? "Editar Card" : "Novo Card" }}
       </h2>
-      <form class="space-y-4" @submit.prevent="handleSubmit">
+      <form
+        class="flex min-h-0 flex-1 flex-col overflow-hidden"
+        @submit.prevent="handleSubmit"
+      >
+        <div
+          class="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden pr-1"
+        >
         <!-- Seção de Relacionamentos movida para o topo -->
         <div class="space-y-3">
           <div>
@@ -418,14 +425,16 @@ const handleArchive = () => {
             label="Data de vencimento"
           />
         </div>
+        </div>
 
         <div
-          class="flex gap-2 pt-4"
+          class="mt-4 flex flex-shrink-0 flex-wrap gap-2 border-t border-n-weak pt-4"
           :class="isEditing ? 'justify-between' : 'justify-end'"
         >
           <!-- Delete and Archive buttons (only when editing) -->
-          <div v-if="isEditing" class="flex gap-2">
+          <div v-if="isEditing" class="flex flex-wrap gap-2">
             <WootButton
+              type="button"
               color="ruby"
               :is-loading="loading"
               @click="handleDelete"
@@ -435,6 +444,7 @@ const handleArchive = () => {
 
             <WootButton
               v-if="isLastColumn"
+              type="button"
               color="teal"
               :is-loading="loading"
               @click="handleArchive"
@@ -444,8 +454,9 @@ const handleArchive = () => {
           </div>
 
           <!-- Regular action buttons -->
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <WootButton
+              type="button"
               variant="outline"
               color="slate"
               @click="$emit('close')"

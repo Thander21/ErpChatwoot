@@ -1,9 +1,9 @@
 <!--
  * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/gestao-contatos/Index.vue
- * Last Modified: 21/03/2026
+ * Last Modified: 07/05/2026
  * Dependencies: vue
  * Calls: -
- * Description: (Adicionar descrição em português)
+ * Description: Página de gestão de contatos; rolagem unificada no mobile e lista rolável no desktop.
 -->
 <script setup>
 import { ref, computed, onMounted } from "vue";
@@ -405,9 +405,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full bg-n-surface-1 p-4 w-full max-w-7xl mx-auto">
-    <!-- Header Section (Fixed) -->
-    <div class="flex flex-col gap-4 flex-shrink-0">
+  <div
+    class="flex h-full min-h-0 flex-1 flex-col bg-n-surface-1 w-full max-w-7xl mx-auto"
+  >
+    <!-- Mobile: scroll inclui stats + filtros + lista. md+: só a lista rola. -->
+    <div
+      class="flex min-h-0 max-h-[100dvh] flex-1 flex-col overflow-y-auto overscroll-y-contain pb-20 md:max-h-none md:overflow-hidden md:pb-4"
+    >
+    <!-- Header Section -->
+    <div class="flex flex-col gap-4 flex-shrink-0 p-4 pb-0 md:pb-4">
       <ContactsHeader
         :search-query="searchQuery"
         :loading="loading"
@@ -492,8 +498,10 @@ onMounted(() => {
       />
     </div>
 
-    <!-- Scrollable Content -->
-    <div class="flex-1 overflow-y-auto min-h-0">
+    <!-- Lista: no desktop rola sozinha; no mobile segue o fluxo do scroll do pai -->
+    <div
+      class="px-4 pb-4 min-h-0 md:flex-1 md:overflow-y-auto"
+    >
       <!-- Loading State -->
       <div
         v-if="loading"
@@ -546,6 +554,7 @@ onMounted(() => {
         @update-inline="handleInlineUpdate"
         @open-profile="openCompanyProfile"
       />
+    </div>
     </div>
 
     <!-- Modals -->

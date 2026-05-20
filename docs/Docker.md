@@ -13,6 +13,8 @@ docker volume prune -a -f
 # 2. Rodar a migração
 
 docker compose -f docker-compose-dev.yaml run --rm rails bundle exec rails db:migrate
+ou
+docker compose -f docker-compose-dev.yaml exec rails bundle exec rails db:migrate
 
 ## Limpeza Seletiva (se preferir controle):
 
@@ -23,7 +25,7 @@ docker volume prune -a -f         # Remove volumes órfãos
 
 docker builder prune -a -f        # Remove build cache
 
-remove tudo
+#remove tudo
 docker system prune -a --volumes
 ```
 

@@ -1,3 +1,12 @@
+#
+# File: script/fix_user.rb
+# Last Modified: 06/05/2026
+# Dependencies: rails, redis (Redis::Alfred)
+# Calls: -
+# Description: Cria ou atualiza SuperAdmin, garante vínculo administrador na conta,
+#   conta ativa e libera o dashboard limpando o onboarding de instalação no Redis.
+#
+
 # docker compose -f docker-compose-dev.yaml exec -T rails bundle exec rails runner - < script/fix_user.rb
 
 email = 'teste@teste.com'
@@ -14,8 +23,13 @@ sa.confirmed_at = Time.current
 sa.save!
 
 account = Account.first_or_create!(name: 'Dev Account')
-AccountUser.find_or_create_by!(user_id: sa.id, account_id: account.id) do |au|
-  au.role = :administrator
-end
+account.update!(status: :active)
 
-puts 'Single user created and given both SuperAdmin and Account Admin access!'
+account_user = AccountUser.find_or_initialize_by(user_id: sa.id, account_id: account.id)
+account_user.role = :administrator
+account_user.save!
+
+# Sem isso o DashboardController redireciona para /installation/onboarding e parece que a “empresa” não está ativa.
+Redis::Alfred.delete(Redis::Alfred::CHATWOOT_INSTALLATION_ONBOARDING)
+
+puts 'SuperAdmin OK, AccountUser administrator, account active, installation onboarding Redis key cleared.'

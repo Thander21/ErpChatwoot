@@ -1,6 +1,6 @@
 /*
  * File: MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/kanban/composables/useKanban.js
- * Last Modified: 21/03/2026
+ * Last Modified: 06/05/2026
  * Dependencies: -
  * Calls: -
  * Description: (Adicionar descrição em português)
@@ -137,7 +137,9 @@ export function useKanban() {
 
   const createColumn = async (columnData) => {
     try {
-      const response = await KanbanColumnsAPI.create(columnData);
+      const response = await KanbanColumnsAPI.create({
+        kanban_column: columnData,
+      });
       if (response.data) {
         columns.value.push(response.data);
         return response.data;
@@ -151,7 +153,9 @@ export function useKanban() {
 
   const updateColumn = async (columnId, columnData) => {
     try {
-      const response = await KanbanColumnsAPI.update(columnId, columnData);
+      const response = await KanbanColumnsAPI.update(columnId, {
+        kanban_column: columnData,
+      });
       if (response.data) {
         const index = columns.value.findIndex((c) => c.id === columnId);
         if (index !== -1) {

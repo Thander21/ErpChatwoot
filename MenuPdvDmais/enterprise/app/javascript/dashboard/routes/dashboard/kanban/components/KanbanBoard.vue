@@ -85,6 +85,13 @@ const sortedColumns = computed(() => {
 
 const totalCards = computed(() => props.cards.length);
 
+const getDueDateTimestamp = card => {
+  if (!card?.due_date) return null;
+  const parsed = new Date(card.due_date);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed.getTime();
+};
+
 const getCardsForColumn = (column) => {
   if (props.cardsFilter) {
     return props.cardsFilter(props.cards, column);
@@ -93,7 +100,17 @@ const getCardsForColumn = (column) => {
   // Note: Ensure types match (string vs int)
   return props.cards
     .filter((card) => card.kanban_column_id == column.id)
-    .sort((a, b) => (a.position || 0) - (b.position || 0));
+    .sort((a, b) => {
+      const dueA = getDueDateTimestamp(a);
+      const dueB = getDueDateTimestamp(b);
+
+      // Older due dates first. Cards without due date go to the end.
+      if (dueA !== null && dueB !== null && dueA !== dueB) return dueA - dueB;
+      if (dueA !== null && dueB === null) return -1;
+      if (dueA === null && dueB !== null) return 1;
+
+      return (a.position || 0) - (b.position || 0);
+    });
 };
 
 // Mobile State

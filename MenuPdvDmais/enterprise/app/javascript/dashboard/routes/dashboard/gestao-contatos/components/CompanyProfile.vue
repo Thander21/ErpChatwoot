@@ -255,7 +255,7 @@ async function handleRemoveTraining(trainingId) {
         <WootButton
           variant="ghost"
           color="slate"
-          icon="x"
+          icon="i-lucide-x"
           size="sm"
           @click="$emit('close')"
         />
