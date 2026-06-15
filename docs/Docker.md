@@ -51,8 +51,7 @@ docker system df -v
 docker compose exec rails bundle exec rails runner "
 InstallationConfig.find_or_create_by(name: 'INSTALLATION_PRICING_PLAN').update(value: 'enterprise')
 InstallationConfig.find_or_create_by(name: 'INSTALLATION_PRICING_PLAN_QUANTITY').update(value: 999999)
-puts 'Licença enterprise configurada!'
-"
+puts 'Licença enterprise configurada!'"
 
 # rodar em prod no coolify no terminal do rails
 
@@ -90,3 +89,4 @@ docker exec erpchatwoot-rails-1 bundle exec rails runner '
   puts "Acesso liberado a ambas as interfaces!"
 '
 ```
+docker exec erpchatwoot-rails-1 bundle exec rails runner "::Redis::Alfred.delete(::Redis::Alfred::CHATWOOT_INSTALLATION_ONBOARDING)"

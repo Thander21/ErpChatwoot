@@ -52,6 +52,7 @@ const form = ref({
   company_id: "",
   contact_id: "",
   assignee_id: "",
+  implementer_id: "",
 });
 
 const companies = ref([]);
@@ -247,6 +248,7 @@ watch(
         company_id: "",
         contact_id: "",
         assignee_id: "",
+        implementer_id: "",
       };
       // Reset selected company
       selectedCompany.value = null;
@@ -316,7 +318,7 @@ const handleArchive = () => {
     <div
       class="bg-n-solid-1 border border-n-weak rounded-lg p-6 w-full max-w-md mx-4 shadow-xl max-h-[90vh] min-h-0 flex flex-col overflow-hidden"
     >
-      <h2 class="text-xl font-bold mb-4 text-n-slate-12 flex-shrink-0">
+      <h2 class="text-xl font-bold mb-2 text-n-slate-12 flex-shrink-0">
         {{ isEditing ? "Editar Card" : "Novo Card" }}
       </h2>
       <form
@@ -327,7 +329,7 @@ const handleArchive = () => {
           class="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden pr-1"
         >
         <!-- Seção de Relacionamentos movida para o topo -->
-        <div class="space-y-3">
+        <div class="space-y-2">
           <div>
             <label
               class="block text-sm font-medium text-n-slate-11 mb-1"
@@ -348,6 +350,9 @@ const handleArchive = () => {
           </div>
 
           <div>
+            <label class="block text-sm font-medium text-n-slate-11 mb-1">
+              Contato *
+            </label>
             <ComboBox
               v-model="form.contact_id"
               :options="contacts"
@@ -368,6 +373,9 @@ const handleArchive = () => {
           </div>
 
           <div>
+            <label class="block text-sm font-medium text-n-slate-11 mb-1">
+              Vendedor *
+            </label>
             <WootSelect
               v-model="form.assignee_id"
               label="Vendedor *"
@@ -397,8 +405,11 @@ const handleArchive = () => {
           />
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-2">
           <div>
+            <label class="block text-sm font-medium text-n-slate-11 mb-1">
+              Coluna *
+            </label>
             <WootSelect
               v-model="form.kanban_column_id"
               label="Coluna *"
@@ -409,6 +420,9 @@ const handleArchive = () => {
           </div>
 
           <div>
+            <label class="block text-sm font-medium text-n-slate-11 mb-1">
+              Prioridade
+            </label>
             <WootSelect
               v-model="form.priority"
               label="Prioridade"
@@ -418,17 +432,32 @@ const handleArchive = () => {
           </div>
         </div>
 
-        <div>
-          <WootInput
-            v-model="form.due_date"
-            type="date"
-            label="Data de vencimento"
-          />
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-sm font-medium text-n-slate-11 mb-1">
+              Implantador
+            </label>
+            <WootSelect
+              v-model="form.implementer_id"
+              label="Implantador"
+              :options="agentOptions"
+              placeholder="Selecione um implantador"
+              class="w-full"
+            />
+          </div>
+
+          <div>
+            <WootInput
+              v-model="form.due_date"
+              type="date"
+              label="Data de implantação"
+            />
+          </div>
         </div>
         </div>
 
         <div
-          class="mt-4 flex flex-shrink-0 flex-wrap gap-2 border-t border-n-weak pt-4"
+          class="mt-2 flex flex-shrink-0 flex-wrap gap-2 border-t border-n-weak pt-4"
           :class="isEditing ? 'justify-between' : 'justify-end'"
         >
           <!-- Delete and Archive buttons (only when editing) -->

@@ -6,6 +6,7 @@ class KanbanCard < ApplicationRecord
   belongs_to :contact, optional: true
   belongs_to :company, class_name: 'Company', optional: true
   belongs_to :assignee, class_name: 'User', optional: true
+  belongs_to :implementer, class_name: 'User', optional: true
   belongs_to :archived_by, class_name: 'User', optional: true
 
   validates :title, presence: true

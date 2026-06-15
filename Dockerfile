@@ -115,7 +115,7 @@ COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/deploymentTrainings.js
 COPY MenuPdvDmais/enterprise/app/helpers/enterprise_helper.rb /app/app/helpers/
 # 4. Configs
 # COPY MenuPdvDmais/vite.config.ts /app/
-RUN sed -i "s|      assets: path.resolve('./app/javascript/dashboard/assets'),|      assets: path.resolve('./app/javascript/dashboard/assets'),\n      enterprise: path.resolve('./enterprise'),|" ./vite.config.ts
+RUN sed -i "s|  assets: path.resolve('./app/javascript/dashboard/assets'),|  assets: path.resolve('./app/javascript/dashboard/assets'),\n  enterprise: path.resolve('./enterprise'),|" ./vite.shared.ts
 
 # 5. Generic App/Config Overlays (Models, Initializers)
 COPY MenuPdvDmais/app /app/app

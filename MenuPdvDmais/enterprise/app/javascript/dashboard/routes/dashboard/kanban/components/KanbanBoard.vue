@@ -161,7 +161,7 @@ const onDrop = (event, columnId) => {
 <template>
   <div class="flex flex-col h-full bg-n-surface-1">
     <!-- Header com controles -->
-    <div class="flex items-center justify-between mb-4 flex-shrink-0">
+    <div class="flex items-center justify-between mb-1 flex-shrink-0">
       <div class="flex items-center gap-3">
         <h2 class="text-xl font-semibold text-n-slate-12">
           {{ title }}
@@ -217,7 +217,7 @@ const onDrop = (event, columnId) => {
 
     <!-- Kanban Board Container -->
     <div v-else class="flex-1 min-h-0">
-      <div class="flex gap-3 pb-4 min-w-max h-full">
+      <div class="flex gap-2 pb-4 min-w-max h-full">
         <template v-for="(column, index) in sortedColumns" :key="column.id">
           <div class="flex-shrink-0 w-72 h-full">
             <KanbanColumn

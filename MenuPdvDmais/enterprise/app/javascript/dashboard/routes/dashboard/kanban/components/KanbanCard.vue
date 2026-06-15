@@ -128,7 +128,7 @@ const formattedDate = computed(() => {
 
 <template>
   <div
-    class="kanban-card-container group bg-n-surface-1 rounded-lg p-3 shadow-sm hover:shadow-md transition-all active:cursor-grabbing flex flex-col gap-2 cursor-grab relative overflow-hidden border border-n-weak"
+    class="kanban-card-container group bg-n-surface-1 rounded-lg p-2 shadow-sm hover:shadow-md transition-all active:cursor-grabbing flex flex-col cursor-grab relative overflow-hidden border border-n-weak"
     :style="{
       borderLeftWidth: showPriorityColor ? '4px' : '1px',
       borderLeftColor: showPriorityColor ? getPriorityColor(card.priority) : '',
@@ -140,7 +140,7 @@ const formattedDate = computed(() => {
     <!-- Header: Empresa/Contato -->
     <div
       v-if="card.company || card.contact"
-      class="border-b border-n-weak pb-2 mb-1"
+      class="border-b border-n-weak mb-1"
     >
       <router-link
         v-if="card.contact"
@@ -189,27 +189,48 @@ const formattedDate = computed(() => {
       {{ card.description }}
     </p>
 
-    <!-- Linha 3: Vendedor e Data -->
+    <!-- Linha 3: Vendedor/Implantador e Data -->
     <div
-      class="flex items-center justify-between text-xs pt-2 mt-auto border-t border-transparent"
+      class="flex items-center justify-between text-xs mt-auto border-t border-transparent"
     >
       <div class="flex items-center gap-1.5 max-w-[60%]">
         <div
-          v-if="card.assignee"
+          v-if="card.implementer"
+          class="flex items-center gap-2 text-n-slate-12 truncate font-medium"
+          :title="`Implantador: ${card.implementer.name}`"
+        >
+          <div class="rounded-full ring-2 ring-n-ruby-9 flex-shrink-0">
+            <Avatar
+              :name="card.implementer.name || card.implementer.available_name"
+              :src="card.implementer.thumbnail"
+              :size="20"
+              :rounded-full="true"
+            />
+          </div>
+          <div class="flex flex-col items-start leading-tight">
+            <span class="text-[9px] text-n-slate-10 uppercase font-semibold">Implantador</span>
+            <span class="text-xs">{{ card.implementer.name }}</span>
+          </div>
+        </div>
+        <div
+          v-else-if="card.assignee"
           class="flex items-center gap-2 text-n-slate-12 truncate font-medium"
           :title="`Vendedor: ${card.assignee.name}`"
         >
-          <Avatar
-            :name="card.assignee.name || card.assignee.available_name"
-            :src="card.assignee.thumbnail"
-            :size="20"
-            :rounded-full="true"
-          />
-          <span class="text-xs">{{ card.assignee.name }}</span>
+          <div class="rounded-full ring-2 ring-purple-500 flex-shrink-0">
+            <Avatar
+              :name="card.assignee.name || card.assignee.available_name"
+              :src="card.assignee.thumbnail"
+              :size="20"
+              :rounded-full="true"
+            />
+          </div>
+          <div class="flex flex-col items-start leading-tight">
+            <span class="text-[9px] text-n-slate-10 uppercase font-semibold">Vendedor</span>
+            <span class="text-xs">{{ card.assignee.name }}</span>
+          </div>
         </div>
-        <span v-else
-class="text-n-slate-10 italic text-[10px]"
-          >Não atribuído</span>
+        <span v-else class="text-n-slate-10 italic text-[10px]">Não atribuído</span>
       </div>
 
       <div

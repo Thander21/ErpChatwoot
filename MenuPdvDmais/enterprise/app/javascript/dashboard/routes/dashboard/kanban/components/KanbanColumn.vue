@@ -51,9 +51,9 @@ defineEmits([
 
 <template>
   <div class="flex-shrink-0 w-72 sm:w-80 h-full max-h-full flex flex-col">
-    <div class="bg-n-solid-1 rounded-lg p-4 flex flex-col h-full max-h-full">
+    <div class="bg-n-solid-1 rounded-lg p-3 flex flex-col h-full max-h-full">
       <!-- Column Header -->
-      <div class="flex items-center justify-between mb-4 flex-shrink-0">
+      <div class="flex items-center justify-between mb-2 flex-shrink-0">
         <div class="flex items-center gap-2">
           <div
             class="w-3 h-3 rounded-full"

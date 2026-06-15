@@ -29,9 +29,9 @@ const onTabChange = (index) => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full bg-n-surface-1 p-4 overflow-x-auto">
+  <div class="flex flex-col h-full bg-n-surface-1 p-2 overflow-x-auto">
     <!-- Abas -->
-    <div class="mb-4 flex-shrink-0">
+    <div class="mb-1 flex-shrink-0">
       <Tabs :index="activeTab" @change="onTabChange">
         <TabsItem
           v-for="(tab, index) in tabs"
