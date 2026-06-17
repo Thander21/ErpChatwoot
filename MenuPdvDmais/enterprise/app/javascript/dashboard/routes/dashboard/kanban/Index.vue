@@ -13,14 +13,16 @@ ERP Chatwoot - Kanban Index Component
 import { ref } from "vue";
 import KanbanTarefa from "./components/KanbanTarefa.vue";
 import KanbanComercial from "./components/KanbanComercial.vue";
+import KanbanAgenda from "./components/KanbanAgenda.vue";
 import Tabs from "dashboard/components/ui/Tabs/Tabs.vue";
 import TabsItem from "dashboard/components/ui/Tabs/TabsItem.vue";
 
-// Estado da aba ativa (0: Tarefa, 1: Comercial)
+// Estado da aba ativa (0: Tarefa, 1: Comercial, 2: Agenda)
 const activeTab = ref(1);
 const tabs = [
   { key: "tarefa", name: "Tarefas", icon: "clipboard-task-list-ltr" },
   { key: "comercial", name: "Comercial", icon: "briefcase" },
+  { key: "agenda", name: "Agenda", icon: "calendar" },
 ];
 
 const onTabChange = (index) => {
@@ -51,6 +53,10 @@ const onTabChange = (index) => {
 
     <div v-if="activeTab === 1" class="flex-1 min-h-0">
       <KanbanComercial />
+    </div>
+
+    <div v-if="activeTab === 2" class="flex-1 min-h-0">
+      <KanbanAgenda />
     </div>
   </div>
 </template>

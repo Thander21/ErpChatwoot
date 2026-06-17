@@ -28,6 +28,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  hideActions: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 defineEmits(["dragstart", "edit", "delete", "archive"]);
@@ -244,6 +248,7 @@ const formattedDate = computed(() => {
 
     <!-- Botões -->
     <div
+      v-if="!hideActions"
       class="absolute top-2 right-2 flex gap-1 bg-n-surface-1/90 backdrop-blur-sm rounded p-0.5"
     >
       <WootButton
