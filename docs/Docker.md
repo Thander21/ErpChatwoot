@@ -4,8 +4,8 @@ df -h /
 
 # 1. Parar os containers
 
-docker compose -f docker compose-dev.yaml stop
-docker compose -f docker compose-dev.yaml down  
+docker compose -f docker-compose-dev.yaml stop
+docker compose -f docker-compose-dev.yaml down  
 DOCKER_BUILDKIT=1 docker compose -f docker-compose-dev.yaml up -d --build
 docker image prune -a -f  
 docker volume prune -a -f
@@ -23,7 +23,7 @@ echo "🧹 Limpando cache Docker..."
 docker image prune -a -f      # Remove imagens não usadas
 docker volume prune -a -f         # Remove volumes órfãos
 
-docker builder prune -a -f        # Remove build cache
+docker buildx prune -a -f        # Remove build cache
 
 #remove tudo
 docker system prune -a --volumes

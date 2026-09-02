@@ -103,7 +103,7 @@ COPY MenuPdvDmais/core-patches/settings.json /app/app/javascript/dashboard/i18n/
 COPY MenuPdvDmais/core-patches/config/routes.rb /app/config/routes.rb
 COPY MenuPdvDmais/core-patches/docker/entrypoints/rails.sh /app/docker/entrypoints/rails.sh
 # 3. Migrations
-COPY MenuPdvDmais/db/migrate /app/db/migrate
+COPY MenuPdvDmais/db/migrate/. /app/db/migrate/
 # 3.1 API Patches
 COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/kanbanCards.js /app/app/javascript/dashboard/api/
 COPY MenuPdvDmais/enterprise/app/javascript/dashboard/api/kanbanColumns.js /app/app/javascript/dashboard/api/

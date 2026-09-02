@@ -43,10 +43,11 @@ Arquivos 100% proprietários, organizados por domínio.
 - **Página**: `MenuPdvDmais/enterprise/app/javascript/dashboard/routes/dashboard/boletos/Index.vue`
 - **Propósito**: Renderização de Iframe para sistemas financeiros externos.
 
-### 🔌 Core Extensions (Composables/API)
+### 🔌 Core Extensions (Composables/API/Initializers)
 - **Composables**: `useEnterpriseSidebar.js`, `useKanban.js`, `useContacts.js`
 - **API Clients**: `kanbanColumns.js`, `kanbanCards.js`, `customContacts.js`
 - **Routes**: `initializeRoutes.js`, `routeExtensions.js`
+- **Initializers**: `whatsapp_agent_prefix.rb` (Injeção automática do nome do atendente no WhatsApp)
 
 ---
 
